@@ -1,5 +1,7 @@
 #include "Server.hpp"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <cstring>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -20,8 +22,7 @@ Server::~Server() {
 }
 
 void Server::initServer() {
-	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_fd == 0) {
+	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
 		std::cerr << "Socket creation error" << std::endl;
 		exit(EXIT_FAILURE);
 	}
@@ -46,6 +47,13 @@ void Server::initServer() {
 		std::cerr << "Listen error" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+}
+
+static std::string readFile(const std::string& filePath) {
+    std::ifstream file(filePath);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
 }
 
 void Server::run() {
@@ -75,15 +83,18 @@ void Server::run() {
 					}
 				} else {
 					char buffer[BUFFER_SIZE];
-					int bytes_read = read(i, buffer, sizeof(buffer));
+					int bytes_read = recv(i, buffer, sizeof(buffer), 0);
 					if (bytes_read <= 0) {
 						close(i);
 						FD_CLR(i, &master_set);
 					} else {
 						buffer[bytes_read] = '\0';
-						std::cout << "Received: " << buffer << std::endl;
-						std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, world!";
-						send(i, response.c_str(), response.size(), 0);
+						std::cout << "Received (" << bytes_read << "): " << buffer << std::endl;
+						std::string indexHtml = readFile("index.html");
+						// std::cout << indexHtml << std::endl;
+						// std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, world!";
+						send(i, indexHtml.c_str(), indexHtml.size(), 0);
+						// send(i, response.c_str(), response.size(), 0);
 					}
 				}
 			}
