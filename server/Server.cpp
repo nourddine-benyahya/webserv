@@ -1,103 +1,82 @@
+
+
 #include "Server.hpp"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstring>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/select.h>
 
-#define PORT 8080
-#define BUFFER_SIZE 1024
+static void printAddressInfo(struct sockaddr_in& addr) {
+	std::cout << "Address Info :\n"
+    			<< " IP family: " << ((addr.sin_family == AF_INET)? "IPv4":"NONE") << std::endl;
+    std::cout << " Port: " << ntohs(addr.sin_port) << std::endl;
+    // std::cout << "Address: " << inet_ntoa(addr.sin_addr) << std::endl;
+}
 
-Server::Server() {
+
+Server::Server(struct sockaddr_in& address): address(address) {
+	// this->address = address;
+	// printAdressInfo(this->address);
 	initServer();
 }
 
 Server::~Server() {
-	close(server_fd);
+	// close(server_fd);
 }
+
+void Server::readServerInfo(){
+	std::cout << "Server " << std::endl;
+	printAddressInfo(this->address);
+}
+
+int Server::getServerFd(){
+	return this->server_fd;
+}
+
 
 void Server::initServer() {
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-		std::cerr << "Socket creation error" << std::endl;
-		exit(EXIT_FAILURE);
+	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		throw Server::ServerException("Socket creation error");
 	}
-
 	int opt = 1;
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-		std::cerr << "Setsockopt error" << std::endl;
-		exit(EXIT_FAILURE);
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		throw Server::ServerException("Setsockopt error");
 	}
-
-	struct sockaddr_in address;
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(PORT);
-
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-		std::cerr << "Bind error" << std::endl;
-		exit(EXIT_FAILURE);
+		throw Server::ServerException("Bind error");
 	}
-
 	if (listen(server_fd, 3) < 0) {
-		std::cerr << "Listen error" << std::endl;
-		exit(EXIT_FAILURE);
+		throw Server::ServerException("Listen error");
 	}
 }
 
-static std::string readFile(const std::string& filePath) {
-    std::ifstream file(filePath);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
+// builder
+
+Server Server::Builder::build() {
+	return Server(address);
 }
 
-void Server::run() {
-	fd_set master_set, working_set;
-	FD_ZERO(&master_set);
-	FD_SET(server_fd, &master_set);
-	int max_sd = server_fd;
+Server::Builder::Builder() {
+	this->address.sin_family = AF_INET;
+	this->address.sin_addr.s_addr = INADDR_ANY;
+	this->address.sin_port = htons(80);
+}
 
-	while (true) {
-		memcpy(&working_set, &master_set, sizeof(master_set));
-		if (select(max_sd + 1, &working_set, NULL, NULL, NULL) < 0) {
-			std::cerr << "Select error" << std::endl;
-			exit(EXIT_FAILURE);
-		}
 
-		for (int i = 0; i <= max_sd; ++i) {
-			if (FD_ISSET(i, &working_set)) {
-				if (i == server_fd) {
-					int new_socket = accept(server_fd, NULL, NULL);
-					if (new_socket < 0) {
-						std::cerr << "Accept error" << std::endl;
-						exit(EXIT_FAILURE);
-					}
-					FD_SET(new_socket, &master_set);
-					if (new_socket > max_sd) {
-						max_sd = new_socket;
-					}
-				} else {
-					char buffer[BUFFER_SIZE];
-					int bytes_read = recv(i, buffer, sizeof(buffer), 0);
-					if (bytes_read <= 0) {
-						close(i);
-						FD_CLR(i, &master_set);
-					} else {
-						buffer[bytes_read] = '\0';
-						std::cout << "Received (" << bytes_read << "): " << buffer << std::endl;
-						std::string indexHtml = readFile("index.html");
-						// std::cout << indexHtml << std::endl;
-						// std::string response = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello, world!";
-						send(i, indexHtml.c_str(), indexHtml.size(), 0);
-						// send(i, response.c_str(), response.size(), 0);
-					}
-				}
-			}
-		}
+Server::Builder& Server::Builder::setPort(int port) {
+	if (port <= 0 || port > 65535) {
+		throw Server::ServerException("Port number must be between 1 and 65535");
 	}
+	address.sin_port = htons(port);
+	return *this;
+}
+
+
+// Exception
+
+Server::ServerException::ServerException(std::string msg) : msg("[Error::ServerException] : ") {
+	this->msg += msg;
+}
+
+Server::ServerException::~ServerException() throw() {
+}
+
+const char* Server::ServerException::what() const throw() {
+	return msg.c_str();
 }

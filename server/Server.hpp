@@ -20,12 +20,61 @@
 			- https://www.youtube.com/watch?v=9J1nJOivdyw
 */
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <exception>
+#include <cstring>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/select.h>
+
+#define BUFFER_SIZE 1024
+
 class Server {
+private:
 	int server_fd;
+	struct sockaddr_in address;
+
+
+	// Private constructor
+	Server(struct sockaddr_in&);
+
 	void initServer();
 
 public:
-	Server();
+	// for debug
+	void readServerInfo();
 	~Server();
-	void run();
+
+	int getServerFd();
+
+
+
+		class ServerException : public std::exception {
+			std::string msg;
+			public :
+				const char * what() const throw();
+				ServerException(std::string);
+				~ServerException() throw();
+		};
+
+		// Builder Design Pattern
+		class Builder {
+		private:
+			struct sockaddr_in address;
+
+		public:
+		// Starting
+			Builder();
+
+		// Characteristics
+			Builder& setPort(int port);
+
+		// final Build
+			Server build();
+		};
 };
