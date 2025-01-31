@@ -5,12 +5,14 @@ requestHeader::requestHeader()
     header = std::map<std::string, std::string>();
 }
 
-void requestHeader::setHeader(const std::string header)
+void requestHeader::setHeader(const std::string Line)
 {
-    std::string key;
-    std::string value;
-    std::istringstream headerStream(header);
-    while (std::getline(headerStream, key, ':') && std::getline(headerStream, value)) {
-        this->header[key] = value;
-    }
+    std::string key = Line.substr(0, Line.find(":"));
+    std::string value = Line.substr(Line.find(":") + 2, Line.size() - 1);
+    header[key] = value;
+}
+
+std::map<std::string, std::string> requestHeader::getHeader()
+{
+    return header;
 }

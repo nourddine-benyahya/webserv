@@ -11,5 +11,5 @@ class requestHeader
         requestHeader();
         requestHeader(const std::string header);
         void setHeader(const std::string header);
-        std::string getHeader();
+        std::map<std::string, std::string> getHeader();
 };

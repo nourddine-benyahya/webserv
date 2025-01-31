@@ -33,3 +33,4 @@ class requestLine
 };
 
 void trim(std::string& str);
+void toupper(std::string& str);

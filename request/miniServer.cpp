@@ -8,16 +8,39 @@
 
 #define PORT 8080
 #define BUFFER_SIZE 1024
-
 void handleClient(int clientSocket) {
+    std::string fullRequest;
     char buffer[BUFFER_SIZE];
-    memset(buffer, 0, BUFFER_SIZE);
+    ssize_t bytesRead;
+    bool headersComplete = false;
+    size_t contentLength = 0;
+    size_t headerEndPos = 0;
 
-    // Receive HTTP request
-    recv(clientSocket, buffer, BUFFER_SIZE - 1, 0);
-    // std::cout << "Received request:\n" << buffer << std::endl;
+    while ((bytesRead = recv(clientSocket, buffer, BUFFER_SIZE - 1, 0)) > 0) {
+        buffer[bytesRead] = '\0';
+        fullRequest.append(buffer, bytesRead);
 
-    request req(static_cast<std::string>(buffer));
+        if (!headersComplete) {
+            headerEndPos = fullRequest.find("\r\n\r\n");
+            if (headerEndPos != std::string::npos) {
+                headersComplete = true;
+                size_t clPos = fullRequest.find("Content-Length: ");
+                if (clPos != std::string::npos) {
+                    clPos += 16;
+                    size_t clEnd = fullRequest.find("\r\n", clPos);
+                    contentLength = std::atoi(fullRequest.substr(clPos, clEnd - clPos).c_str());
+                }
+            }
+        }
+
+        if (headersComplete) {
+            size_t bodyStart = headerEndPos + 4;
+            if (fullRequest.length() - bodyStart >= contentLength)
+                break;
+        }
+    }
+
+    request req(fullRequest);
 
     // Simple HTTP Response
     std::string response =
