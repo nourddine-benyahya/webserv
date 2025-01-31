@@ -16,6 +16,14 @@ void requestBody::setType(const std::string type)
 {
     if (type.find("text") != std::string::npos)
         this->type = TEXT;
+    else if (type.find("xml") != std::string::npos)
+        this->type = XML;
+    else if (type.find("html") != std::string::npos)
+        this->type = HTML;
+    else if (type.find("json") != std::string::npos)
+        this->type = JSON;
+    else if (type.find("javascript") != std::string::npos)
+        this->type = JAVA_SCRIPT;
     else if (type.find("octet-stream") != std::string::npos)
         this->type = OCTET_STREAM;
     else if (type.find("urlencoded") != std::string::npos)
@@ -53,12 +61,6 @@ void requestBody::parseContentDisposition(const std::string &line)
 void requestBody::save_formfield(std::istringstream &stream, size_t &read)
 {
     std::string line;
-    // std::string boundary;
-    //read the boundary
-    // std::getline(stream, line);
-    // read += line.size();
-    // boundary = line;
-    //read the fist line ,its contain line Content-Disposition: form-data; name="testkey"; filename="test"
     std::getline(stream, line);
     read += line.size();
     parseContentDisposition(line);
@@ -67,14 +69,11 @@ void requestBody::save_formfield(std::istringstream &stream, size_t &read)
     std::getline(stream, line);
     read += line.size();
     parseContentDisposition(line);
-    for (std::map<std::string, std::string>::iterator it = formFields.begin(); it != formFields.end(); it++) {
-        std::cout << "##" << it->first << "##" << it->second << "##" << std::endl;
-    }
 }
 
 requestBody::requestBody(std::istringstream &stream, requestHeader header)
 {
-    size_t read = 1;
+    size_t read = 0;
     std::string boundary;
     std::map<std::string, std::string> headerMap = header.getHeader();
 
@@ -86,7 +85,6 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
 
     if (getType() == FORM_DATA) {
         std::getline(stream, boundary);
-        std::cout << "boundary : *" << boundary << "*" << std::endl;
         read += boundary.size();
         save_formfield(stream, read);
     }
@@ -118,7 +116,6 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
                 fileBuffer.pop_back();
                 boundary_size--;
             }
-            fileBuffer.pop_back();
             fileBuffer.pop_back();
             fileBuffer.pop_back();
         }

@@ -13,6 +13,10 @@ class requestHeader;
 enum dataType
 {
     TEXT,
+    XML,
+    HTML,
+    JSON,
+    JAVA_SCRIPT,
     OCTET_STREAM,
     URLENCODED,
     FORM_DATA,
@@ -24,9 +28,9 @@ class requestBody
     private :
         dataType type;
         std::string fileName;
-        std::map<std::string, std::string> formFields;
         std::vector<char> fileBuffer;
     public :
+        std::map<std::string, std::string> formFields;
         requestBody(){};
         requestBody(std::istringstream &stream, requestHeader header);
         std::vector<char> &getData();
