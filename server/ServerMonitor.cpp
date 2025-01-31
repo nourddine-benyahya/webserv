@@ -143,7 +143,7 @@ void ServerMonitor::run()
 							ss << response;
 						if (FD_ISSET(i, &write_set)) {
 							std::stringstream xx;
-							xx << "Sender connection from "
+							xx << "Sender connection from socket "
 								<< i;
 							Logger( Logger::DEBUG,  xx.str());
                     		send(i, ss.str().c_str(), ss.str().size(), 0);

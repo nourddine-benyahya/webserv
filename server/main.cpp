@@ -6,6 +6,7 @@ void ls(){
 }
 
 int main() {
+	// at exit to check leaks 
 	atexit(ls);
 
 
