@@ -1,7 +1,7 @@
 
 #pragma once
-#include "Config.hpp"
-#include <set>
+#include "Server.hpp"
+#include <map>
 
 class Server;
 
@@ -10,16 +10,17 @@ class ServerMonitor {
 
 	fd_set master_set;
 	int maxFds;
-	std::set<int> sockets;
+	std::map<int, Server *> sockets;
 
 	ServerMonitor();
+	void	update_maxFds();
 	// debuger
 	void printSet(fd_set&);
 	public:
 		~ServerMonitor();
-		static ServerMonitor& getInstance();
+		static ServerMonitor* getInstance();
 	    void run();
-		void addServer(Server server);
+		void addServer(Server *server);
 
 
 		class ServerMonitorException : public std::exception {

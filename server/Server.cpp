@@ -10,7 +10,7 @@
 // }
 
 
-Server::Server(IConfig* conf): conf(conf) {
+Server::Server(Config* conf): conf(conf) {
 	// printAdressInfo(this->address);
 	initServer();
 }
@@ -26,6 +26,10 @@ void Server::readServerInfo(){
 
 int Server::getServerFd(){
 	return this->server_fd;
+}
+
+Server::Config* Server::getConfig(){
+	return this->conf;
 }
 
 

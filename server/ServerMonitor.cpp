@@ -23,121 +23,131 @@ ServerMonitor::ServerMonitor() : maxFds(-1)
 
 ServerMonitor::~ServerMonitor()
 {
-	// Cleanups done here
+	// Cleanups done here (delete all servers)
+	for (std::map<int, Server*>::iterator it = sockets.begin(); it != sockets.end(); it++){
+		delete sockets[it->first];
+	}
+
 	sockets.clear();
 }
 
-ServerMonitor &ServerMonitor::getInstance()
+ServerMonitor *ServerMonitor::getInstance()
 {
 	if (instance == NULL)
 		instance = new ServerMonitor();
-	return *instance;
+	return instance;
 }
 
-void ServerMonitor::addServer(Server server)
+void ServerMonitor::addServer(Server* server)
 {
-	int fd = server.getServerFd();
+	int fd = server->getServerFd();
 	if (fd < 0){
 		throw ServerMonitorException("Invalid Server fd");
 	}
 	FD_SET(fd, &master_set);
 	if (fd > maxFds)
 		maxFds = fd;
-	sockets.insert(fd);
+	if (sockets.find(fd) == sockets.end())
+		delete sockets[fd];
+	sockets[fd] = server;
 }
 
-// tmp function
-// static std::string readFile(const std::string& filePath) {
-//     std::ifstream file(filePath);
-//     std::stringstream buffer;
-//     buffer << file.rdbuf();
-//     return buffer.str();
-// }
+
+void ServerMonitor::update_maxFds() {
+    maxFds = -1;
+    for (int j = 0; j <= FD_SETSIZE; ++j) {
+        if (FD_ISSET(j, &master_set) && j > maxFds) {
+            maxFds = j;
+        }
+    }
+}
 
 void ServerMonitor::run()
 {
 	// creating set of fds
-	fd_set working_set;
+	fd_set read_set, write_set;
+	std::map<int, Server *> tmpSockets;
 
-	struct sockaddr_in client_address;
-	socklen_t client_address_len = sizeof(client_address);
+	printSet(master_set);
 
-	FD_ZERO(&working_set);
 
 	while (true)
 	{
-		// copying the master set to tmp one
-		memcpy(&working_set, &master_set, sizeof(master_set)); // cross-platform alternative to FD_COPY
-		// debugger
-		printSet(working_set);
-		// polling on the sets we have
-		if (select(maxFds + 1, &working_set, NULL, NULL, NULL) < 0) {
+		FD_ZERO(&read_set);
+		memcpy(&read_set, &master_set, sizeof(master_set)); 
+		FD_ZERO(&write_set);
+		memcpy(&write_set, &master_set, sizeof(master_set)); 
+		if (select(maxFds + 1, &read_set, &write_set, NULL, NULL) < 0) {
 			throw ServerMonitorException("Select error");
 		}
-
-		std::cout << "starting the loop on fds " << std::endl;
-		// once returned we will check on the ready socks
 		for (int i = 0; i <= maxFds; ++i)
 		{
-			// if fd sock exist and ready for listening
-			std::cout << "inside the loop on : " << i << std::endl;
-			if (FD_ISSET(i, &working_set))
-			{
-				std::cout << "inside iset " << i << std::endl;
-				// Check if it's one of the listening sockets
-				if (sockets.find( i ) != sockets.end())
-				{
-					// Accept new connection
+			if (FD_ISSET(i, &read_set)) {
+				if (sockets.find( i ) != sockets.end()) {
+					struct sockaddr_in client_address;
+					socklen_t client_address_len = sizeof(client_address);
+
 					int new_socket = accept(i, (struct sockaddr *)&client_address, &client_address_len);
-					if (new_socket < 0)
-					{
-						std::cerr << "Accept Error: " << std::endl;
-						continue;
+					if (new_socket < 0) {
+						// Logger(sockets[i]->getConfig()->getLogger(), Logger::ERROR,  "Accept Error");
+						Logger(Logger::ERROR,  "Accept Error");
+						continue ;
 					}
-					// Add new socket to master set
 					FD_SET(new_socket, &master_set);
 					if (new_socket > maxFds)
-					{
 						maxFds = new_socket;
+
+					tmpSockets[new_socket] = sockets[i];
+					{
+						std::stringstream ss;
+							ss << "WebSocket connection established with "
+								<< tmpSockets[new_socket]->getConfig()->getName();
+						// Logger(tmpSockets[new_socket]->getConfig()->getLogger(), Logger::INFO,  ss.str());
+						Logger(Logger::INFO,  ss.str());
 					}
-					// sockets.insert(new_socket);
-					std::cout << "New connection accepted: " << new_socket << std::endl;
 				}
 				else
 				{
-					// we define a buffer to get what received from the sock
-					char buffer[BUFFER_SIZE];
+					char buffer[BUFFER_SIZE] = {0};
 					int bytes_read = recv(i, buffer, sizeof(buffer), 0);
+
+					std::stringstream ss;
+						ss << "WebSocket message received from " 
+							<< tmpSockets[i]->getConfig()->getName() + ":"
+							<< tmpSockets[i]->getConfig()->getPort();
+					// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::INFO,  ss.str());
+					Logger(Logger::INFO,  ss.str());
+
 					if (bytes_read <= 0)
 					{
 						// Handle disconnection or error
 						if (bytes_read == 0)
-							std::cout << "Connection closed: " << i << std::endl;
+							Logger( Logger::INFO,  "Connection closed");
+							// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::INFO,  "Connection closed");
 						else
-							std::cerr << "Recv Error  "<< std::endl;
+							Logger( Logger::ERROR,  "Recv Error");
+							// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::DEBUG,  "Recv Error");
 						close(i);
-						// sockets.erase(i);	
+						update_maxFds();
+						tmpSockets.erase(i);
 						FD_CLR(i, &master_set);
 					} else {
 						buffer[bytes_read] = 0;
-						// std::cout << "Received: " << buffer << std::endl;
-						std::cout << "Received (" << bytes_read << "): " << buffer << std::endl;
-						// std::string htmlContent = readFile("index.html");
-						std::stringstream ss;
 						std::string response = "<h1>Hello, world!</h1>";
-						ss << "HTTP/1.1 200 OK\r\n";
-						ss << "Content-Type: text/html\r\n";
-						// ss << "Content-Length: " << htmlContent.size() << "\r\n\r\n";
-						ss << "Content-Length: " << response.size() << "\r\n\r\n";
-						// ss << htmlContent;
-						ss << response;
-
-
-						// std::cout << indexHtml << std::endl;
-						send(i, ss.str().c_str(), ss.str().size(), 0);
-						ss.clear();
-						// send(i, response.c_str(), response.size(), 0);// Process the received data
-						std::cout << "Received data: " << buffer << std::endl;
+						std::stringstream ss;
+							ss << "HTTP/1.1 200 OK";
+						// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::DEBUG,  ss.str());
+						Logger( Logger::DEBUG,  ss.str());
+							ss << "\r\nContent-Type: text/html\r\n";
+							ss << "Content-Length: " << response.size() << "\r\n\r\n";
+							ss << response;
+						if (FD_ISSET(i, &write_set)) {
+							std::stringstream xx;
+							xx << "Sender connection from "
+								<< i;
+							Logger( Logger::DEBUG,  xx.str());
+                    		send(i, ss.str().c_str(), ss.str().size(), 0);
+						}
 					}
 				}
 			}
@@ -150,9 +160,7 @@ ServerMonitor::ServerMonitorException::ServerMonitorException(std::string msg) :
 	this->msg += msg;
 }
 
-ServerMonitor::ServerMonitorException::~ServerMonitorException() throw()
-{
-}
+ServerMonitor::ServerMonitorException::~ServerMonitorException() throw() {}
 
 const char *ServerMonitor::ServerMonitorException::what() const throw()
 {

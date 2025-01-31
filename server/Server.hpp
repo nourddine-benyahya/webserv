@@ -20,6 +20,7 @@
 			- https://www.youtube.com/watch?v=9J1nJOivdyw
 */
 
+#include <ostream>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -34,9 +35,10 @@
 #include <sys/select.h>
 
 
-#define BUFFER_SIZE 1024
+#include "../Logger/Logger.hpp"
 
-class IConfig;
+
+#define BUFFER_SIZE 1024
 
 class Server {
 public:
@@ -56,25 +58,36 @@ public:
 
 
 		// Using API Config
-		class IConfig {
+		class Config {
 		protected:
 			struct sockaddr_in address;
+			std::string name;
 		public:
-			virtual ~IConfig();
+			~Config();
+			Config();
+			Config(Config&);
 
-			virtual IConfig& setPort(int port)=0;
-			Server build();
+			Config& setPort(int port);
+			Config& setName(std::string);
+			void build();
+			// Server *build();
+			// Server build();
 
-			virtual IConfig* clone()=0;
+			Config* clone();
 			// getter
-			struct sockaddr_in& getAddress();
+			struct sockaddr_in& getAddress() ;
+			std::string& getName() ;
+			int getPort() ;
 		};
+
+	Server::Config* getConfig();
+
 
 	private:
 		int server_fd;
 		//dependencies to build a server
-		IConfig *conf;
+		Config *conf;
 
-		Server(IConfig*);
+		Server(Config*);
 		void initServer();
 };
