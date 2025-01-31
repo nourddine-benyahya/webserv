@@ -46,13 +46,14 @@ void request::printRequestBody()
         std::cout << "Type: UNKNOWN" << std::endl;
 
     std::cout << std::endl << "--------------body formFields-------------" << std::endl;
-    for (std::map<std::string, std::string>::iterator it = reqBody.formFields.begin(); it != reqBody.formFields.end(); it++) {
+    std::map<std::string, std::string> reqBodyd = reqBody.getFormFields();
+    for (std::map<std::string, std::string>::iterator it = reqBodyd.begin(); it != reqBodyd.end(); it++) {
         std::cout << "~" << it->first << "~   :   ~" << it->second << "~" << std::endl;
     }
     std::cout << std::endl << "-------------body data----------" << std::endl;
     int i;
     std::cout  << "~";
-    std::vector<char> datae = reqBody.getData();
+    std::vector<char> datae = reqBody.getFileBuffer();
     for (i = 0; i < datae.size(); i++)
     {
         std::cout << datae[i] ;
@@ -85,14 +86,10 @@ void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
     else
     {
         // Handle the error if the file cannot be opened
-        throw std::ios_base::failure("Failed to open the file.");
+        throw "Failed to open the file.";
     }
 }
 
-// request::request()
-// {
-//     this->reqLine = requestLine("");
-// }
 
 request::request(const std::string request) {
     std::string line;
@@ -108,7 +105,7 @@ request::request(const std::string request) {
         reqLine = requestLine(line);
 
         // Read the headers
-        reqHeader = requestHeader();
+        // reqHeader = requestHeader();
         while (std::getline(requestStream, line) && !line.empty() && line != "\r") {
             trim(line);
             reqHeader.setHeader(line);
@@ -128,8 +125,11 @@ request::request(const std::string request) {
         printRequestHeader();
 
         //print request body
-        printRequestBody();
+        // printRequestBody();
 
+        //save file if it is a file
+        if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
+            reqBody.saveFile();
 
 
     } catch(const char *e) {

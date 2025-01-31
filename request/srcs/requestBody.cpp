@@ -1,15 +1,63 @@
 #include "requestBody.hpp"
 
+void requestBody::parseContentDisposition(const std::string &line)
+{
+    std::istringstream stream(line);
+    std::string part;
 
-std::string trim(const std::string &str) {
-
-    //trim from spaces and double qoutes
-    size_t first = str.find_first_not_of(" \t\n\r\"");
-    if (std::string::npos == first) {
-        return str;
+    while (std::getline(stream, part, ';')) {
+        size_t pos = part.find('=');
+        if (pos == std::string::npos) {
+            pos = part.find(':');
+        }
+        if (pos != std::string::npos) {
+            std::string key = part.substr(0, pos);
+            std::string value = part.substr(pos + 1);
+            trim(key);
+            trim(value);
+            if (value[0] == '"')
+            {
+                value.erase(0, 1);
+                value.erase(value.size() - 1);
+            }
+            formFields[key] = value;
+        }
     }
-    size_t last = str.find_last_not_of(" \t\n\r\"");
-    return str.substr(first, (last - first + 1));
+}
+
+void requestBody::save_formfield(std::istringstream &stream, size_t &read)
+{
+    std::string line;
+    std::getline(stream, line);
+    read += line.size();
+    parseContentDisposition(line);
+    std::getline(stream, line);
+    read += line.size();
+    std::getline(stream, line);
+    read += line.size();
+    parseContentDisposition(line);
+}
+
+void requestBody::saveFile()
+{
+    // Step 1: Open a file with the given fileName in write mode
+    std::string fileName = DATA_DIR + formFields["filename"];
+    std::ofstream outFile(fileName, std::ios::binary);
+
+    // Step 2: Check if the file is open
+    if (outFile.is_open())
+    {
+        // Step 3: Write the contents of fileBuffer to the file
+        outFile.write(fileBuffer.data(), fileBuffer.size());
+
+        // Step 4: Close the file
+        outFile.close();
+    }
+    else
+    {
+        // Handle the error if the file cannot be opened
+        throw "Failed to open the file.";
+    }
 }
 
 void requestBody::setType(const std::string type)
@@ -34,42 +82,27 @@ void requestBody::setType(const std::string type)
         this->type = NONE;
 }
 
+
 dataType requestBody::getType()
 {
     return type;
 }
 
-void requestBody::parseContentDisposition(const std::string &line)
+std::string requestBody::getFilePath()
 {
-    std::istringstream stream(line);
-    std::string part;
-
-    while (std::getline(stream, part, ';')) {
-        size_t pos = part.find('=');
-        if (pos == std::string::npos) {
-            pos = part.find(':');
-        }
-        if (pos != std::string::npos) {
-            std::string key = trim(part.substr(0, pos));
-            std::string value = trim(part.substr(pos + 1));
-
-            formFields[key] = value;
-        }
-    }
+    return filePath;
 }
 
-void requestBody::save_formfield(std::istringstream &stream, size_t &read)
+std::vector<char> &requestBody::getFileBuffer()
 {
-    std::string line;
-    std::getline(stream, line);
-    read += line.size();
-    parseContentDisposition(line);
-    std::getline(stream, line);
-    read += line.size();
-    std::getline(stream, line);
-    read += line.size();
-    parseContentDisposition(line);
+    return fileBuffer;
 }
+
+std::map<std::string, std::string> &requestBody::getFormFields()
+{
+    return formFields;
+}
+
 
 requestBody::requestBody(std::istringstream &stream, requestHeader header)
 {
@@ -119,11 +152,7 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
             fileBuffer.pop_back();
             fileBuffer.pop_back();
         }
-
     }
 }
 
-std::vector<char> &requestBody::getData()
-{
-    return fileBuffer;
-}
+

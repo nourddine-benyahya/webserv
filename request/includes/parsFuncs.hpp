@@ -7,7 +7,7 @@
 #include <sstream>
 #include <fstream>
 
-#define DATA_DIR "data/"
+#define DATA_DIR "../data/"
 
 enum MethodType {
     GET,
@@ -34,5 +34,6 @@ enum dataType
     NONE,
 };
 
-void trim(std::string& str);
+std::string trim(std::string& str);
 void toupper(std::string& str);
+bool urlFormat(std::string& url);
