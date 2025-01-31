@@ -55,7 +55,9 @@ void Response::POST(std::string line, int clientSocket)
                            "Content-Type: text/html\r\n"
                            "Connection: close\r\n\r\n"
                            "<html><body><h1>Form Submitted Successfully</h1></body></html>";
+    
     send(clientSocket, response.c_str(), response.length(), 0);
+
     close(clientSocket);
 }
 

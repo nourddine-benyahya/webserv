@@ -15,7 +15,8 @@ void handleRequest(int clientSock)
     if (byteRead < 0)
     {
         std::cerr << "error with the recv function" << std::endl;
-        exit(1);
+        // exit(1);
+        return;
     }
     buffer[byteRead] = 0;
 
