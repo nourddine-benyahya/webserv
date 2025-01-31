@@ -1,19 +1,6 @@
 #pragma once
 
-#include <string>
-#include <iostream>
-
-enum MethodType {
-    GET,
-    HEAD,
-    OPTIONS,
-    TRACE,
-    PUT,
-    DELETE,
-    POST,
-    PATCH,
-    CONNECT,
-};
+#include "parsFuncs.hpp"
 
 class requestLine
 {
@@ -22,7 +9,7 @@ class requestLine
         std::string reqTarget;
         std::string httpVers;
     public :
-        requestLine(){method = GET; reqTarget = "/"; httpVers = "HTTP/1.1";}
+        requestLine(){};
         requestLine(const std::string requestLine);
         void setMethod(const std::string method);
         void setReqTarget(const std::string url);
@@ -31,6 +18,3 @@ class requestLine
         std::string getReqTarget();
         std::string getHttpVers();
 };
-
-void trim(std::string& str);
-void toupper(std::string& str);

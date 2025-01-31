@@ -1,8 +1,6 @@
 #include "request.hpp"
-#include <sstream>
-#include <iostream>
 
-void printRequestLine(requestLine reqLine)
+void request::printRequestLine()
 {
     std::cout << std::endl << "-------------------------------------------request Line---------------------------------" << std::endl;
     std::cout << "Method: ~" << reqLine.getMethod() << "~" << std::endl;
@@ -10,7 +8,7 @@ void printRequestLine(requestLine reqLine)
     std::cout << "HTTP Version: ~" << reqLine.getHttpVers() << "~"  << std::endl;
 }
 
-void printRequestHeader(requestHeader reqHeader)
+void request::printRequestHeader()
 {
     std::cout << std::endl << "-------------------------------------------request header-------------------------------" << std::endl;
     std::map<std::string, std::string> header = reqHeader.getHeader();
@@ -20,7 +18,7 @@ void printRequestHeader(requestHeader reqHeader)
     }
 }
 
-void printRequestBody(requestBody reqBody)
+void request::printRequestBody()
 {
     std::cout << std::endl << "-------------------------------------------request body---------------------------------" << std::endl;
     std::cout  << std::endl << "----------body type----------- " << std::endl;
@@ -62,17 +60,39 @@ void printRequestBody(requestBody reqBody)
     std::cout << "~" << std::endl;
 }
 
-void printFullRequest(const std::string request)
+void request::printFullRequest(const std::string request)
 {
     std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
     std::cout << request << std::endl;
     std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
 }
 
-request::request()
+
+void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
 {
-    this->reqLine = requestLine("");
+    // Step 1: Open a file with the given fileName in write mode
+    std::ofstream outFile(fileName, std::ios::binary);
+
+    // Step 2: Check if the file is open
+    if (outFile.is_open())
+    {
+        // Step 3: Write the contents of fileBuffer to the file
+        outFile.write(fileBuffer.data(), fileBuffer.size());
+
+        // Step 4: Close the file
+        outFile.close();
+    }
+    else
+    {
+        // Handle the error if the file cannot be opened
+        throw std::ios_base::failure("Failed to open the file.");
+    }
 }
+
+// request::request()
+// {
+//     this->reqLine = requestLine("");
+// }
 
 request::request(const std::string request) {
     std::string line;
@@ -98,17 +118,19 @@ request::request(const std::string request) {
         reqBody = requestBody(requestStream, reqHeader);
         
 
-        // //print full request
-        // printFullRequest(request);
+        //print full request
+        printFullRequest(request);
 
-        // //print request Line
-        // printRequestLine(reqLine);
+        //print request Line
+        printRequestLine();
 
-        // //print request header
-        // printRequestHeader(reqHeader);
+        //print request header
+        printRequestHeader();
 
-        // //print request body
-        // printRequestBody(reqBody);
+        //print request body
+        printRequestBody();
+
+
 
     } catch(const char *e) {
         std::cerr << e << '\n';
