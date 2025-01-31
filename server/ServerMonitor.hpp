@@ -1,6 +1,7 @@
 
 #pragma once
-#include "Server.hpp"
+#include "Config.hpp"
+#include <set>
 
 class Server;
 
@@ -9,6 +10,7 @@ class ServerMonitor {
 
 	fd_set master_set;
 	int maxFds;
+	std::set<int> sockets;
 
 	ServerMonitor();
 	// debuger
@@ -18,11 +20,6 @@ class ServerMonitor {
 		static ServerMonitor& getInstance();
 	    void run();
 		void addServer(Server server);
-		// void setFD(int sockFd);
-
-
-		// void createServer();
-		// void clearFD(int sockfd);
 
 
 		class ServerMonitorException : public std::exception {

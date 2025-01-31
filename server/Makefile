@@ -4,7 +4,7 @@ CPPFLAGS= -Wall -Wextra -Werror -std=c++98
 
 NAME= server
 
-SRCS= main.cpp Server.cpp ServerMonitor.cpp
+SRCS= main.cpp Server.cpp ServerMonitor.cpp Config.cpp IConfig.cpp 
 
 INCLD=  Server.hpp ServerMonitor.hpp
 

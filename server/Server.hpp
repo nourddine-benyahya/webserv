@@ -25,6 +25,7 @@
 #include <sstream>
 #include <exception>
 #include <cstring>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -32,27 +33,18 @@
 #include <fcntl.h>
 #include <sys/select.h>
 
+
 #define BUFFER_SIZE 1024
 
+class IConfig;
+
 class Server {
-private:
-	int server_fd;
-	struct sockaddr_in address;
-
-
-	// Private constructor
-	Server(struct sockaddr_in&);
-
-	void initServer();
-
 public:
 	// for debug
 	void readServerInfo();
 	~Server();
 
 	int getServerFd();
-
-
 
 		class ServerException : public std::exception {
 			std::string msg;
@@ -62,19 +54,27 @@ public:
 				~ServerException() throw();
 		};
 
-		// Builder Design Pattern
-		class Builder {
-		private:
+
+		// Using API Config
+		class IConfig {
+		protected:
 			struct sockaddr_in address;
-
 		public:
-		// Starting
-			Builder();
+			virtual ~IConfig();
 
-		// Characteristics
-			Builder& setPort(int port);
-
-		// final Build
+			virtual IConfig& setPort(int port)=0;
 			Server build();
+
+			virtual IConfig* clone()=0;
+			// getter
+			struct sockaddr_in& getAddress();
 		};
+
+	private:
+		int server_fd;
+		//dependencies to build a server
+		IConfig *conf;
+
+		Server(IConfig*);
+		void initServer();
 };
