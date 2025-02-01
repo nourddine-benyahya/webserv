@@ -64,13 +64,13 @@ void ServerMonitor::update_maxFds() {
 
 void ServerMonitor::run()
 {
-	// creating set of fds
 	fd_set read_set, write_set;
 
 	std::map<int, ServerAndPort> tmpSockets;
 
 	printSet(master_set);
 
+// the throws have to be handled to not segv 
 
 	while (true)
 	{
@@ -137,11 +137,18 @@ void ServerMonitor::run()
 						FD_CLR(i, &master_set);
 					} else {
 						buffer[bytes_read] = 0;
-						std::string response = "<h1>Hello, ";
-						response += tmpSockets[i].srv->getConfig()->getName();
-						response += " </h1>";
+						std::string response;
+						std::string valid = " OK";
+						int status = 200;
+						try {
+							response = tmpSockets[i].srv->getConfig()->getIndex();
+						} catch (std::exception& e){
+							response = "";
+							status = 400;
+							valid = " KO";
+						}
 						std::stringstream ss;
-							ss << "HTTP/1.1 200 OK";
+							ss << "HTTP/1.1 " << status << valid;
 						// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::DEBUG,  ss.str());
 						Logger( Logger::DEBUG,  ss.str());
 							ss << "\r\nContent-Type: text/html\r\n";

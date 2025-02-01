@@ -25,6 +25,7 @@ int main() {
 			// map<fd, port> every port have it"s own fdsock , when selecting from the fd ,we get the 
 			srv.setPort(9090);
 			srv.setPort(50);
+			srv.setIndex("test1.html");
 			// srv.setPort(30);
 			/*
 				srv.setRoot(std::string)
@@ -37,6 +38,8 @@ int main() {
 
 		Server::Config()
 			// .setPort(80)
+			.setName("Drari.42.fr")
+			.setIndex("test.html")
 			.build();
 
 		Server::Config()

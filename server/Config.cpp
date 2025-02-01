@@ -1,5 +1,6 @@
 
 #include "Server.hpp"
+
 #include "ServerMonitor.hpp"
 
 
@@ -58,12 +59,14 @@ Server::Config::Config() : name("0.0.0.0") {
 	this->address.sin_addr.s_addr = INADDR_ANY;
 	this->address.sin_port = htons(80);
 	sock_port.clear();
+	this->fileIndex = "index.html";
 }
 
 
 Server::Config::Config(Server::Config& other) {
 	this->address = other.address;
 	this->name = other.name;
+	this->fileIndex = other.fileIndex;
 	this->sock_port = other.sock_port;
 }
 
@@ -81,6 +84,26 @@ Server::Config& Server::Config::setName(std::string name) {
 	this->name = name;
 	return *this;
 }
+
+Server::Config& Server::Config::setIndex(std::string file){
+	this->fileIndex = file;
+	return *this;
+}
+
+std::string Server::Config::getIndex() {
+	std::ifstream file(this->fileIndex);
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file: " + this->fileIndex);
+    }
+
+	// tester function
+    std::stringstream buffer;
+   		buffer << file.rdbuf();
+    return buffer.str();
+}
+
+
+
 
 Server::Config* Server::Config::clone() {
 	return new Server::Config(*this);

@@ -8,7 +8,8 @@ class Server;
 struct ServerAndPort {
 		int port;
 		Server *srv;
-	};
+};
+
 
 class ServerMonitor {
 	static ServerMonitor* instance;
@@ -28,6 +29,7 @@ class ServerMonitor {
 		~ServerMonitor();
 		static ServerMonitor* getInstance();
 	    void run();
+	    void engine();
 		void addServer(Server *server);
 
 

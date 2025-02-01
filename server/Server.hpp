@@ -60,7 +60,8 @@ public:
 			class Config {
 				void create_sock();
 				bool portRedifined;
-			protected:
+
+				std::string fileIndex;
 				std::map<int, int> sock_port;
 				struct sockaddr_in address;
 				std::string name;
@@ -71,6 +72,8 @@ public:
 
 				Config& setPort(int port);
 				Config& setName(std::string);
+				Config& setIndex(std::string);
+
 				void build();
 
 
@@ -78,6 +81,7 @@ public:
 				// getter
 				struct sockaddr_in& getAddress() ;
 				std::string& getName() ;
+				std::string getIndex() ;
 				std::map<int, int>& getSockets() ;
 				int getPort() ;
 			};
