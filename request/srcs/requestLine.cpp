@@ -45,6 +45,7 @@ requestLine::requestLine(const std::string requestLine)
     setMethod(method);
     setReqTarget(url);
     setHttpVers(vers);
+    splitParamsFromReqTarget();
 }
 
 std::string requestLine::getMethod()
@@ -63,3 +64,27 @@ std::string requestLine::getHttpVers()
     return this->httpVers;
 }
 
+std::map<std::string, std::string> requestLine::getParams()
+{
+    return this->params;
+}
+
+void requestLine::splitParamsFromReqTarget()
+{
+    std::string tmp = this->reqTarget;
+    std::string key;
+    std::string value;
+    int i = 0;
+    this->reqTarget = tmp.substr(0, tmp.find("?"));
+    std::string strParams = tmp.substr(tmp.find("?") + 1);
+
+    std::istringstream ss(strParams);
+
+    while (std::getline(ss, key, '&'))
+    {
+        std::istringstream ss2(key);
+        std::getline(ss2, key, '=');
+        std::getline(ss2, value);
+        this->params[key] = value;
+    }
+};

@@ -8,6 +8,8 @@ class requestLine
         MethodType method;
         std::string reqTarget;
         std::string httpVers;
+        std::map<std::string, std::string> params;
+        void splitParamsFromReqTarget();
     public :
         requestLine(){};
         requestLine(const std::string requestLine);
@@ -17,4 +19,5 @@ class requestLine
         std::string getMethod();
         std::string getReqTarget();
         std::string getHttpVers();
+        std::map<std::string, std::string> getParams();
 };

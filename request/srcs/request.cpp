@@ -6,6 +6,11 @@ void request::printRequestLine()
     std::cout << "Method: ~" << reqLine.getMethod() << "~" << std::endl;
     std::cout << "Request Target: ~" << reqLine.getReqTarget() << "~" << std::endl;
     std::cout << "HTTP Version: ~" << reqLine.getHttpVers() << "~"  << std::endl;
+    std::cout << "Params: " << std::endl;
+    std::map<std::string, std::string> params = reqLine.getParams();
+    for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); it++) {
+        std::cout << "~" << it->first << "~   :   ~" << it->second << "~" << std::endl;
+    }
 }
 
 void request::printRequestHeader()
