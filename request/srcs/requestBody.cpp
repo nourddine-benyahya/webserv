@@ -23,19 +23,34 @@ void requestBody::parseContentDisposition(const std::string &line)
             formFields[key] = value;
         }
     }
+    if (line.find("Content-Type") != std::string::npos)
+    {
+        size_t pos = line.find(':');
+        std::string key = line.substr(0, pos);
+        std::string value = line.substr(pos + 1);
+        trim(key);
+        trim(value);
+        formFields[key] = value;
+    }
 }
 
-void requestBody::save_formfield(std::istringstream &stream, size_t &read)
+void requestBody::save_formfield(std::istringstream &stream)
 {
     std::string line;
     std::getline(stream, line);
-    read += line.size();
+    // read += line.size();
     parseContentDisposition(line);
     std::getline(stream, line);
-    read += line.size();
-    std::getline(stream, line);
-    read += line.size();
-    parseContentDisposition(line);
+    // read += line.size();
+    if (line.find("Content-Type") != std::string::npos)
+    {
+        std::getline(stream, line);
+        // read += line.size();
+        parseContentDisposition(line);
+    }
+    // std::getline(stream, line);
+    // read += line.size();
+    // parseContentDisposition(line);
 }
 
 void requestBody::saveFile()
@@ -106,7 +121,7 @@ std::map<std::string, std::string> &requestBody::getFormFields()
 
 requestBody::requestBody(std::istringstream &stream, requestHeader header)
 {
-    size_t read = 0;
+    // size_t read = 0;
     std::string boundary;
     std::map<std::string, std::string> headerMap = header.getHeader();
 
@@ -118,8 +133,8 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
 
     if (getType() == FORM_DATA) {
         std::getline(stream, boundary);
-        read += boundary.size();
-        save_formfield(stream, read);
+        // read += boundary.size();
+        save_formfield(stream);
     }
     // Parse Content-Length safely
     if (headerMap.find("Content-Length") != headerMap.end()) {
@@ -128,7 +143,7 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
         long content_length = strtol(cl_str, &end, 10);
         if (*end != '\0' || content_length < 0)
             return; // Invalid length
-        content_length -= read;
+        // content_length -= read;
 
 
         fileBuffer.resize(content_length);
@@ -151,6 +166,7 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
             }
             fileBuffer.pop_back();
             fileBuffer.pop_back();
+            std::cout << "hehe" << std::endl;
         }
     }
 }

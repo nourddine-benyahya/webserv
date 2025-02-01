@@ -129,8 +129,8 @@ request::request(const std::string request) {
         //print request header
         printRequestHeader();
 
-        //print request body
-        // printRequestBody();
+        // print request body
+        printRequestBody();
 
         //save file if it is a file
         if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())

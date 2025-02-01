@@ -11,7 +11,7 @@ class requestBody
         std::vector<char> fileBuffer;
         std::map<std::string, std::string> formFields;
         //private method that help in pars the body
-        void save_formfield(std::istringstream &stream, size_t &read);
+        void save_formfield(std::istringstream &stream);
         void parseContentDisposition(const std::string &line);
         void setType(const std::string type);
     public :
