@@ -51,10 +51,10 @@ void Response::GET(std::string line, int clientSock)
 void Response::POST(std::string line, int clientSocket)
 {
     (void)line;
-     std::string response = "HTTP/1.1 200 OK\r\n"
-                           "Content-Type: text/html\r\n"
-                           "Connection: close\r\n\r\n"
-                           "<html><body><h1>Form Submitted Successfully</h1></body></html>";
+    std::string response =  "HTTP/1.1 200 OK\r\n"
+                            "Content-Type: text/html\r\n"
+                            "Connection: close\r\n\r\n"
+                            "<html><body><h1>Form Submitted Successfully</h1></body></html>";
     
     send(clientSocket, response.c_str(), response.length(), 0);
 
