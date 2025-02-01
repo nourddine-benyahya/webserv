@@ -40,16 +40,16 @@ ServerMonitor *ServerMonitor::getInstance()
 
 void ServerMonitor::addServer(Server* server)
 {
-	int fd = server->getServerFd();
-	if (fd < 0){
-		throw ServerMonitorException("Invalid Server fd");
+	std::map<int, int>::iterator it = server->getConfig()->getSockets().begin();
+	while (it != server->getConfig()->getSockets().end()){
+		FD_SET(it->first, &master_set);
+		if (it->first > maxFds)
+			maxFds = it->first;
+		if (sockets.find(it->first) == sockets.end())
+			delete sockets[it->first];
+		sockets[it->first] = server;
+		it++;
 	}
-	FD_SET(fd, &master_set);
-	if (fd > maxFds)
-		maxFds = fd;
-	if (sockets.find(fd) == sockets.end())
-		delete sockets[fd];
-	sockets[fd] = server;
 }
 
 
@@ -66,7 +66,8 @@ void ServerMonitor::run()
 {
 	// creating set of fds
 	fd_set read_set, write_set;
-	std::map<int, Server *> tmpSockets;
+
+	std::map<int, ServerAndPort> tmpSockets;
 
 	printSet(master_set);
 
@@ -97,11 +98,14 @@ void ServerMonitor::run()
 					if (new_socket > maxFds)
 						maxFds = new_socket;
 
-					tmpSockets[new_socket] = sockets[i];
+					ServerAndPort tmp;
+						tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
+						tmp.srv = sockets[i];
+					tmpSockets[new_socket] = tmp;
 					{
 						std::stringstream ss;
 							ss << "WebSocket connection established with "
-								<< tmpSockets[new_socket]->getConfig()->getName();
+								<< (tmpSockets[new_socket].srv)->getConfig()->getName();
 						// Logger(tmpSockets[new_socket]->getConfig()->getLogger(), Logger::INFO,  ss.str());
 						Logger(Logger::INFO,  ss.str());
 					}
@@ -113,8 +117,8 @@ void ServerMonitor::run()
 
 					std::stringstream ss;
 						ss << "WebSocket message received from " 
-							<< tmpSockets[i]->getConfig()->getName() + ":"
-							<< tmpSockets[i]->getConfig()->getPort();
+							<< (tmpSockets[i].srv)->getConfig()->getName() + ":"
+							<< tmpSockets[i].port;
 					// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::INFO,  ss.str());
 					Logger(Logger::INFO,  ss.str());
 
@@ -133,7 +137,9 @@ void ServerMonitor::run()
 						FD_CLR(i, &master_set);
 					} else {
 						buffer[bytes_read] = 0;
-						std::string response = "<h1>Hello, world!</h1>";
+						std::string response = "<h1>Hello, ";
+						response += tmpSockets[i].srv->getConfig()->getName();
+						response += " </h1>";
 						std::stringstream ss;
 							ss << "HTTP/1.1 200 OK";
 						// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::DEBUG,  ss.str());

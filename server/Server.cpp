@@ -12,7 +12,8 @@
 
 Server::Server(Config* conf): conf(conf) {
 	// printAdressInfo(this->address);
-	initServer();
+	// initServer();
+	std::cout << "Server Cretead " << std::endl;
 }
 
 Server::~Server() {
@@ -34,19 +35,20 @@ Server::Config* Server::getConfig(){
 
 
 void Server::initServer() {
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		throw Server::ServerException("Socket creation error");
-	}
-	int opt = 1;
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-		throw Server::ServerException("Setsockopt error");
-	}
-	if (bind(server_fd, (struct sockaddr *)&conf->getAddress(), sizeof(conf->getAddress())) < 0) {
-		throw Server::ServerException("Bind error");
-	}
-	if (listen(server_fd, 3) < 0) {
-		throw Server::ServerException("Listen error");
-	}
+	// if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	// 	throw Server::ServerException("Socket creation error");
+	// }
+	// int opt = 1;
+	// if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+	// 	throw Server::ServerException("Setsockopt error");
+	// }
+	// if (bind(server_fd, (struct sockaddr *)&conf->getAddress(), sizeof(conf->getAddress())) < 0) {
+	// 	throw Server::ServerException("Bind error");
+	// }
+	// whiling on all map keys of sock_port and start listening using them
+	// if (listen(server_fd, 3) < 0) {
+	// 	throw Server::ServerException("Listen error");
+	// }
 }
 
 // Exception

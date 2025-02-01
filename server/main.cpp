@@ -12,14 +12,31 @@ int main() {
 
 	try {
 		ServerMonitor *serverMonitor = ServerMonitor::getInstance();
+		Server::Config srv;
+			srv.setName("abounab.42.fr");
+			/*
+				std::map<std::string, Location>
+				Location(srv)
+					.setName("/");
+					.setFile("root");
+					.setFile("root");
+					.build();//
+			*/
+			// map<fd, port> every port have it"s own fdsock , when selecting from the fd ,we get the 
+			srv.setPort(9090);
+			srv.setPort(50);
+			// srv.setPort(30);
+			/*
+				srv.setRoot(std::string)
+				srv.setIndex(std::string)
+				srv.setLogs(std::string)
+				srv.setErrorPage(int status, std::string file)
+			*/
+			srv.build();
+
 
 		Server::Config()
-			.setName("abounab.42.fr")
-			.setPort(9090)
-			.build();
-
-		Server::Config()
-			.setPort(80)
+			// .setPort(80)
 			.build();
 
 		Server::Config()

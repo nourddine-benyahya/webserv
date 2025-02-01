@@ -33,6 +33,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/select.h>
+// #include <set>
+#include <map>
 
 
 #include "../Logger/Logger.hpp"
@@ -44,9 +46,6 @@ class Server {
 public:
 	// for debug
 	void readServerInfo();
-	~Server();
-
-	int getServerFd();
 
 		class ServerException : public std::exception {
 			std::string msg;
@@ -58,33 +57,40 @@ public:
 
 
 		// Using API Config
-		class Config {
-		protected:
-			struct sockaddr_in address;
-			std::string name;
-		public:
-			~Config();
-			Config();
-			Config(Config&);
+			class Config {
+				void create_sock();
+				bool portRedifined;
+			protected:
+				std::map<int, int> sock_port;
+				struct sockaddr_in address;
+				std::string name;
+			public:
+				~Config();
+				Config();
+				Config(Config&);
 
-			Config& setPort(int port);
-			Config& setName(std::string);
-			void build();
-			// Server *build();
-			// Server build();
+				Config& setPort(int port);
+				Config& setName(std::string);
+				void build();
 
-			Config* clone();
-			// getter
-			struct sockaddr_in& getAddress() ;
-			std::string& getName() ;
-			int getPort() ;
-		};
+
+				Config* clone();
+				// getter
+				struct sockaddr_in& getAddress() ;
+				std::string& getName() ;
+				std::map<int, int>& getSockets() ;
+				int getPort() ;
+			};
 
 	Server::Config* getConfig();
+
+	int getServerFd();
+	~Server();
 
 
 	private:
 		int server_fd;
+		// std::set<int> server_fd;
 		//dependencies to build a server
 		Config *conf;
 
