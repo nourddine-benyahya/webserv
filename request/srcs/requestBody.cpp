@@ -38,19 +38,12 @@ void requestBody::save_formfield(std::istringstream &stream)
 {
     std::string line;
     std::getline(stream, line);
-    // read += line.size();
     parseContentDisposition(line);
     std::getline(stream, line);
-    // read += line.size();
     if (line.find("Content-Type") != std::string::npos)
-    {
-        std::getline(stream, line);
-        // read += line.size();
         parseContentDisposition(line);
-    }
-    // std::getline(stream, line);
-    // read += line.size();
-    // parseContentDisposition(line);
+    std::getline(stream, line);
+
 }
 
 void requestBody::saveFile()
@@ -133,7 +126,6 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
 
     if (getType() == FORM_DATA) {
         std::getline(stream, boundary);
-        // read += boundary.size();
         save_formfield(stream);
     }
     // Parse Content-Length safely
@@ -143,7 +135,6 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
         long content_length = strtol(cl_str, &end, 10);
         if (*end != '\0' || content_length < 0)
             return; // Invalid length
-        // content_length -= read;
 
 
         fileBuffer.resize(content_length);
