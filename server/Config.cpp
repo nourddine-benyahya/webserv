@@ -24,23 +24,7 @@ void Server::Config::create_sock(){
 	sock_port[server_fd] = this->getPort();
 }
 
-
-struct sockaddr_in& Server::Config::getAddress(){
-	return this->address;
-}
-
-int Server::Config::getPort() {
-	return ntohs(this->address.sin_port);
-}
-
-std::string& Server::Config::getName() {
-	return this->name;
-}
-
-std::map<int, int>& Server::Config::getSockets(){
-	return this->sock_port;
-}
-
+// Builder
 void Server::Config::build() {
 
 	if (!portRedifined){
@@ -68,7 +52,12 @@ Server::Config::Config(Server::Config& other) {
 	this->name = other.name;
 	this->fileIndex = other.fileIndex;
 	this->sock_port = other.sock_port;
+	this->errorPages = other.errorPages;
+	this->rootFolder = other.rootFolder;
+	this->logsFile = other.logsFile;
 }
+
+// Setters
 
 Server::Config& Server::Config::setPort(int port) {
 	if (port <= 0 || port > 65535) {
@@ -90,8 +79,41 @@ Server::Config& Server::Config::setIndex(std::string file){
 	return *this;
 }
 
+Server::Config& Server::Config::setErrorPage(int status, std::string filePath){
+	this->errorPages[status] = filePath;
+	return *this;
+}
+
+Server::Config& Server::Config::setRoot(std::string folderPath){
+	this->rootFolder = folderPath;
+	return *this;
+}
+
+Server::Config& Server::Config::setLogs(std::string filePath){
+	this->logsFile = filePath;
+	return *this;
+}
+
+// getters
+
+struct sockaddr_in& Server::Config::getAddress(){
+	return this->address;
+}
+
+int Server::Config::getPort() {
+	return ntohs(this->address.sin_port);
+}
+
+std::string& Server::Config::getName() {
+	return this->name;
+}
+
+std::map<int, int>& Server::Config::getSockets(){
+	return this->sock_port;
+}
+
 std::string Server::Config::getIndex() {
-	std::ifstream file(this->fileIndex);
+	std::ifstream file(this->fileIndex.c_str());
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file: " + this->fileIndex);
     }
@@ -100,6 +122,18 @@ std::string Server::Config::getIndex() {
     std::stringstream buffer;
    		buffer << file.rdbuf();
     return buffer.str();
+}
+
+std::string Server::Config::getRoot(){
+	return this->rootFolder;
+}
+
+std::string Server::Config::getLogs(){
+	return this->logsFile;
+}
+
+std::map<int, std::string> Server::Config::getErrorPages(){
+	return this->errorPages;
 }
 
 

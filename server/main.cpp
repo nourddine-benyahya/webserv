@@ -27,12 +27,7 @@ int main() {
 			srv.setPort(50);
 			srv.setIndex("test1.html");
 			// srv.setPort(30);
-			/*
-				srv.setRoot(std::string)
-				srv.setIndex(std::string)
-				srv.setLogs(std::string)
-				srv.setErrorPage(int status, std::string file)
-			*/
+			
 			srv.build();
 
 

@@ -65,14 +65,21 @@ public:
 				std::map<int, int> sock_port;
 				struct sockaddr_in address;
 				std::string name;
+				std::string logsFile;
+				std::string rootFolder;
+				std::map<int, std::string> errorPages;
 			public:
 				~Config();
 				Config();
 				Config(Config&);
 
-				Config& setPort(int port);
+				Config& setPort(int);
 				Config& setName(std::string);
 				Config& setIndex(std::string);
+
+				Config& setRoot(std::string);
+				Config& setLogs(std::string);
+				Config& setErrorPage(int, std::string);
 
 				void build();
 
@@ -83,6 +90,9 @@ public:
 				std::string& getName() ;
 				std::string getIndex() ;
 				std::map<int, int>& getSockets() ;
+				std::string getRoot();
+				std::string getLogs();
+				std::map<int, std::string> getErrorPages();
 				int getPort() ;
 			};
 
