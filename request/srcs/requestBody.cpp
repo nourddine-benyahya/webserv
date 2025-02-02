@@ -120,6 +120,8 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
 
     if (headerMap.find("Content-Type") != headerMap.end())
         setType(headerMap["Content-Type"]);
+    else
+        this->type = NONE;
 
     if (getType() == NONE)
         return;

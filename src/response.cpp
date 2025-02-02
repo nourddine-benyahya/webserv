@@ -6,7 +6,7 @@ Response::Response(request r)
     // req.printRequestLine();
     // req.printRequestHeader();
     // req.printRequestBody();
-    // if (req.getReqLine().getMethod())
+    // if (req.getReqLine().getMethod() == GET)
 }
 
 void Response::GET(std::string line, int clientSock)
