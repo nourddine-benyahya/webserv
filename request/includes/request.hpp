@@ -10,9 +10,10 @@ class request
         requestLine     reqLine;
         requestHeader   reqHeader;
         requestBody     reqBody;
+        std::string    requestString;
         //debuging functions
     public :
-        void printFullRequest(const std::string request);
+        void printFullRequest();
         void printRequestLine();
         void printRequestHeader();
         void printRequestBody();

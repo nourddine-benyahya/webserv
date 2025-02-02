@@ -3,6 +3,7 @@
 Response::Response(request r)
 {
     req = r;
+    req.printFullRequest();
     req.printRequestLine();
     req.printRequestHeader();
     req.printRequestBody();

@@ -16,7 +16,7 @@ class requestLine
         void setMethod(const std::string method);
         void setReqTarget(const std::string url);
         void setHttpVers(const std::string vers);
-        std::string getMethod();
+        MethodType getMethod();
         std::string getReqTarget();
         std::string getHttpVers();
         std::map<std::string, std::string> getParams();

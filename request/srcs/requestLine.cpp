@@ -48,10 +48,9 @@ requestLine::requestLine(const std::string requestLine)
     splitParamsFromReqTarget();
 }
 
-std::string requestLine::getMethod()
+MethodType requestLine::getMethod()
 {
-    std::string methods[] = {"GET", "HEAD", "OPTIONS", "TRACE", "PUT", "DELETE", "POST", "PATCH", "CONNECT"};
-    return methods[this->method];
+    return method;
 }
 
 std::string requestLine::getReqTarget()
@@ -75,6 +74,8 @@ void requestLine::splitParamsFromReqTarget()
     std::string key;
     std::string value;
 
+    if (tmp.find("?") == std::string::npos)
+        return ;
     this->reqTarget = tmp.substr(0, tmp.find("?"));
     std::string strParams = tmp.substr(tmp.find("?") + 1);
 

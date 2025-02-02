@@ -66,10 +66,10 @@ void request::printRequestBody()
     std::cout << "~" << std::endl;
 }
 
-void request::printFullRequest(const std::string request)
+void request::printFullRequest()
 {
     std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
-    std::cout << request << std::endl;
+    std::cout << this->requestString << std::endl;
     std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
 }
 
@@ -97,6 +97,11 @@ void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
 
 
 request::request(const std::string request) {
+
+    std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
+    std::cout << request << std::endl;
+    std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
+    this->requestString = request;
     std::string line;
 
     // Put the request in a stream and read it line by line
