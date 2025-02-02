@@ -98,10 +98,7 @@ void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
 
 request::request(const std::string request) {
 
-    std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
-    std::cout << request << std::endl;
-    std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
-    this->requestString = request;
+    this->requestString = std::string(request);
     std::string line;
 
     // Put the request in a stream and read it line by line

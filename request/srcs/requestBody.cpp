@@ -36,14 +36,17 @@ void requestBody::parseContentDisposition(const std::string &line)
 
 void requestBody::save_formfield(std::istringstream &stream)
 {
+
     std::string line;
     std::getline(stream, line);
     parseContentDisposition(line);
     std::getline(stream, line);
     if (line.find("Content-Type") != std::string::npos)
+    {
         parseContentDisposition(line);
-    std::getline(stream, line);
 
+        std::getline(stream, line);
+    }
 }
 
 void requestBody::saveFile()
@@ -159,7 +162,6 @@ requestBody::requestBody(std::istringstream &stream, requestHeader header)
             }
             fileBuffer.pop_back();
             fileBuffer.pop_back();
-            std::cout << "hehe" << std::endl;
         }
     }
 }
