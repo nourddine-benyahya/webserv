@@ -3,9 +3,10 @@
 Response::Response(request r)
 {
     req = r;
-    req.printRequestLine();
-    req.printRequestHeader();
-    req.printRequestBody();
+    // req.printRequestLine();
+    // req.printRequestHeader();
+    // req.printRequestBody();
+    // if (req.getReqLine().getMethod())
 }
 
 void Response::GET(std::string line, int clientSock)
