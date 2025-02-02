@@ -1,12 +1,13 @@
 #include "../request/includes/response.hpp"
+#include "cgi.hpp"
 
 Response::Response(request r)
 {
-    req = r;
-    req.printFullRequest();
-    req.printRequestLine();
-    req.printRequestHeader();
-    req.printRequestBody();
+    // req = r;
+    // req.printRequestLine();
+    // req.printRequestHeader();
+    // req.printRequestBody();
+    handlCgi(r);
 }
 
 void Response::GET(std::string line, int clientSock)

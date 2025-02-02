@@ -8,6 +8,7 @@
 #include <fstream>
 
 #define DATA_DIR "../data/"
+#define CGI_DIR "./data/cgi-files"
 
 enum MethodType {
     GET,
@@ -32,6 +33,12 @@ enum dataType
     URLENCODED,
     FORM_DATA,
     NONE,
+};
+
+enum Err
+{
+    FILE_NOT_FOUND,
+    SCRIPT_EXEC_ERROR,
 };
 
 std::string trim(std::string& str);

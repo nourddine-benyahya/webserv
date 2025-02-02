@@ -1,10 +1,6 @@
 #pragma once
 
-class cgi
-{
-    private :
+#include "request.hpp"
+#include <unistd.h>
 
-
-    public :
-        cgi();
-};
+void handlCgi(request req);

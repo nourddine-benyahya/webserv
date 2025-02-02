@@ -105,7 +105,7 @@ int main() {
     serverAddress.sin_port = htons(80);
 
     if (bind(sock, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
-        std::cerr << "Bind failed\n";
+        std::cerr << strerror(errno) << std::endl;
         close(sock);
         return -1;
     }
