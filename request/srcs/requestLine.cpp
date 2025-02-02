@@ -63,7 +63,7 @@ std::string requestLine::getHttpVers()
     return this->httpVers;
 }
 
-std::map<std::string, std::string> requestLine::getParams()
+std::map<std::string, std::string> &requestLine::getParams()
 {
     return this->params;
 }
@@ -73,7 +73,6 @@ void requestLine::splitParamsFromReqTarget()
     std::string tmp = this->reqTarget;
     std::string key;
     std::string value;
-
     if (tmp.find("?") == std::string::npos)
         return ;
     this->reqTarget = tmp.substr(0, tmp.find("?"));

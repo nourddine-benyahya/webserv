@@ -5,7 +5,7 @@
 #include <cstring>
 #include <sstream>
 #include <fstream>
-#include "../request/includes/response.hpp"
+#include "response.hpp"
 // #include 
 // void handleRequest(int clientSock)
 // {
@@ -78,15 +78,16 @@ void handleClient(int clientSocket) {
     Response res(req);
 
     // Simple HTTP Response
-    std::string response =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 13\r\n"
-        "\r\n"
-        "Hello, World!";
+    // std::string response =
+    //     "HTTP/1.1 200 OK\r\n"
+    //     "Content-Type: text/plain\r\n"
+    //     "Content-Length: 13\r\n"
+    //     "\r\n"
+    //     "Hello, World!";
 
     // Send response
-    send(clientSocket, response.c_str(), response.size(), 0);
+    std::cout << res.response.c_str() << std::endl;
+    send(clientSocket, res.response.c_str(), res.response.length(), 0);
 
     // Close client connection
     close(clientSocket);

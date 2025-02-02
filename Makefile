@@ -1,11 +1,11 @@
-SRC= src/main.cpp src/response.cpp ./request/srcs/parsFuncs.cpp request/srcs/requestBody.cpp request/srcs/requestLine.cpp request/srcs/request.cpp request/srcs/requestHeader.cpp
+SRC= response/srcs/main.cpp response/srcs/response.cpp ./request/srcs/parsFuncs.cpp request/srcs/requestBody.cpp request/srcs/requestLine.cpp request/srcs/request.cpp request/srcs/requestHeader.cpp
 
 OBJ= $(SRC:.cpp=.o)
 
 NAME= webserv
 CC= c++
 
-CFLAGS= -Wall -Wextra -Werror -I ./request/includes/ # -std=c++98
+CFLAGS=  -I ./request/includes/ # -fsanitize=address -g
 
 all: $(NAME)
 

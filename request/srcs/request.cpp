@@ -98,9 +98,9 @@ void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
 
 request::request(const std::string request) {
 
-    std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
-    std::cout << request << std::endl;
-    std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
+    // std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
+    // std::cout << request << std::endl;
+    // std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
     this->requestString = request;
     std::string line;
 
