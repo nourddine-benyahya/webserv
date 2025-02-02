@@ -2,6 +2,17 @@
 
 ServerMonitor *ServerMonitor::instance = NULL;
 
+static bool rootExist(std::string file){
+	struct stat info;
+	std::cout << file << std::endl;
+	if (stat(file.c_str(), &info) != 0 || !(info.st_mode & S_IFDIR)) {
+		std::cout << "file is false "<< file << std::endl;
+		return false;
+	}
+	std::cout << "file is true "<< file << std::endl;
+	return true;
+}
+
 void ServerMonitor::printSet(fd_set &ms)
 {
 	std::cout << "set file descriptors: ";
@@ -40,6 +51,15 @@ ServerMonitor *ServerMonitor::getInstance()
 
 void ServerMonitor::addServer(Server* server)
 {
+	if (!server)
+		throw ServerMonitorException("Null Server");
+	if (!rootExist(server->getConfig()->getRoot())){
+		std::stringstream ss;
+			ss << "Folder doesnt exists :" << server->getConfig()->getRoot()
+				<< " - " << server->getConfig()->getName();
+			Logger(server, Logger::ERROR, ss.str());
+		return	delete server;
+	}
 	std::map<int, int>::iterator it = server->getConfig()->getSockets().begin();
 	while (it != server->getConfig()->getSockets().end()){
 		FD_SET(it->first, &master_set);
@@ -68,7 +88,7 @@ void ServerMonitor::run()
 
 	std::map<int, ServerAndPort> tmpSockets;
 
-	printSet(master_set);
+	// printSet(master_set);
 
 // the throws have to be handled to not segv 
 
@@ -79,7 +99,8 @@ void ServerMonitor::run()
 		FD_ZERO(&write_set);
 		memcpy(&write_set, &master_set, sizeof(master_set)); 
 		if (select(maxFds + 1, &read_set, &write_set, NULL, NULL) < 0) {
-			throw ServerMonitorException("Select error");
+			// throw ServerMonitorException("Select error");
+			continue;
 		}
 		for (int i = 0; i <= maxFds; ++i)
 		{
@@ -91,7 +112,7 @@ void ServerMonitor::run()
 					int new_socket = accept(i, (struct sockaddr *)&client_address, &client_address_len);
 					if (new_socket < 0) {
 						// Logger(sockets[i]->getConfig()->getLogger(), Logger::ERROR,  "Accept Error");
-						Logger(Logger::ERROR,  "Accept Error");
+						Logger(sockets[i], Logger::ERROR,  "Accept Error");
 						continue ;
 					}
 					FD_SET(new_socket, &master_set);
@@ -107,7 +128,7 @@ void ServerMonitor::run()
 							ss << "WebSocket connection established with "
 								<< (tmpSockets[new_socket].srv)->getConfig()->getName();
 						// Logger(tmpSockets[new_socket]->getConfig()->getLogger(), Logger::INFO,  ss.str());
-						Logger(Logger::INFO,  ss.str());
+						Logger(tmpSockets[new_socket].srv, Logger::INFO,  ss.str());
 					}
 				}
 				else
@@ -119,18 +140,15 @@ void ServerMonitor::run()
 						ss << "WebSocket message received from " 
 							<< (tmpSockets[i].srv)->getConfig()->getName() + ":"
 							<< tmpSockets[i].port;
-					// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::INFO,  ss.str());
-					Logger(Logger::INFO,  ss.str());
+					Logger(tmpSockets[i].srv, Logger::INFO,  ss.str());
 
 					if (bytes_read <= 0)
 					{
 						// Handle disconnection or error
 						if (bytes_read == 0)
-							Logger( Logger::INFO,  "Connection closed");
-							// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::INFO,  "Connection closed");
+							Logger(tmpSockets[i].srv, Logger::INFO,  "Connection closed");
 						else
-							Logger( Logger::ERROR,  "Recv Error");
-							// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::DEBUG,  "Recv Error");
+							Logger(tmpSockets[i].srv, Logger::ERROR,  "Recv Error");
 						close(i);
 						update_maxFds();
 						tmpSockets.erase(i);
@@ -147,18 +165,19 @@ void ServerMonitor::run()
 							status = 400;
 							valid = " KO";
 						}
-						std::stringstream ss;
-							ss << "HTTP/1.1 " << status << valid;
-						// Logger(tmpSockets[i]->getConfig()->getLogger(), Logger::DEBUG,  ss.str());
-						Logger( Logger::DEBUG,  ss.str());
-							ss << "\r\nContent-Type: text/html\r\n";
-							ss << "Content-Length: " << response.size() << "\r\n\r\n";
-							ss << response;
 						if (FD_ISSET(i, &write_set)) {
-							std::stringstream xx;
-							xx << "Sender connection from socket "
+
+							std::stringstream logs;
+							logs << "Sender connection from socket "
 								<< i;
-							Logger( Logger::DEBUG,  xx.str());
+							
+							std::stringstream ss;
+								ss << "HTTP/1.1 " << status << valid;
+								ss << "\r\nContent-Type: text/html\r\n";
+								ss << "Content-Length: " << response.size() << "\r\n\r\n";
+								ss << response;
+
+							Logger(tmpSockets[i].srv, Logger::DEBUG,  logs.str());
                     		send(i, ss.str().c_str(), ss.str().size(), 0);
 						}
 					}

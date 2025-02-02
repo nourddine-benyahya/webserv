@@ -25,6 +25,7 @@ int main() {
 			// map<fd, port> every port have it"s own fdsock , when selecting from the fd ,we get the 
 			srv.setPort(9090);
 			srv.setPort(50);
+			srv.setLogs("test.txt");
 			srv.setIndex("test1.html");
 			// srv.setPort(30);
 			
@@ -35,11 +36,19 @@ int main() {
 			// .setPort(80)
 			.setName("Drari.42.fr")
 			.setIndex("test.html")
+			.setLogs("araElihaChiMizan.txt")
+			.setRoot("slawi")
 			.build();
 
 		Server::Config()
+			// .setPort(80)
+			.setRoot("html")
 			.setPort(1000)
 			.build();
+
+		// Server::Config()
+		// 	.setPort(80)
+		// 	.build();
 
 		serverMonitor->run();
 		delete ServerMonitor::getInstance();

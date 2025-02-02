@@ -1,9 +1,11 @@
 #pragma once
 
-#include <ostream>
+#include <fstream>
+#include <sstream>
 #include <iostream>
 #include <ctime>
 #include <iomanip>
+#include "../server/Server.hpp"
 
 
 
@@ -21,6 +23,8 @@
 // Reset
 # define RESET "\033[0m"
 
+class Server;
+
 
 class Logger {
 	public:
@@ -32,9 +36,9 @@ class Logger {
 		NOTICE
 	};
 
-		// Logger( std::ostream&  , LOGS, std::string );
-		Logger( LOGS, std::string );
+		Logger( Server* , LOGS, std::string );
 		~Logger( );
 	private:
 		std::string logToString(LOGS log) const;
+		bool writeOnFile(std::string, std::string);
 };

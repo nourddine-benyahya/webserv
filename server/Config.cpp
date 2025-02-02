@@ -3,6 +3,24 @@
 
 #include "ServerMonitor.hpp"
 
+std::string Server::Config::catRoot(std::string file){
+	std::stringstream ss;
+		ss << this->getRoot() << "/"
+			<< file;
+	return ss.str();
+}
+
+
+std::string Server::Config::readFile(std::string fileName){
+	std::ifstream file(fileName.c_str());
+    if (!file.is_open()) {
+        throw std::runtime_error("Invalid file: " + fileName);
+    }
+    std::stringstream buffer;
+   		buffer << file.rdbuf();
+	// file.close();
+	return buffer.str();
+}
 
 void Server::Config::create_sock(){
 	int server_fd;
@@ -26,10 +44,10 @@ void Server::Config::create_sock(){
 
 // Builder
 void Server::Config::build() {
-
-	if (!portRedifined){
+// if no port defined before
+	if (!portRedifined)
 		create_sock();
-	}
+
 
 	ServerMonitor *serverMonitor = ServerMonitor::getInstance();
 
@@ -43,7 +61,9 @@ Server::Config::Config() : name("0.0.0.0") {
 	this->address.sin_addr.s_addr = INADDR_ANY;
 	this->address.sin_port = htons(80);
 	sock_port.clear();
+	this->logsFile = "";
 	this->fileIndex = "index.html";
+	this->rootFolder = "html";
 }
 
 
@@ -113,15 +133,7 @@ std::map<int, int>& Server::Config::getSockets(){
 }
 
 std::string Server::Config::getIndex() {
-	std::ifstream file(this->fileIndex.c_str());
-    if (!file.is_open()) {
-        throw std::runtime_error("Could not open file: " + this->fileIndex);
-    }
-
-	// tester function
-    std::stringstream buffer;
-   		buffer << file.rdbuf();
-    return buffer.str();
+    return readFile(this->fileIndex);
 }
 
 std::string Server::Config::getRoot(){
@@ -129,6 +141,8 @@ std::string Server::Config::getRoot(){
 }
 
 std::string Server::Config::getLogs(){
+	if (!this->logsFile.empty())
+		return catRoot(this->logsFile);
 	return this->logsFile;
 }
 

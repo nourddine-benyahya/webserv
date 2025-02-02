@@ -33,7 +33,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/select.h>
-// #include <set>
+#include <sys/stat.h>
 #include <map>
 
 
@@ -46,14 +46,16 @@ class Server {
 public:
 	// for debug
 	void readServerInfo();
+	void closeSocks();
 
-		class ServerException : public std::exception {
-			std::string msg;
-			public :
-				const char * what() const throw();
-				ServerException(std::string);
-				~ServerException() throw();
-		};
+
+			class ServerException : public std::exception {
+				std::string msg;
+				public :
+					const char * what() const throw();
+					ServerException(std::string);
+					~ServerException() throw();
+			};
 
 
 		// Using API Config
@@ -68,6 +70,10 @@ public:
 				std::string logsFile;
 				std::string rootFolder;
 				std::map<int, std::string> errorPages;
+
+
+				std::string readFile(std::string);
+				std::string catRoot(std::string file);
 			public:
 				~Config();
 				Config();
