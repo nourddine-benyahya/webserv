@@ -11,12 +11,12 @@ class request
         requestHeader   reqHeader;
         requestBody     reqBody;
         //debuging functions
+    public :
         void printFullRequest(const std::string request);
         void printRequestLine();
         void printRequestHeader();
         void printRequestBody();
-    public :
-        // request(){};
+        request(){};
         request(const std::string request);
         requestLine getReqLine() const { return reqLine; }
         requestHeader getReqHeader() const { return reqHeader; }

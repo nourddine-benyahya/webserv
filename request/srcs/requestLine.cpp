@@ -74,7 +74,7 @@ void requestLine::splitParamsFromReqTarget()
     std::string tmp = this->reqTarget;
     std::string key;
     std::string value;
-    int i = 0;
+
     this->reqTarget = tmp.substr(0, tmp.find("?"));
     std::string strParams = tmp.substr(tmp.find("?") + 1);
 

@@ -7,14 +7,17 @@
 #include <cstring>
 #include <sstream>
 #include <fstream>
+#include "request.hpp"
+
 
 class Response
 {
     public :
-        Response();
+        Response(request r);
         std::string body;
         std::string header;
         std::string method;
+        request req;
         void GET(std::string line, int clientSock);
         void POST(std::string line, int clientSocket);
         void DELETE();

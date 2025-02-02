@@ -56,7 +56,7 @@ void request::printRequestBody()
         std::cout << "~" << it->first << "~   :   ~" << it->second << "~" << std::endl;
     }
     std::cout << std::endl << "-------------body data----------" << std::endl;
-    int i;
+    size_t i;
     std::cout  << "~";
     std::vector<char> datae = reqBody.getFileBuffer();
     for (i = 0; i < datae.size(); i++)
@@ -120,21 +120,21 @@ request::request(const std::string request) {
         reqBody = requestBody(requestStream, reqHeader);
         
 
-        //print full request
-        printFullRequest(request);
+        // //print full request
+        // printFullRequest(request);
 
-        //print request Line
-        printRequestLine();
+        // //print request Line
+        // printRequestLine();
 
-        //print request header
-        printRequestHeader();
+        // //print request header
+        // printRequestHeader();
 
-        // print request body
-        printRequestBody();
+        // // print request body
+        // printRequestBody();
 
-        //save file if it is a file
-        if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
-            reqBody.saveFile();
+        // //save file if it is a file
+        // if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
+        //     reqBody.saveFile();
 
 
     } catch(const char *e) {

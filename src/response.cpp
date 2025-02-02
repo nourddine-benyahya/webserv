@@ -1,18 +1,21 @@
-#include "response.hpp"
+#include "../request/includes/response.hpp"
 
-Response::Response()
+Response::Response(request r)
 {
-
+    req = r;
+    req.printRequestLine();
+    req.printRequestHeader();
+    req.printRequestBody();
 }
 
 void Response::GET(std::string line, int clientSock)
 {
-    std::string req = line.substr(4, line.length() - 4);
-    size_t len = req.find(" ");
+    std::string reques = line.substr(4, line.length() - 4);
+    size_t len = reques.find(" ");
 
-    std::string url = req.substr(1, len - 1);
+    std::string url = reques.substr(1, len - 1);
     std::cout << "URL |" << url << "|" << std::endl;
-    std::cout << "get method requested !" << std::endl;
+    std::cout << "get method requesuested !" << std::endl;
     std::ifstream file(url);
     if (url == "favicon.ico")
         return ;

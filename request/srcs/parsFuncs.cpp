@@ -11,7 +11,7 @@ std::string trim(std::string& str)
 
 void toupper(std::string& str)
 {
-    for (int i = 0; i < str.size(); i++)
+    for (size_t i = 0; i < str.size(); i++)
         str[i] = std::toupper(str[i]);
 }
 
