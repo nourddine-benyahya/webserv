@@ -34,6 +34,7 @@ std::string Logger::logToString(LOGS log) const{
         case ERROR: return BRED "ERROR" RESET;
         case NOTICE: return BMAG "NOTICE" RESET;
     }
+	return "NONE";
 }
 
 Logger::~Logger() {}

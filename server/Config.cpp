@@ -91,7 +91,7 @@ Server::Config& Server::Config::setIndex(std::string file){
 }
 
 std::string Server::Config::getIndex() {
-	std::ifstream file(this->fileIndex);
+	std::ifstream file(this->fileIndex.c_str());
     if (!file.is_open()) {
         throw std::runtime_error("Could not open file: " + this->fileIndex);
     }
