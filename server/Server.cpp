@@ -24,9 +24,7 @@ void Server::closeSocks(){
 }
 
 Server::Server(Config* conf): conf(conf) {
-	// readServerInfo();
-	// initServer();
-	std::cout << "Server Cretead " << std::endl;
+	// std::cout << "Server Cretead " << std::endl;
 }
 
 Server::~Server() {

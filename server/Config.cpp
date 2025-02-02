@@ -14,7 +14,7 @@ std::string Server::Config::catRoot(std::string file){
 std::string Server::Config::readFile(std::string fileName){
 	std::ifstream file(fileName.c_str());
     if (!file.is_open()) {
-        throw std::runtime_error("Invalid file: " + fileName);
+        throw std::runtime_error("Config Invalid file: " + fileName);
     }
     std::stringstream buffer;
    		buffer << file.rdbuf();
@@ -37,8 +37,6 @@ void Server::Config::create_sock(){
 	if (listen(server_fd, 5) < 0) {
 		throw Server::ServerException("Listen error");
 	}
-	std::cout << "createsock: " << server_fd;
-	std::cout << " port: " << this->getPort() << std::endl;
 	sock_port[server_fd] = this->getPort();
 }
 
@@ -133,7 +131,7 @@ std::map<int, int>& Server::Config::getSockets(){
 }
 
 std::string Server::Config::getIndex() {
-    return readFile(this->fileIndex);
+    return readFile(catRoot(this->fileIndex));
 }
 
 std::string Server::Config::getRoot(){

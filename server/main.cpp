@@ -1,6 +1,7 @@
 
 #include "ServerMonitor.hpp"
 
+
 void ls(){
 	system("leaks server");
 }
@@ -53,9 +54,8 @@ int main() {
 		serverMonitor->run();
 		delete ServerMonitor::getInstance();
 	} catch (std::exception& e){
-		std::cerr
-			<< e.what() 
-			<< std::endl;
+		Logger(Logger::WARNING, e.what());
+		Logger(Logger::NOTICE, "Exited[1] : server failed");
 		delete ServerMonitor::getInstance();
 		return (EXIT_FAILURE);
 	}

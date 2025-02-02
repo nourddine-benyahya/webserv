@@ -37,6 +37,7 @@ class Logger {
 	};
 
 		Logger( Server* , LOGS, std::string );
+		Logger(LOGS, std::string );
 		~Logger( );
 	private:
 		std::string logToString(LOGS log) const;

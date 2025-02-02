@@ -4,12 +4,10 @@ ServerMonitor *ServerMonitor::instance = NULL;
 
 static bool rootExist(std::string file){
 	struct stat info;
-	std::cout << file << std::endl;
+	// std::cout << file << std::endl;
 	if (stat(file.c_str(), &info) != 0 || !(info.st_mode & S_IFDIR)) {
-		std::cout << "file is false "<< file << std::endl;
 		return false;
 	}
-	std::cout << "file is true "<< file << std::endl;
 	return true;
 }
 
@@ -35,11 +33,14 @@ ServerMonitor::ServerMonitor() : maxFds(-1)
 ServerMonitor::~ServerMonitor()
 {
 	// Cleanups done here (delete all servers)
+	std::cout << "Before cleaing" << std::endl;
 	for (std::map<int, Server*>::iterator it = sockets.begin(); it != sockets.end(); it++){
+		std::cout << "inside cleaing 1" << std::endl;
 		delete sockets[it->first];
+		std::cout << "inside cleaing 2" << std::endl;
 	}
 
-	sockets.clear();
+	// sockets.clear();
 }
 
 ServerMonitor *ServerMonitor::getInstance()
@@ -92,15 +93,14 @@ void ServerMonitor::run()
 
 // the throws have to be handled to not segv 
 
-	while (true)
+	while (maxFds > 0)
 	{
 		FD_ZERO(&read_set);
 		memcpy(&read_set, &master_set, sizeof(master_set)); 
 		FD_ZERO(&write_set);
 		memcpy(&write_set, &master_set, sizeof(master_set)); 
 		if (select(maxFds + 1, &read_set, &write_set, NULL, NULL) < 0) {
-			// throw ServerMonitorException("Select error");
-			continue;
+			throw ServerMonitorException("Select error");
 		}
 		for (int i = 0; i <= maxFds; ++i)
 		{
@@ -111,10 +111,10 @@ void ServerMonitor::run()
 
 					int new_socket = accept(i, (struct sockaddr *)&client_address, &client_address_len);
 					if (new_socket < 0) {
-						// Logger(sockets[i]->getConfig()->getLogger(), Logger::ERROR,  "Accept Error");
 						Logger(sockets[i], Logger::ERROR,  "Accept Error");
 						continue ;
 					}
+
 					FD_SET(new_socket, &master_set);
 					if (new_socket > maxFds)
 						maxFds = new_socket;
@@ -127,7 +127,6 @@ void ServerMonitor::run()
 						std::stringstream ss;
 							ss << "WebSocket connection established with "
 								<< (tmpSockets[new_socket].srv)->getConfig()->getName();
-						// Logger(tmpSockets[new_socket]->getConfig()->getLogger(), Logger::INFO,  ss.str());
 						Logger(tmpSockets[new_socket].srv, Logger::INFO,  ss.str());
 					}
 				}
@@ -142,19 +141,28 @@ void ServerMonitor::run()
 							<< tmpSockets[i].port;
 					Logger(tmpSockets[i].srv, Logger::INFO,  ss.str());
 
+
 					if (bytes_read <= 0)
 					{
 						// Handle disconnection or error
 						if (bytes_read == 0)
-							Logger(tmpSockets[i].srv, Logger::INFO,  "Connection closed");
+							Logger(tmpSockets[i].srv, Logger::WARNING,  "Connection closed");
 						else
 							Logger(tmpSockets[i].srv, Logger::ERROR,  "Recv Error");
-						close(i);
-						update_maxFds();
 						tmpSockets.erase(i);
 						FD_CLR(i, &master_set);
+						update_maxFds();
+						close(i);
 					} else {
 						buffer[bytes_read] = 0;
+						/*
+							try {
+								response(request(buffer));
+							} catch (){
+								Logger(server[i], ERROR, e.what)
+							}
+						*/
+					// this would be made inside the response
 						std::string response;
 						std::string valid = " OK";
 						int status = 200;
