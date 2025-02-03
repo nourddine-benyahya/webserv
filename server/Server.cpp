@@ -18,7 +18,7 @@ void Server::closeSocks(){
 		std::stringstream ss;
 			ss << "WebSocket socket " << it->first << " closed with "
 				<< this->getConfig()->getName() << ":" << it->second;
-		Logger(this, Logger::WARNING, ss.str());
+		Logger(Logger::WARNING, ss.str());
 		it++;
 	}
 }
@@ -71,7 +71,7 @@ void Server::initServer() {
 
 // Exception
 
-Server::ServerException::ServerException(std::string msg) : msg("[Error::ServerException]: ") {
+Server::ServerException::ServerException(std::string msg) : msg("Internal Server Exception::") {
 	this->msg += msg;
 }
 

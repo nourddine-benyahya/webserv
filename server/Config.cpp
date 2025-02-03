@@ -14,11 +14,10 @@ std::string Server::Config::catRoot(std::string file){
 std::string Server::Config::readFile(std::string fileName){
 	std::ifstream file(fileName.c_str());
     if (!file.is_open()) {
-        throw std::runtime_error("Config Invalid file: " + fileName);
+        throw std::runtime_error("No such file or directory: " + fileName);
     }
     std::stringstream buffer;
    		buffer << file.rdbuf();
-	// file.close();
 	return buffer.str();
 }
 
@@ -32,7 +31,7 @@ void Server::Config::create_sock(){
 		throw Server::ServerException("Setsockopt error");
 	}
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
-		throw Server::ServerException("Bind error");
+		throw Server::ServerException("Bind: Address already in use");
 	}
 	if (listen(server_fd, 5) < 0) {
 		throw Server::ServerException("Listen error");

@@ -4,7 +4,6 @@ ServerMonitor *ServerMonitor::instance = NULL;
 
 static bool rootExist(std::string file){
 	struct stat info;
-	// std::cout << file << std::endl;
 	if (stat(file.c_str(), &info) != 0 || !(info.st_mode & S_IFDIR)) {
 		return false;
 	}
@@ -33,12 +32,13 @@ ServerMonitor::ServerMonitor() : maxFds(-1)
 ServerMonitor::~ServerMonitor()
 {
 	// Cleanups done here (delete all servers)
-	std::cout << "Before cleaing" << std::endl;
+	std::set<Server *> srvs;
 	for (std::map<int, Server*>::iterator it = sockets.begin(); it != sockets.end(); it++){
-		std::cout << "inside cleaing 1" << std::endl;
-		delete sockets[it->first];
-		std::cout << "inside cleaing 2" << std::endl;
+		srvs.insert(sockets[it->first]);
 	}
+	for (std::set<Server*>::iterator it = srvs.begin(); it != srvs.end(); ++it) {
+        delete *it;
+    }
 
 	// sockets.clear();
 }
@@ -58,16 +58,17 @@ void ServerMonitor::addServer(Server* server)
 		std::stringstream ss;
 			ss << "Folder doesnt exists :" << server->getConfig()->getRoot()
 				<< " - " << server->getConfig()->getName();
-			Logger(server, Logger::ERROR, ss.str());
-		return	delete server;
+			Logger(Logger::ERROR, ss.str());
+		return	(delete server);
 	}
 	std::map<int, int>::iterator it = server->getConfig()->getSockets().begin();
 	while (it != server->getConfig()->getSockets().end()){
+
 		FD_SET(it->first, &master_set);
 		if (it->first > maxFds)
 			maxFds = it->first;
-		if (sockets.find(it->first) == sockets.end())
-			delete sockets[it->first];
+		// if (sockets.find(it->first) == sockets.end())
+		// 	delete sockets[it->first];
 		sockets[it->first] = server;
 		it++;
 	}
@@ -102,7 +103,7 @@ void ServerMonitor::run()
 		if (select(maxFds + 1, &read_set, &write_set, NULL, NULL) < 0) {
 			throw ServerMonitorException("Select error");
 		}
-		for (int i = 0; i <= maxFds; ++i)
+		for (int i = 3; i <= maxFds; ++i)
 		{
 			if (FD_ISSET(i, &read_set)) {
 				if (sockets.find( i ) != sockets.end()) {
@@ -134,14 +135,13 @@ void ServerMonitor::run()
 				{
 					char buffer[BUFFER_SIZE] = {0};
 					int bytes_read = recv(i, buffer, sizeof(buffer), 0);
-
-					std::stringstream ss;
-						ss << "WebSocket message received from " 
-							<< (tmpSockets[i].srv)->getConfig()->getName() + ":"
-							<< tmpSockets[i].port;
-					Logger(tmpSockets[i].srv, Logger::INFO,  ss.str());
-
-
+					{
+						std::stringstream ss;
+							ss << "WebSocket message received from " 
+								<< (tmpSockets[i].srv)->getConfig()->getName() + ":"
+								<< tmpSockets[i].port;
+						Logger(tmpSockets[i].srv, Logger::INFO,  ss.str());
+					}
 					if (bytes_read <= 0)
 					{
 						// Handle disconnection or error
@@ -172,12 +172,13 @@ void ServerMonitor::run()
 							response = "";
 							status = 400;
 							valid = " KO";
+							Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
 						}
 						if (FD_ISSET(i, &write_set)) {
 
 							std::stringstream logs;
 							logs << "Sender connection from socket "
-								<< i;
+								<< i << " with status " << status << valid;
 							
 							std::stringstream ss;
 								ss << "HTTP/1.1 " << status << valid;
@@ -195,7 +196,7 @@ void ServerMonitor::run()
 	}
 }
 
-ServerMonitor::ServerMonitorException::ServerMonitorException(std::string msg) : msg("[Error::ServerMonitorException] : ")
+ServerMonitor::ServerMonitorException::ServerMonitorException(std::string msg) : msg("Internal Server Monitor Exception:: ")
 {
 	this->msg += msg;
 }
