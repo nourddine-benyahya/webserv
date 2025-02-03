@@ -20,11 +20,11 @@ int main()
 			std::map<std::string, Location>
 			Location(srv)
 				.setName("/");
-				.setFile("root");
+				.setFile("index.html");
 				.setFile("root");
 				.build();//
 		*/
-		// map<fd, port> every port have it"s own fdsock , when selecting from the fd ,we get the
+		// map<fd, port> every port have it's own fdsock , when selecting from the fd ,we get the
 		srv.setPort(9090);
 		srv.setPort(50);
 		srv.setLogs("test.txt");
@@ -34,7 +34,8 @@ int main()
 		srv.build();
 
 		Server::Config()
-			// .setPort(80)
+			.setPort(80)
+			.setPort(8080)
 			.setName("Drari.42.fr")
 			.setIndex("test2.html")
 			.setLogs("araElihaChiMizan.txt")
@@ -43,7 +44,7 @@ int main()
 
 		Server::Config()
 			// .setPort(80)
-			.setRoot("html")
+			// .setRoot("html")
 			.setPort(1000)
 			.build();
 
@@ -56,7 +57,7 @@ int main()
 	}
 	catch (std::exception &e)
 	{
-		Logger(Logger::WARNING, e.what());
+		Logger(Logger::ERROR, e.what());
 		delete ServerMonitor::getInstance();
 		Logger(Logger::NOTICE, "Exited[1] : Server failed");
 		return (EXIT_FAILURE);

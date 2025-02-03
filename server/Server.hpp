@@ -99,17 +99,22 @@ public:
 				std::string getRoot();
 				std::string getLogs();
 				std::map<int, std::string> getErrorPages();
+				std::string getErrorPage(int);
 				int getPort() ;
 			};
 
 	Server::Config* getConfig();
 
 	int getServerFd();
+	void setRecvBuffer(std::string);
+	std::string getRecvBuffer();
 	~Server();
+
 
 
 	private:
 		int server_fd;
+		std::stringstream recvBuffer;
 		// std::set<int> server_fd;
 		//dependencies to build a server
 		Config *conf;

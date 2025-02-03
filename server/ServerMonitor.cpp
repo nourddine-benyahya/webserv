@@ -27,6 +27,32 @@ ServerMonitor::ServerMonitor() : maxFds(-1)
 {
 	FD_ZERO(&master_set);
 	sockets.clear();
+		mkdir("html", 0750);
+	std::ofstream indexFile("html/index.html");
+    if (indexFile.is_open()) {
+        indexFile << "<!DOCTYPE html>\n"
+                  << "<html lang=\"en\">\n"
+                  << "<head>\n"
+                  << "    <meta charset=\"UTF-8\">\n"
+                  << "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+                  << "    <title>Welcome Page</title>\n"
+                  << "    <style>\n"
+                  << "        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }\n"
+                  << "        h1 { font-size: 50px; font-weight: bold; }\n"
+                  << "        p { font-size: 20px; }\n"
+                  << "    </style>\n"
+                  << "</head>\n"
+                  << "<body>\n"
+                  << "    <h1>Welcome to the WebServ</h1>\n"
+                  << "    <h2>Dedicace l had Chabab:</h2>\n"
+                  << "    <p>Abdellah Bounab</p>\n"
+                  << "    <p>Anas Mejdoub</p>\n"
+                  << "    <p>Nourddine BenYahya</p>\n"
+                  << "    <p>Abderrafia Askal</p>\n"
+                  << "</body>\n"
+                  << "</html>";
+        indexFile.close();
+    }
 }
 
 ServerMonitor::~ServerMonitor()
@@ -135,6 +161,7 @@ void ServerMonitor::run()
 				{
 					char buffer[BUFFER_SIZE] = {0};
 					int bytes_read = recv(i, buffer, sizeof(buffer), 0);
+
 					{
 						std::stringstream ss;
 							ss << "WebSocket message received from " 
@@ -155,44 +182,52 @@ void ServerMonitor::run()
 						close(i);
 					} else {
 						buffer[bytes_read] = 0;
-						/*
+						tmpSockets[i].srv->setRecvBuffer(buffer);
+						if (bytes_read < BUFFER_SIZE)
+							// chunkedRemaining = i;
+						// else {
+							{
+							std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
+							/*
+								try {
+									response(request(buffer), server->config());
+								} catch (){
+									Logger(server[i], ERROR, e.what)
+								}
+							*/
+						// this would be made inside the response
+							std::string response;
+							std::string valid = " OK";
+							int status = 200;
 							try {
-								response(request(buffer));
-							} catch (){
-								Logger(server[i], ERROR, e.what)
+								response = tmpSockets[i].srv->getConfig()->getIndex();
+							} catch (std::exception& e){
+								status = 404;
+								response = tmpSockets[i].srv->getConfig()->getErrorPage(status);
+								valid = " KO";
+								Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
 							}
-						*/
-					// this would be made inside the response
-						std::string response;
-						std::string valid = " OK";
-						int status = 200;
-						try {
-							response = tmpSockets[i].srv->getConfig()->getIndex();
-						} catch (std::exception& e){
-							response = "";
-							status = 400;
-							valid = " KO";
-							Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
-						}
-						if (FD_ISSET(i, &write_set)) {
-
-							std::stringstream logs;
-							logs << "Sender connection from socket "
-								<< i << " with status " << status << valid;
 							
-							std::stringstream ss;
-								ss << "HTTP/1.1 " << status << valid;
-								ss << "\r\nContent-Type: text/html\r\n";
-								ss << "Content-Length: " << response.size() << "\r\n\r\n";
-								ss << response;
+							if (FD_ISSET(i, &write_set)) {
 
-							Logger(tmpSockets[i].srv, Logger::DEBUG,  logs.str());
-                    		send(i, ss.str().c_str(), ss.str().size(), 0);
+								std::stringstream logs;
+								logs << "Sender connection from socket "
+									<< i << " with status " << status << valid;
+								
+								std::stringstream ss;
+									ss << "HTTP/1.1 " << status << valid;
+									ss << "\r\nContent-Type: text/html\r\n";
+									ss << "Content-Length: " << response.size() << "\r\n\r\n";
+									ss << response;
+
+								Logger(tmpSockets[i].srv, Logger::DEBUG,  logs.str());
+								send(i, ss.str().c_str(), ss.str().size(), 0);
+							}
 						}
 					}
 				}
 			}
-		}
+		} 
 	}
 }
 

@@ -101,6 +101,47 @@ Server::Config& Server::Config::setErrorPage(int status, std::string filePath){
 	return *this;
 }
 
+static std::string getErrorDescription(int status){
+	switch (status) {
+        case 400: return "Bad Request";
+        case 401: return "Unauthorized";
+        case 403: return "Forbidden";
+        case 404: return "Page Not Found";
+        case 500: return "Internal Server Error";
+        case 502: return "Bad Gateway";
+        case 503: return "Service Unavailable";
+        case 504: return "Gateway Timeout";
+        default: return "Unknown Error";
+    }
+}
+
+std::string Server::Config::getErrorPage(int status){
+	if (errorPages.find(status) != errorPages.end())
+		return readFile(catRoot(errorPages[status]));
+	// create a template error page
+
+	std::ostringstream oss;
+    oss << "<!DOCTYPE html>\n"
+        << "<html lang=\"en\">\n"
+        << "<head>\n"
+        << "    <meta charset=\"UTF-8\">\n"
+        << "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+        << "    <title>Error " << status << "</title>\n"
+        << "</head>\n"
+		<< "    <style>\n"
+        << "        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }\n"
+        << "        h1 { font-size: 50px; font-weight: bold; }\n"
+        << "        p { font-size: 20px; font-weight: bold; }\n"
+        << "    </style>\n"
+        << "<body>\n"
+        << "    <h1>Error " << status << "</h1>\n"
+        << "    <p>" << getErrorDescription(status) << "</p>\n"
+        << "</body>\n"
+        << "</html>";
+    return oss.str();
+}
+
+
 Server::Config& Server::Config::setRoot(std::string folderPath){
 	this->rootFolder = folderPath;
 	return *this;
