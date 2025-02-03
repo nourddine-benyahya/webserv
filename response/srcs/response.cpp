@@ -19,7 +19,8 @@ void Response::get()
     std::ifstream file("." + req.getReqLine().getReqTarget());
     if (!file.is_open())
     {
-        std::ifstream file404("404.html");
+        std::ifstream file404("./404.html");
+        std::cout << req.getReqLine().getReqTarget() << std::endl;
         if (!file404.is_open())
         {
             std::cerr << "error opening 404.html" << std::endl;
@@ -33,6 +34,8 @@ void Response::get()
         std::stringstream ss;
         ss << body.length();
         response = header + ss.str(); + "\r\n\r\n" + body;
+        
+        std::cout << "inside response :" << response << std::endl;
         file404.close();
         return ;
     }
@@ -50,13 +53,12 @@ void Response::get()
 void Response::post()
 {
     std::cout << req.getReqLine().getReqTarget() << std::endl;
-    std::map<std::string, std::string>::iterator it = req.getReqLine().getParams().begin();
-    while (it != req.getReqLine().getParams().end())
+    std::map<std::string, std::string>::iterator it = req.getReqLine().params.begin();
+    while (it != req.getReqLine().params.end())
     {
         std::cout << it->first << " : " << it->second << std::endl;
         it++;
     }
-
     body ="submited";
     header = "HTTP/1.1 200 OK\r\nContent-Length: ";
     std::stringstream ss;
