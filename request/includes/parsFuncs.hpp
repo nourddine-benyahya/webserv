@@ -7,7 +7,7 @@
 #include <sstream>
 #include <fstream>
 
-#define DATA_DIR "../data/"
+#define DATA_DIR "./data/"
 
 enum MethodType {
     GET,

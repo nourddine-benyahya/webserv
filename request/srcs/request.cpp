@@ -138,8 +138,8 @@ request::request(const std::string request) {
         // printRequestBody();
 
         // //save file if it is a file
-        // if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
-        //     reqBody.saveFile();
+        if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
+            reqBody.saveFile();
 
 
     } catch(const char *e) {
