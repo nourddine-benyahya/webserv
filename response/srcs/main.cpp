@@ -44,7 +44,7 @@ void handleClient(int clientSocket) {
     request req(fullRequest);
     Response res(req);
 
-    std::cout << res.response.c_str() << std::endl;
+    // std::cout << res.response.c_str() << std::endl;
     send(clientSocket, res.response.c_str(), res.response.length(), 0);
 
     close(clientSocket);

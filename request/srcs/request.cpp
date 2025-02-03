@@ -98,9 +98,9 @@ void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
 
 request::request(const std::string request) {
 
-    // std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
-    // std::cout << request << std::endl;
-    // std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
+    std::cout << std::endl << "-------------------------------------------start request---------------------------------" << std::endl;
+    std::cout << request << std::endl;
+    std::cout << std::endl << "-------------------------------------------end request---------------------------------" << std::endl;
     this->requestString = request;
     std::string line;
 
@@ -126,7 +126,7 @@ request::request(const std::string request) {
         
 
         // //print full request
-        // printFullRequest(request);
+        // printFullRequest();
 
         // //print request Line
         // printRequestLine();
@@ -138,8 +138,8 @@ request::request(const std::string request) {
         // printRequestBody();
 
         // //save file if it is a file
-        if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
-            reqBody.saveFile();
+        // if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
+        //     reqBody.saveFile();
 
 
     } catch(const char *e) {

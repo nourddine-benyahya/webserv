@@ -35,7 +35,7 @@ void Response::get()
         ss << body.length();
         response = header + ss.str(); + "\r\n\r\n" + body;
         
-        std::cout << "inside response :" << response << std::endl;
+        // std::cout << "inside response :" << response << std::endl;
         file404.close();
         return ;
     }
