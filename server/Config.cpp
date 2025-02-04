@@ -36,6 +36,15 @@ void Server::Config::create_sock(){
 	if (listen(server_fd, 5) < 0) {
 		throw Server::ServerException("Listen error");
 	}
+
+	int flags = fcntl(server_fd, F_GETFL, 0);
+    if (flags == -1) {
+        throw Server::ServerException("fcntl F_GETFL error");
+    }
+    if (fcntl(server_fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        throw Server::ServerException("fcntl F_SETFL error");
+    }
+	
 	sock_port[server_fd] = this->getPort();
 }
 

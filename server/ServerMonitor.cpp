@@ -213,7 +213,7 @@ void ServerMonitor::run()
 			}
 			if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady)
 			{
-				std::cout << "len : " << tmpSockets[i].srv->recvBuffer.size() << std::endl;
+				// std::cout << "len : " << tmpSockets[i].srv->recvBuffer.size() << std::endl;
 				std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
 				// std::cout << ">>>>>>>>>>>>>>>>>>> " << msgTwil << "<<<<<<<<<<<<<" << std::endl;
 
@@ -243,7 +243,7 @@ void ServerMonitor::run()
 				logs << "Sender connection from socket "
 					 << i << " with status " << status << valid;
 				Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
-				std::cerr << " sock : " << i << std::endl;
+				// std::cerr << " sock : " << i << std::endl;
 				FD_CLR(i, &master_set);
 				// update_maxFds();
 				close(i);
