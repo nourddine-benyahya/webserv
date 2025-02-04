@@ -112,9 +112,9 @@ public:
 
 
 
+		std::stringstream recvBuffer;
 	private:
 		int server_fd;
-		std::stringstream recvBuffer;
 		// std::set<int> server_fd;
 		//dependencies to build a server
 		Config *conf;

@@ -53,6 +53,7 @@ void Server::setRecvBuffer(std::string buffer){
 
 std::string Server::getRecvBuffer(){
 	std::string res = this->recvBuffer.str();
+	this->recvBuffer.str("");
 		this->recvBuffer.clear();
 	return res;
 }

@@ -9,6 +9,7 @@ class Server;
 struct ServerAndPort {
 		int port;
 		Server *srv;
+		bool isReady;
 };
 
 
@@ -32,6 +33,8 @@ class ServerMonitor {
 	    void run();
 	    void engine();
 		void addServer(Server *server);
+
+		void	acceptNewConnections(int , std::map<int, ServerAndPort> &);
 
 
 		class ServerMonitorException : public std::exception {

@@ -9,7 +9,7 @@ void ls()
 int main()
 {
 	// at exit to check leaks
-	atexit(ls);
+	// atexit(ls);
 
 	try
 	{
@@ -34,11 +34,11 @@ int main()
 		srv.build();
 
 		Server::Config()
-			.setPort(80)
+			// .setPort(80)
 			.setPort(8080)
 			.setName("Drari.42.fr")
 			.setIndex("test2.html")
-			.setLogs("araElihaChiMizan.txt")
+			// .setLogs("araElihaChiMizan.txt")
 			.setRoot("slawi")
 			.build();
 
@@ -49,7 +49,7 @@ int main()
 			.build();
 
 		Server::Config()
-			.setPort(80)
+			// .setPort(80)
 			.build();
 
 		serverMonitor->run();
