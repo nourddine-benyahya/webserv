@@ -112,7 +112,7 @@ public:
 
 
 
-		std::stringstream recvBuffer;
+		std::string recvBuffer;
 	private:
 		int server_fd;
 		// std::set<int> server_fd;

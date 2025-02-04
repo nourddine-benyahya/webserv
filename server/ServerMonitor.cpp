@@ -185,71 +185,68 @@ void ServerMonitor::run()
 				{
 					char buffer[BUFFER_SIZE] = {0};
 					int bytes_read = recv(i, buffer, sizeof(buffer), 0);
-						if (bytes_read <= 0)
-						{
-							// Handle disconnection or error
-							if (bytes_read == 0)
-								Logger(tmpSockets[i].srv, Logger::WARNING, "Connection closed");
-							else
-								Logger(tmpSockets[i].srv, Logger::ERROR, "Recv Error");
-							tmpSockets.erase(i);
-							FD_CLR(i, &master_set);
-							update_maxFds();
-							close(i);
-						}
+					if (bytes_read <= 0)
+					{
+						// Handle disconnection or error
+						if (bytes_read == 0)
+							Logger(tmpSockets[i].srv, Logger::WARNING, "Connection closed");
 						else
-						{
-							buffer[bytes_read] = 0;
-							tmpSockets[i].srv->setRecvBuffer(buffer);
-							tmpSockets[i].isReady = (bytes_read != BUFFER_SIZE)? true : false;
+							Logger(tmpSockets[i].srv, Logger::ERROR, "Recv Error");
+						tmpSockets.erase(i);
+						FD_CLR(i, &master_set);
+						update_maxFds();
+						close(i);
+					}
+					else
+					{
+						buffer[bytes_read] = 0;
+						tmpSockets[i].srv->setRecvBuffer(buffer);
+						tmpSockets[i].isReady = (bytes_read != BUFFER_SIZE) ? true : false;
 
-							std::stringstream ss;
-							ss << "WebSocket message received from "
-								<< (tmpSockets[i].srv)->getConfig()->getName() + ":"
-								<< tmpSockets[i].port;
-								Logger(tmpSockets[i].srv, Logger::INFO, ss.str());
-						}
+						std::stringstream ss;
+						ss << "WebSocket message received from "
+						   << (tmpSockets[i].srv)->getConfig()->getName() + ":"
+						   << tmpSockets[i].port;
+						Logger(tmpSockets[i].srv, Logger::INFO, ss.str());
+					}
 				}
-				if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady)
+			}
+			if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady)
+			{
+				std::cout << "len : " << tmpSockets[i].srv->recvBuffer.size() << std::endl;
+				std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
+				// std::cout << ">>>>>>>>>>>>>>>>>>> " << msgTwil << "<<<<<<<<<<<<<" << std::endl;
+
+				std::string response;
+				std::string valid = " OK";
+				int status = 200;
+				try
 				{
-					std::cout << "len : " << tmpSockets[i].srv->recvBuffer.str().size() <<std::endl;
-					std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
-					std::cout << ">>>>>>>>>>>>>>>>>>> " << msgTwil << "<<<<<<<<<<<<<" <<std::endl;
-
-
-					std::string response;
-					std::string valid = " OK";
-					int status = 200;
-					try
-					{
-						response = tmpSockets[i].srv->getConfig()->getIndex();
-					}
-					catch (std::exception &e)
-					{
-						status = 404;
-						response = tmpSockets[i].srv->getConfig()->getErrorPage(status);
-						valid = " KO";
-						Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
-					}
-
-
-
-					std::stringstream ss;
-						ss << "HTTP/1.1 " << status << valid;
-						ss << "\r\nContent-Type: text/html\r\n";
-						ss << "Content-Length: " << response.size() << "\r\n\r\n";
-						ss << response;
-					send(i, ss.str().c_str(), ss.str().size(), 0);
-
-					std::stringstream logs;
-					logs << "Sender connection from socket "
-						<< i << " with status " << status << valid;
-					Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
-					std::cerr << " sock : " << i << std::endl;
-					FD_CLR(i, &master_set);
-					// update_maxFds();
-					close(i);
+					response = tmpSockets[i].srv->getConfig()->getIndex();
 				}
+				catch (std::exception &e)
+				{
+					status = 404;
+					response = tmpSockets[i].srv->getConfig()->getErrorPage(status);
+					valid = " KO";
+					Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
+				}
+
+				std::stringstream ss;
+				ss << "HTTP/1.1 " << status << valid;
+				ss << "\r\nContent-Type: text/html\r\n";
+				ss << "Content-Length: " << response.size() << "\r\n\r\n";
+				ss << response;
+				send(i, ss.str().c_str(), ss.str().size(), 0);
+
+				std::stringstream logs;
+				logs << "Sender connection from socket "
+					 << i << " with status " << status << valid;
+				Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
+				std::cerr << " sock : " << i << std::endl;
+				FD_CLR(i, &master_set);
+				// update_maxFds();
+				close(i);
 			}
 		}
 	}

@@ -48,13 +48,16 @@ int Server::getServerFd(){
 }
 
 void Server::setRecvBuffer(std::string buffer){
-	this->recvBuffer << buffer;
+	this->recvBuffer += buffer;
 }
 
 std::string Server::getRecvBuffer(){
-	std::string res = this->recvBuffer.str();
-	this->recvBuffer.str("");
-		this->recvBuffer.clear();
+	// std::string res = this->recvBuffer.str();
+	// this->recvBuffer.str("");
+	// 	this->recvBuffer.clear();
+	// return res;
+	std::string res = recvBuffer;
+	recvBuffer = "";
 	return res;
 }
 
