@@ -98,10 +98,11 @@ void parseConfig()
         return;
     }
     std::vector<tokens> tk = Tokenizer(file);
-    for (std::vector<tokens>::iterator it = tk.begin(); it != tk.end(); it++)
-    {
-        std::cout << "token => |" << it->token << "| value => |" << it->value << "|" << std::endl; 
-    }
+    parser(tk);
+    // for (std::vector<tokens>::iterator it = tk.begin(); it != tk.end(); it++)
+    // {
+    //     std::cout << "token => |" << it->token << "| value => |" << it->value << "|" << std::endl; 
+    // }
 }
 
 int main()
