@@ -56,7 +56,6 @@ void Server::Config::build() {
 	if (!portRedifined)
 		create_sock();
 
-
 	ServerMonitor *serverMonitor = ServerMonitor::getInstance();
 
 	serverMonitor->addServer(new Server(this->clone()));

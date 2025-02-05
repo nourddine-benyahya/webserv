@@ -99,8 +99,11 @@ void ServerMonitor::addServer(Server *server)
 		FD_SET(it->first, &master_set);
 		if (it->first > maxFds)
 			maxFds = it->first;
-		// if (sockets.find(it->first) == sockets.end())
-		// 	delete sockets[it->first];
+		std::stringstream ss;
+			ss << "Connection created at "
+				<< server->getConfig()->getName()
+				<< ":" << it->second ;
+		Logger(Logger::INFO, ss.str());
 		sockets[it->first] = server;
 		it++;
 	}
@@ -130,8 +133,9 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 	int flags = fcntl(new_socket, F_GETFL, 0);
     if (flags < 0)
         throw ServerMonitorException("fcntl F_GETFL Error");
-    if (fcntl(new_socket, F_SETFL, flags | O_NONBLOCK) < 0)
+    if (fcntl(new_socket, F_SETFL, flags | O_NONBLOCK) < 0){
         throw ServerMonitorException("fcntl F_SETFL Error");
+	}
 
 	FD_SET(new_socket, &master_set);
 	if (new_socket > maxFds)
@@ -144,8 +148,9 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 	tmpSockets[new_socket] = tmp;
 	{
 		std::stringstream ss;
-		ss << "WebSocket connection established with "
-		   << (tmpSockets[new_socket].srv)->getConfig()->getName();
+		ss << "new WebSocket connection established with "
+		   << (tmpSockets[new_socket].srv)->getConfig()->getName()
+		   << ":" << tmpSockets[new_socket].port;
 		Logger(tmpSockets[new_socket].srv, Logger::INFO, ss.str());
 	}
 }
@@ -159,7 +164,7 @@ void ServerMonitor::run()
 	// printSet(master_set);
 
 	// the throws have to be handled to not segv
-	Logger(Logger::INFO, "WebServ starting...");
+	Logger(Logger::NOTICE, "WebServ starting...");
 
 	while (maxFds > 0)
 	{
@@ -194,8 +199,11 @@ void ServerMonitor::run()
 					if (bytes_read <= 0)
 					{
 						// Handle disconnection or error
-						if (bytes_read == 0)
-							Logger(tmpSockets[i].srv, Logger::WARNING, "Connection closed");
+						if (bytes_read == 0){
+							std::stringstream ss;
+								ss << "Connection closed at " << tmpSockets[i].port;
+							Logger(tmpSockets[i].srv, Logger::WARNING, ss.str());
+						}
 						else
 							Logger(tmpSockets[i].srv, Logger::ERROR, "Recv Error");
 						tmpSockets.erase(i);
@@ -208,14 +216,15 @@ void ServerMonitor::run()
 						buffer[bytes_read] = 0;
 						tmpSockets[i].srv->setRecvBuffer(buffer);
 
-						tmpSockets[i].isReady = (tmpSockets[i].length == tmpSockets[i].srv->getRecvBufferLenght()) ? true : false;
+						// tmpSockets[i].isReady = (tmpSockets[i].length == tmpSockets[i].srv->getRecvBufferLenght()) ? true : false;
 						// tmpSockets[i].length = (tmpSockets[i].length == -1) ? getLength(buffer) : tmpSockets[i].length;
+						tmpSockets[i].isReady = (bytes_read != BUFFER_SIZE) ? true : false;
 
 						std::stringstream ss;
 						ss << "WebSocket message received from "
 						   << (tmpSockets[i].srv)->getConfig()->getName() + ":"
 						   << tmpSockets[i].port;
-						Logger(tmpSockets[i].srv, Logger::INFO, ss.str());
+						Logger(tmpSockets[i].srv, Logger::DEBUG, ss.str());
 					}
 				}
 			}
