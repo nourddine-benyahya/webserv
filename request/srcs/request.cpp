@@ -123,7 +123,7 @@ request::request(const std::string request) {
         
 
         // //print full request
-        // printFullRequest(request);
+        // printFullRequest();
 
         // //print request Line
         // printRequestLine();
