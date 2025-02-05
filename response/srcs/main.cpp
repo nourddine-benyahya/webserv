@@ -5,41 +5,8 @@
 #include <cstring>
 #include <sstream>
 #include <fstream>
-#include "../request/includes/response.hpp"
-// #include 
-// void handleRequest(int clientSock)
-// {
-//     char buffer[1048];
+#include "response.hpp"
 
-//     int byteRead = recv(clientSock, buffer, 1047, 0);
-//     if (byteRead < 0)
-//     {
-//         std::cerr << "error with the recv function" << std::endl;
-//         // exit(1);
-//         return;
-//     }
-//     buffer[byteRead] = 0;
-
-//     std::string bu = buffer;
-//     std::istringstream request (bu);
-//     std::string line;
-//     while (std::getline(request, line))
-//     {
-//         std::cout << "line : " << line << std::endl;
-//         if (line.substr(0, 3) == "GET")
-//         {
-//             Response res;
-//             res.method = "GET";
-//             res.GET(line, clientSock);
-//         }
-//         else if (line.substr(0, 4) == "POST")
-//         {
-//             Response res;
-//             res.method = "POST";
-//             res.POST(line, clientSock);
-//         }
-//     }
-// }
 #define PORT 8080
 #define BUFFER_SIZE 1024
 void handleClient(int clientSocket) {
@@ -77,18 +44,7 @@ void handleClient(int clientSocket) {
     request req(fullRequest);
     Response res(req);
 
-    // Simple HTTP Response
-    std::string response =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 13\r\n"
-        "\r\n"
-        "Hello, World!";
-
-    // Send response
-    send(clientSocket, response.c_str(), response.size(), 0);
-
-    // Close client connection
+    send(clientSocket, res.response.c_str(), res.response.length(), 0);
     close(clientSocket);
 }
 

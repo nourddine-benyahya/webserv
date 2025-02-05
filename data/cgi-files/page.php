@@ -1,7 +1,9 @@
-<?php
+<!-- <?php
 
 // Set response header
-header("Content-Type: text/plain");
+// header("Content-Type: text/html\r\n");
+?> -->
+<?php
 
 // Read and display QUERY parameters (GET method)
 echo "=== QUERY PARAMETERS (GET) ===\n";
@@ -15,7 +17,7 @@ if (!empty($_GET)) {
 echo "\n";
 
 // Read and display POST body (Raw Data or Form Data)
-echo "=== POST BODY ===\n";
+echo "<h1> === POST BODY === </h1>";
 $rawInput = file_get_contents("php://input");
 if (!empty($rawInput)) {
     echo "Raw Body:\n$rawInput\n";

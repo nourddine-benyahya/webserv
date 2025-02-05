@@ -79,7 +79,6 @@ void requestLine::splitParamsFromReqTarget()
     std::string tmp = this->reqTarget;
     std::string key;
     std::string value;
-
     if (tmp.find("?") == std::string::npos)
         return ;
     this->reqTarget = tmp.substr(0, tmp.find("?"));

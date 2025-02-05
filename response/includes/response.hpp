@@ -8,7 +8,7 @@
 #include <sstream>
 #include <fstream>
 #include "request.hpp"
-
+#include "cgi.hpp"
 
 class Response
 {
@@ -18,8 +18,9 @@ class Response
         std::string header;
         std::string method;
         request req;
-        void GET(std::string line, int clientSock);
-        void POST(std::string line, int clientSocket);
+        void get();
+        void post();
         void DELETE();
         void methodFilter();
+        std::string response;
 };

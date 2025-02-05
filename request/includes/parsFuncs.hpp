@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 
-#define DATA_DIR "../data/"
+#define DATA_DIR "./data/"
 #define CGI_DIR "./data/cgi-files"
 #define PHP_CGI "./cgi-bin/php-cgi"
 
