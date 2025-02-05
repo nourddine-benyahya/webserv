@@ -68,7 +68,7 @@ int main() {
     int i = 1;
     while (true)
     {
-
+ 
     if (listen(sock, 5) < 0) {
         std::cerr << "Listen failed\n";
         close(sock);
