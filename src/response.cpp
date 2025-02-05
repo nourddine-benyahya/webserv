@@ -3,11 +3,27 @@
 
 Response::Response(request r)
 {
-    // req = r;
+    req = r;
     // req.printRequestLine();
     // req.printRequestHeader();
     // req.printRequestBody();
-    handlCgi(r);
+    // std::cout << r.getReqLine().getReqFullTarget() << std::endl;
+    // std::cout << "--+-++-+-+-+-+-+-+-+-+-+-+-+" << std::endl;
+    // std::cout <<r.getReqBody().getFullBody() << std::endl;
+    try
+    {
+        cgi c(r);
+        // c.setCgiEnv("php", "./cgi-bin/php-cgi");
+        c.runCgi();
+        std::string ress = c.getResponse();
+        std::cout << ress << std::endl;
+        
+    }
+    catch(char const *ptr)
+    {
+        std::cerr << ptr << '\n';
+    }
+    
 }
 
 void Response::GET(std::string line, int clientSock)

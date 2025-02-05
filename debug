@@ -1,0 +1,3 @@
+CgiScript: ./data/cgi-files/page.php
+interpreter: php
+commandpath: /usr/bin/php

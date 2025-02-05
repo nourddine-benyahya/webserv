@@ -6,9 +6,12 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <unistd.h>
+
 
 #define DATA_DIR "../data/"
 #define CGI_DIR "./data/cgi-files"
+#define PHP_CGI "./cgi-bin/php-cgi"
 
 enum MethodType {
     GET,
@@ -42,5 +45,6 @@ enum Err
 };
 
 std::string trim(std::string& str);
+bool fileExists(const char *path);
 void toupper(std::string& str);
 bool urlFormat(std::string& url);

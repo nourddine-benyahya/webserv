@@ -19,7 +19,7 @@ class request
         void printRequestBody();
         request(){};
         request(const std::string request);
-        requestLine getReqLine() const { return reqLine; }
-        requestHeader getReqHeader() const { return reqHeader; }
-        requestBody getReqBody() const { return reqBody; }
+        requestLine &getReqLine() { return reqLine; }
+        requestHeader &getReqHeader() { return reqHeader; }
+        requestBody &getReqBody() { return reqBody; }
 };

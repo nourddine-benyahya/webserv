@@ -6,6 +6,7 @@
 class requestBody
 {
     private :
+        std::string fullBody;
         dataType type;
         std::string filePath;
         std::vector<char> fileBuffer;
@@ -19,8 +20,9 @@ class requestBody
         requestBody(){};
         requestBody(std::istringstream &stream, requestHeader header);
         //getters
-        dataType getType();
-        std::string getFilePath();
+        std::string &getFullBody();
+        dataType &getType();
+        std::string &getFilePath();
         std::vector<char> &getFileBuffer();
         std::map<std::string, std::string> &getFormFields();
         //save the file if it is a file

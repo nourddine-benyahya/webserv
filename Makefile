@@ -5,7 +5,7 @@ OBJ= $(SRC:.cpp=.o)
 NAME= webserv
 CC= c++
 
-CFLAGS= -Wall -Wextra -Werror -I ./request/includes/ -I ./CGI/includes/ # -std=c++98
+CFLAGS= -Wall -Wextra -Werror -I ./request/includes/ -I ./CGI/includes/ -fsanitize=address -g # -std=c++98
 
 all: $(NAME)
 

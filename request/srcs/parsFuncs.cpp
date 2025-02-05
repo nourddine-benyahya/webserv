@@ -1,5 +1,10 @@
 #include "parsFuncs.hpp"
 
+bool fileExists(const char *path)
+{
+    return (access(path, F_OK) == 0 && access(path, X_OK) == 0);
+}
+
 std::string trim(std::string& str)
 {
    std::string whiteSpaces(" \t\f\v\n\r");

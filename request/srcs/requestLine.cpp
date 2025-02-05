@@ -44,28 +44,34 @@ requestLine::requestLine(const std::string requestLine)
 
     setMethod(method);
     setReqTarget(url);
+    this->FullTarget = url;
     setHttpVers(vers);
     splitParamsFromReqTarget();
 }
 
-MethodType requestLine::getMethod()
+MethodType &requestLine::getMethod()
 {
     return method;
 }
 
-std::string requestLine::getReqTarget()
+std::string &requestLine::getReqTarget()
 {
     return this->reqTarget;
 }
 
-std::string requestLine::getHttpVers()
+std::string &requestLine::getHttpVers()
 {
     return this->httpVers;
 }
 
-std::map<std::string, std::string> requestLine::getParams()
+std::map<std::string, std::string> &requestLine::getParams()
 {
     return this->params;
+}
+
+std::string &requestLine::getReqFullTarget()
+{
+    return this->FullTarget;
 }
 
 void requestLine::splitParamsFromReqTarget()

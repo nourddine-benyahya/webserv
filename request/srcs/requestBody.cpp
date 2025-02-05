@@ -1,5 +1,15 @@
 #include "requestBody.hpp"
 
+void saveFullBody(std::istringstream &stream, std::string &fullBody)
+{
+    std::string line;
+    while (std::getline(stream, line))
+    {
+        fullBody += line;
+        fullBody += '\n';
+    }
+}
+
 void requestBody::parseContentDisposition(const std::string &line)
 {
     std::istringstream stream(line);
@@ -44,7 +54,6 @@ void requestBody::save_formfield(std::istringstream &stream)
     if (line.find("Content-Type") != std::string::npos)
     {
         parseContentDisposition(line);
-
         std::getline(stream, line);
     }
 }
@@ -94,12 +103,17 @@ void requestBody::setType(const std::string type)
 }
 
 
-dataType requestBody::getType()
+dataType &requestBody::getType()
 {
     return type;
 }
 
-std::string requestBody::getFilePath()
+std::string &requestBody::getFullBody()
+{
+    return fullBody;
+}
+
+std::string &requestBody::getFilePath()
 {
     return filePath;
 }
@@ -118,6 +132,12 @@ std::map<std::string, std::string> &requestBody::getFormFields()
 requestBody::requestBody(std::istringstream &stream, requestHeader header)
 {
     // size_t read = 0;
+    fullBody = stream.str();
+
+    //save only the body
+    fullBody = fullBody.substr(fullBody.find("\r\n\r\n") + 4);
+
+
     std::string boundary;
     std::map<std::string, std::string> headerMap = header.getHeader();
 

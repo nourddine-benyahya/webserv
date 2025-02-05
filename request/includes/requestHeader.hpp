@@ -9,5 +9,5 @@ class requestHeader
     public :
         requestHeader();
         void setHeader(const std::string header);
-        std::map<std::string, std::string> getHeader();
+        std::map<std::string, std::string> &getHeader();
 };

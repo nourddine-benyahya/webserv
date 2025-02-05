@@ -1,9 +1,12 @@
-import cgi
+import os
+import sys
 
-# Create an instance of FieldStorage to parse the query string
-form = cgi.FieldStorage()
-
-# Iterate over all form fields (both GET and POST data)
-for field in form.keys():
-    value = form.getvalue(field)
-    print(f"Key: {field}, Value: {value}")
+print("Content-Type: text/html\r\n\r\n")
+print("<html><body>")
+print("<h1>CGI Received Data:</h1>")
+print(f"<p>Method: {os.environ['REQUEST_METHOD']}</p>")
+print(f"<p>Content-Length: {os.environ['CONTENT_LENGTH']}</p>")
+print("<pre>")
+data = sys.stdin.read(int(os.environ['CONTENT_LENGTH']))
+print(data)
+print("</pre></body></html>")

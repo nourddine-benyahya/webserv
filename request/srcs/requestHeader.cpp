@@ -12,7 +12,7 @@ void requestHeader::setHeader(const std::string Line)
     header[key] = value;
 }
 
-std::map<std::string, std::string> requestHeader::getHeader()
+std::map<std::string, std::string> &requestHeader::getHeader()
 {
     return header;
 }
