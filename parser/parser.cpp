@@ -75,6 +75,12 @@ bool isNumeric(std::string s)
 }
 void parseErrorPages(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv)
 {
+    it++;
+    if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
+    {
+        std::cerr << "here" << std::endl;
+        it += 2;
+    }
     while(it != end && it->token != close_bracket)
     {
         if (it->token == word && isNumeric(it->value))
@@ -86,15 +92,20 @@ void parseErrorPages(std::vector<tokens>::iterator &it, std::vector<tokens>::ite
                 srv.setErrorPage(status, (++it)->value);
             }
         }
+        else
+        {
+            std::cerr << "error with the server " << srv.getName() << " " << isNumeric(it->value)  << it->value<< std::endl;
+        }
         if (it != end)
             it++;
     }
+    std::cerr << "kharej" << std::endl;
 }
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
 {
     Server::Config srv;
-
-    while(it != end && it->token != close_bracket)
+    bool found = false;
+    while(it != end)
     {
         if (it->token == word && it->value == "port")
         {
@@ -132,26 +143,41 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         {
             parseErrorPages(it, end, srv);
         }
-        else if (it != end)
+        else if (it->token == close_bracket)
         {
-            std::cout << "LOGS : " << it->token << " " << it->value << std::endl;
+            found = true;
+            break;
         }
         if (it != end)
+        {
+            std::cout << "LOGS : " << it->token << " " << it->value << std::endl;
             it++;
+            // std::cerr << "tokhalef end" << std::endl;
+        }
     }
+    if (!found)
+        std::cerr << "error a '{' not found" << std::endl;
+
     srv.build();
 }
 void parser(std::vector<tokens> &tk)
 {
-    for (std::vector<tokens>::iterator it = tk.begin(); it != tk.end(); it++)
+    std::vector<tokens>::iterator end = tk.end();
+    std::vector<tokens>::iterator it = tk.begin();
+    while (it != end)
     {
         if (it->token == word)
         {
             if (it->value == "server")
             {
-                std::vector<tokens>::iterator end = tk.end();
                 parseServer(it, end);
             }
+        }
+        std::cout << "server just parsed" << std::endl;
+        if (it != end)
+        {
+            std::cerr << "not end" << std::endl;
+            it++;
         }
     }
     
