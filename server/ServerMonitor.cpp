@@ -125,18 +125,22 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 
 	int new_socket = accept(i, (struct sockaddr *)&client_address, &client_address_len);
 	if (new_socket < 0)
-	{
-		Logger(sockets[i], Logger::ERROR, "Accept Error");
-		throw std::exception();
-	}
+		throw ServerMonitorException("Accept Error");
+
+	int flags = fcntl(new_socket, F_GETFL, 0);
+    if (flags < 0)
+        throw ServerMonitorException("fcntl F_GETFL Error");
+    if (fcntl(new_socket, F_SETFL, flags | O_NONBLOCK) < 0)
+        throw ServerMonitorException("fcntl F_SETFL Error");
 
 	FD_SET(new_socket, &master_set);
 	if (new_socket > maxFds)
 		maxFds = new_socket;
 
 	ServerAndPort tmp;
-	tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
-	tmp.srv = sockets[i];
+		tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
+		tmp.srv = sockets[i];
+		tmp.length = -1;
 	tmpSockets[new_socket] = tmp;
 	{
 		std::stringstream ss;
@@ -155,6 +159,7 @@ void ServerMonitor::run()
 	// printSet(master_set);
 
 	// the throws have to be handled to not segv
+	Logger(Logger::INFO, "WebServ starting...");
 
 	while (maxFds > 0)
 	{
@@ -176,8 +181,9 @@ void ServerMonitor::run()
 					{
 						acceptNewConnections(i, tmpSockets);
 					}
-					catch (std::exception e)
+					catch (std::exception &e)
 					{
+						Logger(sockets[i], Logger::ERROR, e.what());
 						continue;
 					}
 				}
@@ -201,7 +207,9 @@ void ServerMonitor::run()
 					{
 						buffer[bytes_read] = 0;
 						tmpSockets[i].srv->setRecvBuffer(buffer);
-						tmpSockets[i].isReady = (bytes_read != BUFFER_SIZE) ? true : false;
+
+						tmpSockets[i].isReady = (tmpSockets[i].length == tmpSockets[i].srv->getRecvBufferLenght()) ? true : false;
+						// tmpSockets[i].length = (tmpSockets[i].length == -1) ? getLength(buffer) : tmpSockets[i].length;
 
 						std::stringstream ss;
 						ss << "WebSocket message received from "
@@ -222,7 +230,8 @@ void ServerMonitor::run()
 				int status = 200;
 				try
 				{
-					response = tmpSockets[i].srv->getConfig()->getIndex();
+					// response = tmpSockets[i].srv->getConfig()->getIndex();
+					response = msgTwil;
 				}
 				catch (std::exception &e)
 				{

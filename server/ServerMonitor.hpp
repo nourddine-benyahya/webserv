@@ -10,6 +10,7 @@ struct ServerAndPort {
 		int port;
 		Server *srv;
 		bool isReady;
+		size_t length;
 };
 
 

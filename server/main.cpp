@@ -33,14 +33,14 @@ int main()
 
 		srv.build();
 
-		Server::Config()
-			// .setPort(80)
-			.setPort(8080)
-			.setName("Drari.42.fr")
-			.setIndex("test2.html")
-			// .setLogs("araElihaChiMizan.txt")
-			.setRoot("slawi")
-			.build();
+		// Server::Config()
+		// 	// .setPort(80)
+		// 	.setPort(8080)
+		// 	.setName("Drari.42.fr")
+		// 	.setIndex("test2.html")
+		// 	// .setLogs("araElihaChiMizan.txt")
+		// 	.setRoot("slawi")
+		// 	.build();
 
 		Server::Config()
 			// .setPort(80)

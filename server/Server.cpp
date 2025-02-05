@@ -61,6 +61,10 @@ std::string Server::getRecvBuffer(){
 	// return res;
 }
 
+size_t Server::getRecvBufferLenght(){
+	return this->recvBuffer.str().size();
+}
+
 Server::Config* Server::getConfig(){
 	return this->conf;
 }
