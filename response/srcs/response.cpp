@@ -51,27 +51,14 @@ void Response::get()
 }
 void Response::post()
 {
-    // std::cout << req.getReqLine().getReqTarget() << std::endl;
-    // std::map<std::string, std::string>::iterator it = req.getReqLine().params.begin();
-    // while (it != req.getReqLine().params.end())
-    // {
-    //     std::cout << it->first << " : " << it->second << std::endl;
-    //     it++;
-    // }
 
     cgi c(req);
-    c.runCgi();
-    // std::cout <<c.getResponse() << std::endl;
-    // body ="submited";
-    // header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-    // std::stringstream ss;
-    // ss << body.length();
-    // std::string lengthStr = "1";
-    // response = header + lengthStr + "\r\n\r\n" + body;
 
-        response = "HTTP/1.1 200 OK\r\n";
-        response += "Content-Length: 3";
-        response += c.getResponse();;
+    c.runCgi();
+
+
+    // response += "HTTP/1.1 200 OK\r\n";
+    response = c.getResponse();
 }
 
 void Response::DELETE()

@@ -14,6 +14,7 @@ struct envComPath
 class cgi
 {
     private:
+        bool err;
         request req;
         std::string cgiResponse;
         std::string CgiScript;
