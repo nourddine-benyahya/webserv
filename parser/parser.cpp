@@ -20,7 +20,6 @@ std::vector<std::string> split(const std::string& str, const std::string& delimi
     if (!token.empty()) {
         result.push_back(token);
     }
-
     return result;
 }
 
@@ -78,7 +77,7 @@ void parseErrorPages(std::vector<tokens>::iterator &it, std::vector<tokens>::ite
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
     {
-        std::cerr << "here" << std::endl;
+        // std::cerr << "here" << std::endl;
         it += 2;
     }
     while(it != end && it->token != close_bracket)
@@ -99,12 +98,130 @@ void parseErrorPages(std::vector<tokens>::iterator &it, std::vector<tokens>::ite
         if (it != end)
             it++;
     }
-    std::cerr << "kharej" << std::endl;
+    // std::cerr << "kharej" << std::endl;
+}
+std::string setPathUpload(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv)
+{
+
+
+    std::string s;
+    // std::cout <<"value |" <<  (it)->value << "|" << std::endl;
+
+    if (it + 1 != end && (it + 1)->token == equal)
+    {
+        it++;
+    }
+    else
+        return s;
+    // std::cout <<"value |" <<  (it)->value << "|" << std::endl;
+    if (it + 1 != end && (it + 1)->token == word)
+    {
+        it++;
+    }
+    else
+    {
+        return s;
+    }
+    if (it->token == word)
+        return it->value;
+    return s;
+    
+
+}
+
+void parseAllowedMethods(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Route &route)
+{
+    it++;
+    if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
+    {
+        it += 2;
+    }
+    else
+        throw std::runtime_error("error with config file");
+    while(it != end && it->token != close_bracket)
+    {
+        if(it->token == word && (it->value == "POST" || it->value == "GET" || it->value == "DELETE"))
+            route.allowedMethods.push_back(it->value);
+        else
+        {
+            throw std::runtime_error("method not valid");
+        }
+        it++;
+    }
+}
+
+void parseCgi(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Route &route)
+{
+    it++;
+    if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
+    {
+        it += 2;
+    }
+    else
+        throw std::runtime_error("error with config file 1");
+    while (it != end && it->token != close_bracket)
+    {
+        std::vector<std::string>v = split(it->value, "=");
+        if (v.size() != 2)
+            throw std::runtime_error("error with the config file");
+        if (route.cgis.find(v[0]) != route.cgis.end())
+            throw std::runtime_error("duplicated values in cgi");
+        route.cgis[v[0]] = v[1];
+        it++;
+    }
+}
+void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv)
+{
+    Route route;
+    it++;
+    if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
+    {
+        it += 2;
+    }
+    while (it != end && it->token != close_bracket)
+    {
+        if (it->token == word && it->value == "path")
+        {
+            route.path = setPathUpload(it, end, srv);
+            if (route.path.empty())
+                std::cout << "error with the config file";
+        }
+        else if (it->token == word && it->value == "upload")
+        {
+            std::string res = route.path = setPathUpload(it, end, srv);
+            if (res.empty() || (res != "yes" && res == "no"))
+                std::cout << "error with the config file";
+            if (res == "yes")
+                route.upload = true;
+            else
+                route.upload = false;
+        }
+        else if (it->token == word && it->value == "cgi")
+        {
+            parseCgi(it, end, route);
+        }
+        else if (it->token == word && it->value == "allowed_mthods")
+        {
+            parseAllowedMethods(it, end, route);
+        }
+        if (it != end)
+            it++;
+    }
+    if (route.path.empty())
+        throw std::runtime_error("no path specified for location");
+    if (srv.routes.find(route.path) != srv.routes.end())
+        throw std::runtime_error("duplicated paths for location");
+    srv.routes[route.path] = route;
 }
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
 {
     Server::Config srv;
     bool found = false;
+    it++;
+    if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
+    {
+        it += 2;
+    }
     while(it != end)
     {
         if (it->token == word && it->value == "port")
@@ -143,6 +260,10 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         {
             parseErrorPages(it, end, srv);
         }
+        else if (it->token == word && it->value == "route")
+        {
+            parseRoute(it, end, srv);
+        }
         else if (it->token == close_bracket)
         {
             found = true;
@@ -150,9 +271,7 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         }
         if (it != end)
         {
-            std::cout << "LOGS : " << it->token << " " << it->value << std::endl;
             it++;
-            // std::cerr << "tokhalef end" << std::endl;
         }
     }
     if (!found)
@@ -173,14 +292,11 @@ void parser(std::vector<tokens> &tk)
                 parseServer(it, end);
             }
         }
-        std::cout << "server just parsed" << std::endl;
         if (it != end)
         {
-            std::cerr << "not end" << std::endl;
             it++;
         }
     }
-    
 }
 void parseConfig()
 {
@@ -196,5 +312,12 @@ void parseConfig()
 
 int main()
 {
+    try{
     parseConfig();
+
+    }
+    catch(std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
 }
