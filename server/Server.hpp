@@ -74,6 +74,7 @@ public:
 
 				std::string readFile(std::string);
 				std::string catRoot(std::string file);
+				std::map<std::string path, std::string route> routes;
 			public:
 				~Config();
 				Config();
