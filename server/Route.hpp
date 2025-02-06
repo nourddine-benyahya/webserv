@@ -9,6 +9,6 @@ class Route
 {
     std::string path;
     bool upload;
-    std::map<std::string ext, std::string path>cgis;
+    std::map<std::string, std::string>cgis;
     std::vector<std::string>allowedMethods;
 };
