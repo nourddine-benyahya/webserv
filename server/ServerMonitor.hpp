@@ -35,8 +35,12 @@ class ServerMonitor {
 	    void engine();
 		void addServer(Server *server);
 
-		void	acceptNewConnections(int , std::map<int, ServerAndPort> &);
-		int		getContentLenght(std::string);
+		void	acceptNewConnections(int , std::map<int, ServerAndPort> &) ;
+		int		getContentLenght(std::string) ;
+		void	fillRecvBuffer(ServerAndPort&, std::string ) ;
+		int		returnRecvBuffer(int, std::string &) ;
+		void	handleError(int, int, std::map<int, ServerAndPort> &) ;
+
 
 
 		class ServerMonitorException : public std::exception {

@@ -42,25 +42,31 @@ ServerMonitor::ServerMonitor() : maxFds(-1)
 				  << "    <style>\n"
 				  << "        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }\n"
 				  << "        h1 { font-size: 50px; font-weight: bold; }\n"
-				  << "        p { font-size: 20px; }\n"
+				  << "        h2 { font-size: 30px; font-weight: bold; }\n"
+				  << "        .container { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; }\n"
+				  << "        .card { background: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); overflow: hidden; width: 300px; text-align: center; }\n"
+				  << "        .card img { width: 100%; height: auto; }\n"
+				  << "        .card p { font-size: 24px; font-weight: bold; margin: 10px 0; }\n"
 				  << "    </style>\n"
 				  << "</head>\n"
 				  << "<body>\n"
-<< "    <h1>Welcome to the WebServ</h1>\n"
-<< "    <h2>Dedicated to Ahssan Chabab:</h2>\n"
-<< "    <div class=\"person\">\n"
-// << "        <img src=\"../assets/abounab.jpg\" alt=\"Abdellah Bounab\">\n"
-<< "        <p>Abdellah Bounab</p>\n"
-<< "    </div>\n"
-<< "    <div class=\"person\">\n"
-// << "        <img src=\"../assets/amejdoub.jpg\" alt=\"Anas Mejdoub\">\n"
-<< "        <p>Anas Mejdoub</p>\n"
-<< "    </div>\n"
-<< "    <div class=\"person\">\n"
-// << "        <img src=\"../assets/nbenyahy.jpg\" alt=\"Nourddine BenYahya\">\n"
-<< "        <p>Nourddine BenYahya</p>\n"
-<< "    </div>\n"
-<< "</body>\n"
+				  << "    <h1>Welcome to the WebServ</h1>\n"
+				  << "    <h2>Dedicated to Ahssan Chabab:</h2>\n"
+				  << "    <div class=\"container\">\n"
+				  << "        <div class=\"card\">\n"
+				  << "            <img src=\"../assets/abounab.jpg\" alt=\"Abdellah Bounab\">\n"
+				  << "            <p>Abdellah Bounab</p>\n"
+				  << "        </div>\n"
+				  << "        <div class=\"card\">\n"
+				  << "            <img src=\"../assets/amejdoub.jpg\" alt=\"Anas Mejdoub\">\n"
+				  << "            <p>Anas Mejdoub</p>\n"
+				  << "        </div>\n"
+				  << "        <div class=\"card\">\n"
+				  << "            <img src=\"../assets/nbenyahy.jpg\" alt=\"Nourddine BenYahya\">\n"
+				  << "            <p>Nourddine BenYahya</p>\n"
+				  << "        </div>\n"
+				  << "    </div>\n"
+				  << "</body>\n"
 				  << "</html>";
 		indexFile.close();
 	}
@@ -78,6 +84,7 @@ ServerMonitor::~ServerMonitor()
 	{
 		delete *it;
 	}
+	Logger(Logger::NOTICE, "WebServ Closing.");
 }
 
 ServerMonitor *ServerMonitor::getInstance()
@@ -107,9 +114,9 @@ void ServerMonitor::addServer(Server *server)
 		if (it->first > maxFds)
 			maxFds = it->first;
 		std::stringstream ss;
-			ss << "Connection created at "
-				<< server->getConfig()->getName()
-				<< ":" << it->second ;
+		ss << "Connection created at "
+		   << server->getConfig()->getName()
+		   << ":" << it->second;
 		Logger(Logger::INFO, ss.str());
 		sockets[it->first] = server;
 		it++;
@@ -142,9 +149,9 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 		maxFds = new_socket;
 
 	ServerAndPort tmp;
-		tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
-		tmp.srv = sockets[i];
-		tmp.contentLength = -1;
+	tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
+	tmp.srv = sockets[i];
+	tmp.contentLength = -1;
 	tmpSockets[new_socket] = tmp;
 	{
 		std::stringstream ss;
@@ -155,8 +162,52 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 	}
 }
 
-int ServerMonitor::getContentLenght(std::string header){
-    size_t content_length = 0;
+void ServerMonitor::fillRecvBuffer(ServerAndPort& sp, std::string buffer) {
+	sp.srv->setRecvBuffer(buffer);
+	if (sp.contentLength == -1)
+		sp.contentLength = getContentLenght(buffer);
+	sp.isReady = (sp.contentLength <= sp.srv->getRecvBufferLenght()) ? true : false;
+
+	std::stringstream ss;
+	ss << "WebSocket message received from "
+		<< (sp.srv)->getConfig()->getName() + ":"
+		<< sp.port;
+	Logger(sp.srv, Logger::DEBUG, ss.str());
+}
+
+int ServerMonitor::returnRecvBuffer(int sock, std::string &buffer){
+	char buff[BUFFER_SIZE] = {0};
+	int bytes_read;
+	int k = 0;
+	while (k < 5 && (bytes_read = recv(sock, buff, sizeof(buff), 0)) > 0)
+	{
+		buffer.append(buff, bytes_read);
+		if (bytes_read < BUFFER_SIZE)
+			break;
+		k++;
+	}
+	return bytes_read;
+}
+
+void ServerMonitor::handleError(int sock, int bytes_read, std::map<int, ServerAndPort> &tmpSockets) {	
+	if (bytes_read == 0)
+	{
+		std::stringstream ss;
+		ss << "Connection closed at " << tmpSockets[sock].port;
+		Logger(tmpSockets[sock].srv, Logger::WARNING, ss.str());
+	}
+	else
+		Logger(tmpSockets[sock].srv, Logger::ERROR, "Recv Error");
+	tmpSockets.erase(sock);
+	FD_CLR(sock, &master_set);
+	update_maxFds();
+	close(sock);
+}
+
+
+int ServerMonitor::getContentLenght(std::string header)
+{
+	size_t content_length = 0;
 	size_t pos = header.find("\r\n\r\n");
 
 	if (pos != std::string::npos)
@@ -191,72 +242,49 @@ void ServerMonitor::run()
 		read_set = write_set = master_set;
 		if (select(maxFds + 1, &read_set, &write_set, NULL, NULL) < 0)
 			throw ServerMonitorException("Select error");
-		for (int i = 3; i <= maxFds; ++i) {
-			// std::cout << i << " : " << FD_ISSET(i, &read_set) << " && " << FD_ISSET(i, &write_set) <<   std::endl;
-			if (FD_ISSET(i, &read_set) || (!tmpSockets[i].isReady && tmpSockets[i].contentLength > 0)) {
-				if (sockets.find(i) != sockets.end()) {
+		for (int i = 3; i <= maxFds; ++i)
+		{
+			if (FD_ISSET(i, &read_set))
+			{
+				if (sockets.find(i) != sockets.end())
+				{
 					try {
 						acceptNewConnections(i, tmpSockets);
-					} catch (std::exception &e) {
+					}
+					catch (std::exception &e) {
 						Logger(sockets[i], Logger::ERROR, e.what());
-						continue;
 					}
 				}
-				else {
-					char buff[BUFFER_SIZE] = {0};
-					int bytes_read ;
+				else
+				{
 					std::string buffer;
-					int k = 0;
-					while ( k < 5 && (bytes_read = recv(i, buff, sizeof(buff), 0)) > 0) {
-						buffer.append(buff, bytes_read);
-						k++;
-						if (bytes_read < BUFFER_SIZE) 
-							break;
-					}
+					int	bytes_read = returnRecvBuffer(i, buffer) ;
 
-					 if (bytes_read > 0) {
-						tmpSockets[i].srv->setRecvBuffer(buffer);
-						if (tmpSockets[i].contentLength == -1)
-							tmpSockets[i].contentLength = getContentLenght(buffer);
-						tmpSockets[i].isReady = (tmpSockets[i].contentLength <= tmpSockets[i].srv->getRecvBufferLenght()) ? true : false;
-
-						std::stringstream ss;
-						ss << "WebSocket message received from "
-						   << (tmpSockets[i].srv)->getConfig()->getName() + ":"
-						   << tmpSockets[i].port;
-						Logger(tmpSockets[i].srv, Logger::DEBUG, ss.str());
-					}
+					if (bytes_read > 0)
+						fillRecvBuffer(tmpSockets[i], buffer);
 					if (bytes_read <= 0)
-					{
-						// Handle disconnection or error
-						if (bytes_read == 0) {
-							std::stringstream ss;
-								ss << "Connection closed at " << tmpSockets[i].port;
-							Logger(tmpSockets[i].srv, Logger::WARNING, ss.str());
-						} else
-							Logger(tmpSockets[i].srv, Logger::ERROR, "Recv Error");
-						tmpSockets.erase(i);
-						FD_CLR(i, &master_set);
-						update_maxFds();
-						close(i);
-					}
+						handleError(i, bytes_read, tmpSockets);
 				}
 			}
 			if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady)
 			{
 				std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
 
-				// std::stringstream s;
-				// 	s << "test_" << tmpSockets[i].port << ".txt";
-				// std::ofstream ff(s.str().c_str());
-				// 	ff << msgTwil;
+				//this is where request would be used (using the getRecvBuffer() to get the request)
+				// Request(msgTwil, tmpSocket[i].srv->getConfig()); : adding Config in case he needed it or for CGI
+				//all what remain would be used as reponse
+				// Response(Request.getElements, tmpSocket[i].srv->getConfig());
+
 
 				std::string response;
 				std::string valid = " OK";
 				int status = 200;
-				try {
+				try
+				{
 					response = tmpSockets[i].srv->getConfig()->getIndex();
-				} catch (std::exception &e) {
+				}
+				catch (std::exception &e)
+				{
 					status = 404;
 					response = tmpSockets[i].srv->getConfig()->getErrorPage(status);
 					valid = " KO";
@@ -264,10 +292,10 @@ void ServerMonitor::run()
 				}
 
 				std::stringstream ss;
-					ss << "HTTP/1.1 " << status << valid;
-					ss << "\r\nContent-Type: text/html\r\n";
-					ss << "Content-Length: " << response.size() << "\r\n\r\n";
-					ss << response;
+				ss << "HTTP/1.1 " << status << valid;
+				ss << "\r\nContent-Type: text/html\r\n";
+				ss << "Content-Length: " << response.size() << "\r\n\r\n";
+				ss << response;
 				send(i, ss.str().c_str(), ss.str().size(), 0);
 
 				std::stringstream logs;
