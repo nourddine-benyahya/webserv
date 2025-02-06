@@ -8,6 +8,10 @@ CC= c++
 CFLAGS= -Wall -Wextra -Werror -I ./request/includes/ -I ./CGI/includes/ -I ./response/includes/ -fsanitize=address -g # -std=c++98
 
 all: $(NAME)
+	mkdir -p ~/my-php-config
+	cp ./cgi-bin/php.ini ~/my-php-config/
+	export PHPRC=~/my-php-config
+	# source ~/.zshrc
 
 $(NAME): $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
@@ -20,6 +24,7 @@ clean:
 
 fclean: clean
 	rm -f $(NAME)
+	rm -rf ~/my-php-config
 
 re: fclean all
 

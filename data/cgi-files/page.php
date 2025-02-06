@@ -1,6 +1,7 @@
 <?php
 // process.php
 header("Content-Type: text/html");
+phpinfo();
 ?>
 <!DOCTYPE html>
 <html>

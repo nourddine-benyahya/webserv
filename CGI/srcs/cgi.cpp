@@ -5,19 +5,23 @@ void cgi::saveCgiEnv()
     envComPath tmp;
     tmp.interpreter = "./cgi-bin/php-cgi";
     tmp.commandpath = "./cgi-bin/php-cgi";
-    cgiEnv["php"] = tmp;
+    cgiEnv[".php"] = tmp;
 
     tmp.interpreter = "python3";
     tmp.commandpath = "/usr/bin/python3";
-    cgiEnv["py"] = tmp;
+    cgiEnv[".py"] = tmp;
 
     tmp.interpreter = "sh";
     tmp.commandpath = "/bin/sh";
-    cgiEnv["sh"] = tmp;
+    cgiEnv[".sh"] = tmp;
 
     tmp.interpreter = "java";
     tmp.commandpath = "/usr/bin/java";
-    cgiEnv["java"] = tmp;
+    cgiEnv[".java"] = tmp;
+
+    tmp.interpreter = "./cgi-bin/php-cgi";
+    tmp.commandpath = "./cgi-bin/php-cgi";
+    cgiEnv[""] = tmp;
 }
 
 
@@ -116,7 +120,7 @@ void cgi::runCgi()
 {
     if (err)
         return ;
-    std::string ext = CgiScript.substr(CgiScript.rfind(".") + 1);
+    std::string ext = CgiScript.substr(CgiScript.rfind("."));
 
     if (cgiEnv.find(ext) == cgiEnv.end()) {
         std::ifstream file("./404/index.html");
