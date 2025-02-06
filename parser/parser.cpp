@@ -183,7 +183,7 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         }
         else if (it->token == word && it->value == "upload")
         {
-            std::string res = route.path = setPathUpload(it, end, srv);
+            std::string res = setPathUpload(it, end, srv);
             if (res.empty() || (res != "yes" && res != "no"))
                 throw std::runtime_error("error with upload");
             if (res == "yes")
@@ -220,6 +220,21 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         throw std::runtime_error("duplicated paths for location");
     srv.routes[route.path] = route;
 }
+void parseBodyLimit(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv)
+{
+    it++;
+    if (it != end && it->token == equal)
+    {
+        it++;
+    }
+    else
+        throw std::runtime_error("error with the config file");
+    if (it == end || it->token != word || !isNumeric(it->value))
+        throw std::runtime_error("error with the config file");
+    srv.body_limit = std::atoi(it->value.c_str());
+    
+}
+
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
 {
     Server::Config srv;
@@ -270,6 +285,10 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         else if (it->token == word && it->value == "route")
         {
             parseRoute(it, end, srv);
+        }
+        else if (it->token == word && it->value == "body_limit")
+        {
+            parseBodyLimit(it, end, srv);
         }
         else if (it->token == close_bracket)
         {

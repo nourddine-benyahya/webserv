@@ -75,6 +75,7 @@ public:
 				std::string readFile(std::string);
 				std::string catRoot(std::string file);
 			public:
+				int body_limit;
 				std::map<std::string , Route> routes;
 				~Config();
 				Config();
