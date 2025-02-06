@@ -42,7 +42,7 @@ void Server::Config::create_sock(){
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
 		throw Server::ServerException("Bind: Address already in use");
 	}
-	if (listen(server_fd, 5) < 0) {
+	if (listen(server_fd, 10) < 0) {
 		throw Server::ServerException("Listen error");
 	}
 
@@ -68,9 +68,9 @@ Server::Config::Config() : name("0.0.0.0") {
 	this->address.sin_addr.s_addr = INADDR_ANY;
 	this->address.sin_port = htons(80);
 	sock_port.clear();
-	this->logsFile = "";
 	this->fileIndex = "index.html";
 	this->rootFolder = "html";
+	this->logsFile = "";
 }
 
 

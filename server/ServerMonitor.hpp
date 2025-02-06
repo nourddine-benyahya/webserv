@@ -10,7 +10,7 @@ struct ServerAndPort {
 		int port;
 		Server *srv;
 		bool isReady;
-		size_t length;
+		int contentLength;
 };
 
 
@@ -36,6 +36,7 @@ class ServerMonitor {
 		void addServer(Server *server);
 
 		void	acceptNewConnections(int , std::map<int, ServerAndPort> &);
+		int		getContentLenght(std::string);
 
 
 		class ServerMonitorException : public std::exception {

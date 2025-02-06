@@ -108,7 +108,7 @@ public:
 	int getServerFd();
 	void setRecvBuffer(std::string);
 	std::string getRecvBuffer();
-	size_t getRecvBufferLenght();
+	int getRecvBufferLenght();
 	~Server();
 
 
