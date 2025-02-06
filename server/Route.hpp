@@ -16,4 +16,6 @@ class Route
         bool upload;
         std::map<std::string, std::string>cgis;
         std::vector<std::string>allowedMethods;
+        std::string root;
+        std::string index;
 };

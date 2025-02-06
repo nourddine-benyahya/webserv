@@ -105,15 +105,12 @@ std::string setPathUpload(std::vector<tokens>::iterator &it, std::vector<tokens>
 
 
     std::string s;
-    // std::cout <<"value |" <<  (it)->value << "|" << std::endl;
-
     if (it + 1 != end && (it + 1)->token == equal)
     {
         it++;
     }
     else
         return s;
-    // std::cout <<"value |" <<  (it)->value << "|" << std::endl;
     if (it + 1 != end && (it + 1)->token == word)
     {
         it++;
@@ -125,8 +122,6 @@ std::string setPathUpload(std::vector<tokens>::iterator &it, std::vector<tokens>
     if (it->token == word)
         return it->value;
     return s;
-    
-
 }
 
 void parseAllowedMethods(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Route &route)
@@ -189,8 +184,8 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         else if (it->token == word && it->value == "upload")
         {
             std::string res = route.path = setPathUpload(it, end, srv);
-            if (res.empty() || (res != "yes" && res == "no"))
-                std::cout << "error with the config file";
+            if (res.empty() || (res != "yes" && res != "no"))
+                throw std::runtime_error("error with upload");
             if (res == "yes")
                 route.upload = true;
             else
@@ -203,6 +198,18 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         else if (it->token == word && it->value == "allowed_mthods")
         {
             parseAllowedMethods(it, end, route);
+        }
+        else if (it->token == word && it->value == "root")
+        {
+            route.root = setPathUpload(it, end, srv);
+            if (route.root.empty())
+                std::runtime_error("error with the config file");
+        }
+        else if (it->token == word && it->value == "index")
+        {
+            route.index = setPathUpload(it, end, srv);
+            if (route.index.empty())
+                std::runtime_error("error with the config file");
         }
         if (it != end)
             it++;
