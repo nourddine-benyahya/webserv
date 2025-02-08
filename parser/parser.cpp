@@ -78,7 +78,6 @@ void parseErrorPages(std::vector<tokens>::iterator &it, std::vector<tokens>::ite
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
     {
-        // std::cerr << "here" << std::endl;
         it += 2;
     }
     while(it != end && it->token != close_bracket)
@@ -248,7 +247,6 @@ void parseBodyLimit(std::vector<tokens>::iterator &it, std::vector<tokens>::iter
 
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
 {
-    std::cout << "here" << std::endl;
     Server::Config srv;
     bool found = false;
     it++;
@@ -256,7 +254,7 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
     {
         it += 2;
     }
-    while(it != end)
+    while(it != end && it->token != close_bracket)
     {
         if (it->token == word && it->value == "port")
         {
@@ -312,8 +310,6 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
             it++;
         }
     }
-    if (!found)
-        std::cerr << "error a '{' not found" << std::endl;
 
     srv.build();
 }
@@ -327,7 +323,6 @@ void parser(std::vector<tokens> &tk)
         {
             if (it->value == "server")
             {
-                std::cout << "test" << std::endl;
                 parseServer(it, end);
             }
         }
