@@ -18,4 +18,5 @@ class Route
         std::vector<std::string>allowedMethods;
         std::string root;
         std::string index;
+        bool list_dirs;
 };
