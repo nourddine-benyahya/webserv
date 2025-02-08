@@ -35,13 +35,13 @@
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <map>
-
+#include "request.hpp"
 
 #include "../Logger/Logger.hpp"
-
+#include "Route.hpp"
 
 #define BUFFER_SIZE 1024
-
+class Route;
 class Server {
 public:
 	// for debug
@@ -75,6 +75,8 @@ public:
 				std::string readFile(std::string);
 				std::string catRoot(std::string file);
 			public:
+				int body_limit;
+				std::map<std::string , Route> routes;
 				~Config();
 				Config();
 				Config(Config&);
