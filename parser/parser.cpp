@@ -211,6 +211,16 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
             if (route.index.empty())
                 std::runtime_error("error with the config file");
         }
+        else if (it->token == word && it->value == "list_dirs")
+        {
+            std::string res = setPathUpload(it, end, srv);
+            if (res.empty() || (res != "yes" && res != "no"))
+                throw std::runtime_error("error with upload");
+            if (res == "yes")
+                route.list_dirs = true;
+            else
+                route.list_dirs = false;
+        }
         if (it != end)
             it++;
     }
