@@ -39,6 +39,7 @@
 
 #include "../Logger/Logger.hpp"
 #include "Route.hpp"
+#include "parser.hpp"
 
 #define BUFFER_SIZE 1024
 class Route;

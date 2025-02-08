@@ -248,6 +248,7 @@ void parseBodyLimit(std::vector<tokens>::iterator &it, std::vector<tokens>::iter
 
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
 {
+    std::cout << "here" << std::endl;
     Server::Config srv;
     bool found = false;
     it++;
@@ -326,6 +327,7 @@ void parser(std::vector<tokens> &tk)
         {
             if (it->value == "server")
             {
+                std::cout << "test" << std::endl;
                 parseServer(it, end);
             }
         }
@@ -347,14 +349,14 @@ void parseConfig()
     parser(tk);
 }
 
-int main()
-{
-    try
-    {
-        parseConfig();
-    }
-    catch(std::exception &e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
-}
+// int main()
+// {
+//     try
+//     {
+//         parseConfig();
+//     }
+//     catch(std::exception &e)
+//     {
+//         std::cerr << e.what() << std::endl;
+//     }
+// }

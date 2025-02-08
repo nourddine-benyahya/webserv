@@ -26,3 +26,4 @@ class tokens
         TOKENS token;
         std::string value;
 };
+void parseConfig();
