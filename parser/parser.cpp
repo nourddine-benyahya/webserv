@@ -348,9 +348,9 @@ void parseConfig()
 
 int main()
 {
-    try{
-    parseConfig();
-
+    try
+    {
+        parseConfig();
     }
     catch(std::exception &e)
     {
