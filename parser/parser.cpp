@@ -31,8 +31,9 @@ std::vector<tokens> Tokenizer(std::ifstream &file)
     while(std::getline(file, line))
     {
         content += line;
-
     }
+    if (content.empty())
+        throw std::runtime_error("config file is empty");
     std::vector<tokens> tks;
     std::vector<std::string> elems = split(content, " \n,");
 
