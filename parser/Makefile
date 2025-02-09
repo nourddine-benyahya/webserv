@@ -1,11 +1,11 @@
-SRC= parser.cpp ../server/Server.cpp ../server/ServerMonitor.cpp  ../server/Location.cpp ../server/Config.cpp ../Logger/Logger.cpp
+SRC= ./srcs/parser.cpp  ./srcs/parseServer.cpp ./srcs/tokenizer.cpp ../server/Server.cpp ../server/ServerMonitor.cpp   ../server/Config.cpp ../Logger/Logger.cpp
 
 OBJ= $(SRC:.cpp=.o)
 
 NAME= webserv
 CC= c++
 
-CFLAGS=  -I ../server/ -I ../request/includes/ # -fsanitize=address -g
+CFLAGS=  -I includes/ -I ../server/ -I ../request/includes/  # -fsanitize=address -g
 
 all: $(NAME)
 
