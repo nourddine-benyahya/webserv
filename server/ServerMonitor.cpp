@@ -27,6 +27,7 @@ void ServerMonitor::printSet(fd_set &ms)
 
 ServerMonitor::ServerMonitor() : maxFds(-1)
 {
+	Logger(Logger::NOTICE, "WebServ starting...");
 	FD_ZERO(&master_set);
 	sockets.clear();
 	mkdir("html", 0750);
@@ -197,9 +198,11 @@ void ServerMonitor::handleError(int sock, int bytes_read, std::map<int, ServerAn
 			<< " at " << tmpSockets[sock].port;
 		Logger(tmpSockets[sock].srv, Logger::WARNING, ss.str());
 	}
-	else
-		// Logger(tmpSockets[sock].srv, Logger::ERROR, "Recv Error");
-		Logger(tmpSockets[sock].srv, Logger::ERROR, strerror(errno));
+	else{
+		//! DONT FORGET TO REMOVE ERRNO
+		Logger(tmpSockets[sock].srv, Logger::ERROR, "Recv Error");
+		Logger(tmpSockets[sock].srv, Logger::ERROR, strerror(errno)); 
+	}
 	tmpSockets.erase(sock);
 	FD_CLR(sock, &master_set);
 	update_maxFds();
@@ -219,9 +222,8 @@ int ServerMonitor::getContentLenght(std::string header)
 
 		std::istringstream header_stream(headers);
 		std::string line;
-		while (std::getline(header_stream, line))
-		{
-			if (line.find("Content-Length:") != std::string::npos)
+		while (std::getline(header_stream, line)) {
+			if (line.find("Content-Length:") != std::string::npos) 
 			{
 				std::string content_length_str = line.substr(line.find(":") + 1);
 				std::stringstream content_length_stream(content_length_str);
@@ -238,18 +240,15 @@ void ServerMonitor::run()
 	fd_set read_set, write_set;
 	std::map<int, ServerAndPort> tmpSockets;
 
-	Logger(Logger::NOTICE, "WebServ starting...");
+	Logger(Logger::NOTICE, "WebServ running...");
 	while (maxFds > 0)
 	{
 		read_set = write_set = master_set;
 		if (select(maxFds + 1, &read_set, &write_set, NULL, NULL) < 0)
 			throw ServerMonitorException("Select error");
-		for (int i = 3; i <= maxFds; ++i)
-		{
-			if (FD_ISSET(i, &read_set))
-			{
-				if (sockets.find(i) != sockets.end())
-				{
+		for (int i = 3; i <= maxFds; ++i) {
+			if (FD_ISSET(i, &read_set)) {
+				if (sockets.find(i) != sockets.end()) {
 					try {
 						acceptNewConnections(i, tmpSockets);
 					}
@@ -257,8 +256,7 @@ void ServerMonitor::run()
 						Logger(sockets[i], Logger::ERROR, e.what());
 					}
 				}
-				else
-				{
+				else {
 					std::string buffer;
 					int	bytes_read = returnRecvBuffer(i, buffer) ;
 
@@ -268,8 +266,7 @@ void ServerMonitor::run()
 						handleError(i, bytes_read, tmpSockets);
 				}
 			}
-			if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady)
-			{
+			if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady) {
 				// std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
 
 				std::stringstream logs;

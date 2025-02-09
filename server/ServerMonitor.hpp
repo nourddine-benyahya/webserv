@@ -37,7 +37,6 @@ class ServerMonitor {
 		~ServerMonitor();
 		static ServerMonitor* getInstance();
 	    void run();
-	    void engine();
 		void addServer(Server *server);
 
 		void	acceptNewConnections(int , std::map<int, ServerAndPort> &) ;
