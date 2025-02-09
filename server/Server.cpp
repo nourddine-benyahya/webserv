@@ -1,7 +1,7 @@
 
 
 #include "Server.hpp"
-
+#include "response.hpp"
 // static void printServerInfo(Server srv) {
 // 	std::cout << "Address Info :\n"
 //     			<< " IP family: " << ((srv.getConfig()->getAddress().sin_family == AF_INET)? "IPv4":"NONE") << std::endl;

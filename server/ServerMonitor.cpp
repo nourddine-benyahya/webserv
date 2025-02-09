@@ -1,5 +1,5 @@
 #include "ServerMonitor.hpp"
-
+#include "response.hpp"
 ServerMonitor *ServerMonitor::instance = NULL;
 
 static bool rootExist(std::string file)
@@ -270,10 +270,10 @@ void ServerMonitor::run()
 			{
 				std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
 
-				//this is where request would be used (using the getRecvBuffer() to get the request)
+				// //this is where request would be used (using the getRecvBuffer() to get the request)
 				std::cout << "request buffer :" <<  msgTwil << std::endl;
 				request req(msgTwil);
-				Response res(req, tmpSocket[i].srv->getConfig());
+				Response res(req, tmpSockets[i].srv->getConfig());
 				// Request(msgTwil, tmpSocket[i].srv->getConfig()); : adding Config in case he needed it or for CGI
 				//all what remain would be used as reponse
 				// Response(Request.getElements, tmpSocket[i].srv->getConfig());
@@ -282,16 +282,16 @@ void ServerMonitor::run()
 				// std::string response;
 				// std::string valid = " OK";
 				// int status = 200;
-				// try
-				// {
-				// 	response = tmpSockets[i].srv->getConfig()->getIndex();
+				// // try
+				// // {
+				// 	response = "tmpSockets[i].srv->getConfig()->getIndex()";
 				// }
 				// catch (std::exception &e)
 				// {
-				// 	status = 404;
-				// 	response = tmpSockets[i].srv->getConfig()->getErrorPage(status);
-				// 	valid = " KO";
-				// 	Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
+					// status = 404;
+					// response = tmpSockets[i].srv->getConfig()->getErrorPage(status);
+					// valid = " KO";
+					// Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
 				// }
 
 				// std::stringstream ss;
@@ -299,10 +299,11 @@ void ServerMonitor::run()
 				// ss << "\r\nContent-Type: text/html\r\n";
 				// ss << "Content-Length: " << response.size() << "\r\n\r\n";
 				// ss << response;
-				// send(i, ss.str().c_str(), ss.str().size(), 0);
-				// std::cout << res.response << std::endl;
-				// std::cout << res.response << std::endl
-				// std::cout
+				// // send(i, ss.str().c_str(), ss.str().size(), 0);
+				// // std::cout << res.response << std::endl;
+				// // std::cout << res.response << std::endl
+				// // std::cout
+				// send(i, response.c_str(), response.size(), 0);
 				send(i, res.response.c_str(), res.response.size(), 0);
 
 

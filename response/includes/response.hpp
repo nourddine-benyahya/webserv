@@ -10,7 +10,7 @@
 #include <fstream>
 #include "request.hpp"
 #include "cgi.hpp"
-// class Server;
+class Server;
 // class Server::Config;
 class Response
 {

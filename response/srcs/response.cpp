@@ -18,7 +18,7 @@ Response::Response(request r, Server::Config *srv)
 void Response::get()
 {
     // std::cout << "HEER" << std::endl;
-    std::ifstream file("." + req.getReqLine().getReqTarget());
+    std::ifstream file("./html" + req.getReqLine().getReqTarget());
     if (!file.is_open())
     {
         std::ifstream file404("./404.html");
