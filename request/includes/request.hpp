@@ -3,7 +3,6 @@
 #include "requestLine.hpp"
 #include "requestHeader.hpp"
 #include "requestBody.hpp"
-
 class request
 {
     private :

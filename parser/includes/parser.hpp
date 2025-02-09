@@ -1,12 +1,12 @@
 #pragma once
 
+#include "Server.hpp"
 #include <iostream>
 #include <string>
 #include <map>
 #include <fstream>
 #include <vector>
 #include <sstream>
-#include "Server.hpp"
 enum TOKENS
 {
     word,
@@ -14,7 +14,6 @@ enum TOKENS
     close_bracket = '}',
     equal = ':'
 };
-
 class tokens
 {
     public :
@@ -27,3 +26,7 @@ class tokens
         std::string value;
 };
 void parseConfig();
+std::vector<tokens> Tokenizer(std::ifstream &file);
+std::vector<std::string> split(const std::string& str, const std::string& delimiters);
+// void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv);
+void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end);
