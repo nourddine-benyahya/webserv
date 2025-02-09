@@ -16,6 +16,7 @@ Response::Response(request r)
 
 void Response::get()
 {
+    std::cout << "HEER" << std::endl;
     std::ifstream file("." + req.getReqLine().getReqTarget());
     if (!file.is_open())
     {

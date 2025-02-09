@@ -300,6 +300,7 @@ void ServerMonitor::run()
 				// ss << response;
 				// send(i, ss.str().c_str(), ss.str().size(), 0);
 				// std::cout << res.response << std::endl;
+				// std::cout << res.response << std::endl
 				send(i, res.response.c_str(), res.response.size(), 0);
 
 
