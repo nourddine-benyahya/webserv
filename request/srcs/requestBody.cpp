@@ -1,82 +1,14 @@
 #include "requestBody.hpp"
 
-void saveFullBody(std::istringstream &stream, std::string &fullBody)
+
+// Helper function to save file content
+static void saveFile(const std::string& filePath, const std::vector<char>& data)
 {
-    std::string line;
-    while (std::getline(stream, line))
+    std::ofstream outFile(filePath.c_str(), std::ios::binary);
+    if (outFile)
     {
-        fullBody += line;
-        fullBody += '\n';
-    }
-}
-
-void requestBody::parseContentDisposition(const std::string &line)
-{
-    std::istringstream stream(line);
-    std::string part;
-
-    while (std::getline(stream, part, ';')) {
-        size_t pos = part.find('=');
-        if (pos == std::string::npos) {
-            pos = part.find(':');
-        }
-        if (pos != std::string::npos) {
-            std::string key = part.substr(0, pos);
-            std::string value = part.substr(pos + 1);
-            trim(key);
-            trim(value);
-            if (value[0] == '"')
-            {
-                value.erase(0, 1);
-                value.erase(value.size() - 1);
-            }
-            formFields[key] = value;
-        }
-    }
-    if (line.find("Content-Type") != std::string::npos)
-    {
-        size_t pos = line.find(':');
-        std::string key = line.substr(0, pos);
-        std::string value = line.substr(pos + 1);
-        trim(key);
-        trim(value);
-        formFields[key] = value;
-    }
-}
-
-void requestBody::save_formfield(std::istringstream &stream)
-{
-
-    std::string line;
-    std::getline(stream, line);
-    parseContentDisposition(line);
-    std::getline(stream, line);
-    if (line.find("Content-Type") != std::string::npos)
-    {
-        parseContentDisposition(line);
-        std::getline(stream, line);
-    }
-}
-
-void requestBody::saveFile()
-{
-    // Step 1: Open a file with the given fileName in write mode
-    std::string fileName = DATA_DIR + formFields["filename"];
-    std::ofstream outFile(fileName, std::ios::binary);
-
-    // Step 2: Check if the file is open
-    if (outFile.is_open())
-    {
-        // Step 3: Write the contents of fileBuffer to the file
-        outFile.write(fileBuffer.data(), fileBuffer.size());
-
-        // Step 4: Close the file
-        outFile.close();
-    }
-    else
-    {
-        // Handle the error if the file cannot be opened
-        throw "Failed to open the file.";
+        if (!data.empty())
+            outFile.write(&data[0], data.size());
     }
 }
 
@@ -102,87 +34,106 @@ void requestBody::setType(const std::string type)
         this->type = NONE;
 }
 
-
-dataType &requestBody::getType()
-{
-    return type;
-}
-
 std::string &requestBody::getFullBody()
 {
     return fullBody;
 }
 
-std::string &requestBody::getFilePath()
+void requestBody::parsBodyPart(std::string bodyPart)
 {
-    return filePath;
-}
+    //data that body part contains
+    formData data;
+    std::string filePath;
+    dataType type;
+    std::vector<char> fileBuffer;
+    std::map<std::string, std::string> formFields;
 
-std::vector<char> &requestBody::getFileBuffer()
-{
-    return fileBuffer;
-}
+    std::istringstream stream(bodyPart);
+    std::string line;
 
-std::map<std::string, std::string> &requestBody::getFormFields()
-{
-    return formFields;
-}
+    //parse first line
+    std::getline(stream, line);
+    line.pop_back();
+    line.push_back(';');
+    int pos = 0;
+    while ((pos = line.find(";")) != std::string::npos)
+    {
+        std::string tmp = line.substr(0, pos);
+        if (line.find(":") != std::string::npos)
+        {
+            std::string key = tmp.substr(0, tmp.find(":"));
+            std::string value = tmp.substr(tmp.find(":") + 2, tmp.length() - tmp.find(":") - 2);
+            formFields[trim(key)] = trim(value);
+        }
+        else
+        {
+            std::string key = tmp.substr(0, tmp.find("="));
+            std::string value = tmp.substr(tmp.find("=") + 2, tmp.length() - tmp.find("=") - 3);
+            if (value[value.length() - 1] == '"' && value[0] == '"')
+            {
+                value.pop_back();
+                value.erase(0, 1);
+            }
+            formFields[trim(key)] = trim(value);
+        }
+        line.erase(0, pos + 1);
+    }
 
+    //parse second line
+    std::getline(stream, line);
+    if (line.find("Content-Type") == std::string::npos)
+        type = TEXT;
+    else
+    {
+        type = OCTET_STREAM;
+        std::getline(stream, line);
+        //read all remiding lines with out split it with new line just read it as it is
+        std::istreambuf_iterator<char> begin(stream), end;
+        fileBuffer.assign(begin, end);
+
+    }
+    data.type = type;
+    data.formFields = formFields;
+    data.fileBuffer = fileBuffer;
+
+    if (data.type == OCTET_STREAM)
+    {
+        std::string fileName = data.formFields["filename"];
+        std::string filePath = DATA_DIR + fileName;
+        saveFile(filePath, data.fileBuffer); // Use helper function
+        data.filePath = filePath;
+    }
+    body.push_back(data);
+}
 
 requestBody::requestBody(std::istringstream &stream, requestHeader header)
 {
-    // size_t read = 0;
+    setType(header.getHeader()["Content-Type"]);
+    if (type == NONE)
+        return;
+    
     fullBody = stream.str();
-
-    //save only the body
     fullBody = fullBody.substr(fullBody.find("\r\n\r\n") + 4);
 
+    //save boundary
+    std::string boundary = header.getHeader()["Content-Type"];
+    boundary = boundary.substr(boundary.find("boundary=") + 9);
 
-    std::string boundary;
-    std::map<std::string, std::string> headerMap = header.getHeader();
+    std::string tmp = fullBody;
+    std::vector<std::string> bodyParts;
 
-    if (headerMap.find("Content-Type") != headerMap.end())
-        setType(headerMap["Content-Type"]);
-    else
-        this->type = NONE;
-
-    if (getType() == NONE)
-        return;
-
-    if (getType() == FORM_DATA) {
-        std::getline(stream, boundary);
-        save_formfield(stream);
+    //split body into parts
+    size_t pos = 0;
+    pos = tmp.find(boundary);
+    tmp.erase(0, pos + boundary.length() + 2);
+    while ((pos = tmp.find(boundary)) != std::string::npos)
+    {
+        bodyParts.push_back(tmp.substr(0, pos - 4));
+        tmp.erase(0, pos + boundary.length() + 2);
     }
-    // Parse Content-Length safely
-    if (headerMap.find("Content-Length") != headerMap.end()) {
-        const char* cl_str = headerMap["Content-Length"].c_str();
-        char* end;
-        long content_length = strtol(cl_str, &end, 10);
-        if (*end != '\0' || content_length < 0)
-            return; // Invalid length
-
-
-        fileBuffer.resize(content_length);
-        stream.read(&fileBuffer[0], content_length);
-        // Resize if fewer bytes were read
-        if (stream.gcount() < content_length) {
-            fileBuffer.resize(stream.gcount());
-        }
-        if (getType() == FORM_DATA)
-        {
-            size_t boundary_size = boundary.length();
-
-            fileBuffer.pop_back();
-            fileBuffer.pop_back();
-            fileBuffer.pop_back();
-            while (boundary_size > 0)
-            {
-                fileBuffer.pop_back();
-                boundary_size--;
-            }
-            fileBuffer.pop_back();
-            fileBuffer.pop_back();
-        }
+    for (size_t i = 0; i < bodyParts.size(); i++)
+    {
+        parsBodyPart(bodyParts[i]);
     }
 }
 

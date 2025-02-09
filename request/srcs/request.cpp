@@ -23,48 +23,48 @@ void request::printRequestHeader()
     }
 }
 
-void request::printRequestBody()
-{
-    std::cout << std::endl << "-------------------------------------------request body---------------------------------" << std::endl;
-    std::cout  << std::endl << "----------body type----------- " << std::endl;
-    if (reqBody.getType() == NONE)
-        std::cout << "NONE" << std::endl;
-    else if (reqBody.getType() == TEXT)
-        std::cout << "TEXT" << std::endl;
-    else if (reqBody.getType() == XML)
-        std::cout << "XML" << std::endl;
-    else if (reqBody.getType() == HTML)
-        std::cout << "HTML" << std::endl;
-    else if (reqBody.getType() == JSON)
-        std::cout << "JSON" << std::endl;
-    else if (reqBody.getType() == JAVA_SCRIPT)
-        std::cout << "JAVA_SCRIPT" << std::endl;
-    else if (reqBody.getType() == OCTET_STREAM)
-        std::cout << "OCTET_STREAM" << std::endl;
-    else if (reqBody.getType() == URLENCODED)
-        std::cout << "URLENCODED" << std::endl;
-    else if (reqBody.getType() == FORM_DATA)
-        std::cout << "FORM_DATA" << std::endl;
-    else if (reqBody.getType() == TEXT)
-        std::cout << "TEXT" << std::endl;
-    else
-        std::cout << "Type: UNKNOWN" << std::endl;
+// void request::printRequestBody()
+// {
+//     std::cout << std::endl << "-------------------------------------------request body---------------------------------" << std::endl;
+//     std::cout  << std::endl << "----------body type----------- " << std::endl;
+//     if (reqBody.getType() == NONE)
+//         std::cout << "NONE" << std::endl;
+//     else if (reqBody.getType() == TEXT)
+//         std::cout << "TEXT" << std::endl;
+//     else if (reqBody.getType() == XML)
+//         std::cout << "XML" << std::endl;
+//     else if (reqBody.getType() == HTML)
+//         std::cout << "HTML" << std::endl;
+//     else if (reqBody.getType() == JSON)
+//         std::cout << "JSON" << std::endl;
+//     else if (reqBody.getType() == JAVA_SCRIPT)
+//         std::cout << "JAVA_SCRIPT" << std::endl;
+//     else if (reqBody.getType() == OCTET_STREAM)
+//         std::cout << "OCTET_STREAM" << std::endl;
+//     else if (reqBody.getType() == URLENCODED)
+//         std::cout << "URLENCODED" << std::endl;
+//     else if (reqBody.getType() == FORM_DATA)
+//         std::cout << "FORM_DATA" << std::endl;
+//     else if (reqBody.getType() == TEXT)
+//         std::cout << "TEXT" << std::endl;
+//     else
+//         std::cout << "Type: UNKNOWN" << std::endl;
 
-    std::cout << std::endl << "--------------body formFields-------------" << std::endl;
-    std::map<std::string, std::string> reqBodyd = reqBody.getFormFields();
-    for (std::map<std::string, std::string>::iterator it = reqBodyd.begin(); it != reqBodyd.end(); it++) {
-        std::cout << "~" << it->first << "~   :   ~" << it->second << "~" << std::endl;
-    }
-    std::cout << std::endl << "-------------body data----------" << std::endl;
-    size_t i;
-    std::cout  << "~";
-    std::vector<char> datae = reqBody.getFileBuffer();
-    for (i = 0; i < datae.size(); i++)
-    {
-        std::cout << datae[i] ;
-    }
-    std::cout << "~" << std::endl;
-}
+//     std::cout << std::endl << "--------------body formFields-------------" << std::endl;
+//     std::map<std::string, std::string> reqBodyd = reqBody.getFormFields();
+//     for (std::map<std::string, std::string>::iterator it = reqBodyd.begin(); it != reqBodyd.end(); it++) {
+//         std::cout << "~" << it->first << "~   :   ~" << it->second << "~" << std::endl;
+//     }
+//     std::cout << std::endl << "-------------body data----------" << std::endl;
+//     size_t i;
+//     std::cout  << "~";
+//     std::vector<char> datae = reqBody.getFileBuffer();
+//     for (i = 0; i < datae.size(); i++)
+//     {
+//         std::cout << datae[i] ;
+//     }
+//     std::cout << "~" << std::endl;
+// }
 
 void request::printFullRequest()
 {
@@ -122,20 +122,25 @@ request::request(const std::string request) {
         reqBody = requestBody(requestStream, reqHeader);
         
 
-        // //print full request
+        // print full request
         // printFullRequest();
 
         // //print request Line
         // printRequestLine();
 
-        // //print request header
+        //print request header
         // printRequestHeader();
 
-        // print qqq
+        // print body
+        // printRequestBody();
+        // std::cout << "-------------start full body-------------" << std::endl;
+        // std::cout << reqBody.getFullBody() << std::endl;
+        // std::cout << "-------------end full body-------------" << std::endl;
+
 
         // save file if it is a file
-        if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
-            reqBody.saveFile();
+        // if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
+        //     reqBody.saveFile();
 
 
     } catch(const char *e) {
