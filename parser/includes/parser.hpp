@@ -26,3 +26,7 @@ class tokens
         TOKENS token;
         std::string value;
 };
+std::vector<tokens> Tokenizer(std::ifstream &file);
+std::vector<std::string> split(const std::string& str, const std::string& delimiters);
+void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv);
+void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end);
