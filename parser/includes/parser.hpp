@@ -7,6 +7,8 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+
+
 enum TOKENS
 {
     word,
@@ -25,7 +27,8 @@ class tokens
         TOKENS token;
         std::string value;
 };
-void parseConfig();
+
+void parseConfig(std::string);
 std::vector<tokens> Tokenizer(std::ifstream &file);
 std::vector<std::string> split(const std::string& str, const std::string& delimiters);
 // void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv);

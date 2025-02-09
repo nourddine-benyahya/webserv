@@ -16,9 +16,9 @@ void parseBodyLimit(std::vector<tokens>::iterator &it, std::vector<tokens>::iter
     if (it != end && it->token == equal)
         it++;
     else
-        throw std::runtime_error("error with the config file");
+        throw std::runtime_error("ConfigFile :Error with syntax 1");
     if (it == end || it->token != word || !isNumeric(it->value))
-        throw std::runtime_error("error with the config file");
+        throw std::runtime_error("ConfigFile :Error with syntax 2");
     srv.body_limit = std::atoi(it->value.c_str());
     
 }
@@ -40,7 +40,7 @@ void parseErrorPages(std::vector<tokens>::iterator &it, std::vector<tokens>::ite
             }
         }
         else
-            throw std::runtime_error("error in config file");
+            throw std::runtime_error("ConfigFile :Error with syntax 3");
         if (it != end)
             it++;
     }
@@ -51,14 +51,14 @@ void parseCgi(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
     else
-        throw std::runtime_error("error with config file 1");
+        throw std::runtime_error("ConfigFile :Error with syntax 4");
     while (it != end && it->token != close_bracket)
     {
         std::vector<std::string>v = split(it->value, "=");
         if (v.size() != 2)
-            throw std::runtime_error("error with the config file");
+            throw std::runtime_error("ConfigFile :Error with syntax 5");
         if (route.cgis.find(v[0]) != route.cgis.end())
-            throw std::runtime_error("duplicated values in cgi");
+            throw std::runtime_error("ConfigFile :duplicated values in cgi");
         route.cgis[v[0]] = v[1];
         it++;
     }
@@ -70,13 +70,13 @@ void parseAllowedMethods(std::vector<tokens>::iterator &it, std::vector<tokens>:
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
     else
-        throw std::runtime_error("error with config file");
+        throw std::runtime_error("ConfigFile :Error with syntax 6");
     while(it != end && it->token != close_bracket)
     {
         if(it->token == word && (it->value == "POST" || it->value == "GET" || it->value == "DELETE"))
             route.allowedMethods.push_back(it->value);
         else
-            throw std::runtime_error("method not valid");
+            throw std::runtime_error("ConfigFile: Method not valid");
         it++;
     }
 }
@@ -114,7 +114,7 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         {
             std::string res = setPathUpload(it, end, srv);
             if (res.empty() || (res != "yes" && res != "no"))
-                throw std::runtime_error("error with upload");
+                throw std::runtime_error("ConfigFile: Error with upload");
             if (res == "yes")
                 route.upload = true;
             else
@@ -128,33 +128,33 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         {
             route.root = setPathUpload(it, end, srv);
             if (route.root.empty())
-                std::runtime_error("error with the config file");
+                std::runtime_error("ConfigFile :Error with syntax 7");
         }
         else if (it->token == word && it->value == "index")
         {
             route.index = setPathUpload(it, end, srv);
             if (route.index.empty())
-                std::runtime_error("error with the config file");
+                std::runtime_error("ConfigFile :Error with syntax 8");
         }
         else if (it->token == word && it->value == "list_dirs")
         {
             std::string res = setPathUpload(it, end, srv);
             if (res.empty() || (res != "yes" && res != "no"))
-                throw std::runtime_error("error with upload");
+                throw std::runtime_error("ConfigFile: Error with upload");
             if (res == "yes")
                 route.list_dirs = true;
             else
                 route.list_dirs = false;
         }
         else
-            throw std::runtime_error("syntaxe error in config file");
+            throw std::runtime_error("ConfigFile :Error with syntax 9");
         if (it != end)
             it++;
     }
     if (route.path.empty())
-        throw std::runtime_error("no path specified for location");
+        throw std::runtime_error("ConfigFile: no path specified for location");
     if (srv.routes.find(route.path) != srv.routes.end())
-        throw std::runtime_error("duplicated paths for location");
+        throw std::runtime_error("ConfigFile: duplicated paths for location");
     srv.routes[route.path] = route;
 }
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
@@ -171,7 +171,7 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
             {
                 it++;
                 if (!isNumeric((++it)->value.c_str()))
-                    throw std::runtime_error("error in config file");
+                    throw std::runtime_error("ConfigFile :Error with syntax 10");
                 srv.setPort(std::atoi((it)->value.c_str()));
             }
         }
@@ -208,7 +208,7 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         else if (it->token == close_bracket)
             break;
         else
-            throw std::runtime_error("syntaxe error in config file");
+            throw std::runtime_error("ConfigFile :Error with syntax 11");
         if (it != end)
             it++;
     }

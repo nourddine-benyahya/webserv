@@ -2,7 +2,10 @@
 
 #include "request.hpp"
 #include "parsFuncs.hpp"
+#include <cstring>
 #include <unistd.h>
+#include <sys/wait.h>
+
 
 struct envComPath
 {

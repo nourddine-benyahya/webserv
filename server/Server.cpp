@@ -56,9 +56,6 @@ std::string Server::getRecvBuffer(){
 	this->recvBuffer.str("");
 		this->recvBuffer.clear();
 	return res;
-	// std::string res = recvBuffer;
-	// recvBuffer = "";
-	// return res;
 }
 
 int Server::getRecvBufferLenght(){
@@ -69,31 +66,13 @@ Server::Config* Server::getConfig(){
 	return this->conf;
 }
 
-
-void Server::initServer() {
-	// if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-	// 	throw Server::ServerException("Socket creation error");
-	// }
-	// int opt = 1;
-	// if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
-	// 	throw Server::ServerException("Setsockopt error");
-	// }
-	// if (bind(server_fd, (struct sockaddr *)&conf->getAddress(), sizeof(conf->getAddress())) < 0) {
-	// 	throw Server::ServerException("Bind error");
-	// }
-	// whiling on all map keys of sock_port and start listening using them
-	// if (listen(server_fd, 3) < 0) {
-	// 	throw Server::ServerException("Listen error");
-	// }
-}
-
 // Exception
 
-Server::ServerException::ServerException(std::string msg) : msg("ISE::") {
+Server::ServerException::ServerException(std::string msg) : msg("SE::") {
 	this->msg += msg;
 }
 
-Server::ServerException::ServerException(std::string msg, int status) : msg("ISE::"), status(status) {
+Server::ServerException::ServerException(std::string msg, int status) : msg("SE::"), status(status) {
 	this->msg += msg;
 }
 

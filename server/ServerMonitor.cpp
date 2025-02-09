@@ -1,5 +1,5 @@
 #include "ServerMonitor.hpp"
-#include "response.hpp"
+
 ServerMonitor *ServerMonitor::instance = NULL;
 
 static bool rootExist(std::string file)
@@ -273,7 +273,7 @@ void ServerMonitor::run()
 				// std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
 
 				std::stringstream logs;
-				logs << "Sender connection from socket " << i ;
+					logs << "Sender connection from socket " << i ;
 
 				try
 				{
@@ -299,8 +299,7 @@ void ServerMonitor::run()
 	}
 }
 
-ServerMonitor::ServerMonitorException::ServerMonitorException(std::string msg) : msg("Internal Server Monitor Exception:: ")
-{
+ServerMonitor::ServerMonitorException::ServerMonitorException(std::string msg) : msg("Internal Server Monitor Exception:: "){
 	this->msg += msg;
 }
 

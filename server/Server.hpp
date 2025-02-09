@@ -37,7 +37,7 @@
 #include <map>
 
 #include "request.hpp"
-#include "../Logger/Logger.hpp"
+#include "Logger.hpp"
 #include "Route.hpp"
 #include "parser.hpp"
 
@@ -126,10 +126,8 @@ public:
 	private:
 		int server_fd;
 		std::stringstream recvBuffer;
-		// std::set<int> server_fd;
 		//dependencies to build a server
 		Config *conf;
 
 		Server(Config*);
-		void initServer();
 };

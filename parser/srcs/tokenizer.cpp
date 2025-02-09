@@ -34,13 +34,13 @@ std::vector<tokens> Tokenizer(std::ifstream &file)
             (line[line.size() - 1] == ',' && line.find(',') != line.size() - 1) ||
             (line[line.size() - 1] == '{' && line.find('{') != line.size() - 1))
             {
-                throw std::runtime_error("error in end of line");
+                throw std::runtime_error("ConfigFile :Error in end of line");
             }
         
         content += line;
     }
     if (content.empty())
-        throw std::runtime_error("config file is empty");
+        throw std::runtime_error("ConfigFile: Error empty");
     std::vector<tokens> tks;
     std::vector<std::string> elems = split(content, " \n,");
 

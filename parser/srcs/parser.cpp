@@ -16,26 +16,14 @@ void parser(std::vector<tokens> &tk)
             it++;
     }
 }
-void parseConfig()
+
+void parseConfig(std::string path)
 {
-    std::ifstream file("default.conf");
+    std::ifstream file(path.c_str());
     if (!file.is_open())
     {
-        std::cerr << "error with the file" << std::endl;
-        return;
+        throw Server::ServerException("Config file not valid:" + path);
     }
     std::vector<tokens> tk = Tokenizer(file);
     parser(tk);
 }
-
-// int main()
-// {
-//     try
-//     {
-//         parseConfig();
-//     }
-//     catch(std::exception &e)
-//     {
-//         std::cerr << e.what() << std::endl;
-//     }
-// }
