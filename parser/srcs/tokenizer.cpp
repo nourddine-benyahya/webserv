@@ -28,8 +28,11 @@ std::vector<tokens> Tokenizer(std::ifstream &file)
 
     while(std::getline(file, line))
     {
-        if (line[line.size() - 1] != '{' && line[line.size() - 1] != ',')
+        if ((line[line.size() - 1] != '{' && line[line.size() - 1] != ',') || 
+            (line[line.size() - 1] == ',' && line.find(',') != line.size() - 1) ||
+            (line[line.size() - 1] == '{' && line.find('{') != line.size() - 1))
             throw std::runtime_error("error in end of line");
+        
         content += line;
     }
     if (content.empty())

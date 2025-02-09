@@ -102,6 +102,8 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
             else
                 route.list_dirs = false;
         }
+        else
+            throw std::runtime_error("syntaxe error in config file");
         if (it != end)
             it++;
     }

@@ -59,7 +59,9 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
             if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
             {
                 it++;
-                srv.setPort(std::atoi((++it)->value.c_str()));
+                if (!isNumeric((++it)->value.c_str()))
+                    throw std::runtime_error("error in config file");
+                srv.setPort(std::atoi((it)->value.c_str()));
             }
         }
         else if (it->token == word && it->value == "index")
@@ -95,7 +97,7 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         else if (it->token == close_bracket)
             break;
         else
-            throw std::runtime_error("unknown token in config file");
+            throw std::runtime_error("syntaxe error in config file");
         if (it != end)
             it++;
     }
