@@ -4,6 +4,10 @@
 #include <map>
 #include <set>
 
+#define BUFFER_SIZE 1000000
+#define CHUNK 10
+
+
 class Server;
 
 struct ServerAndPort {

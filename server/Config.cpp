@@ -4,8 +4,9 @@
 #include "ServerMonitor.hpp"
 
 std::string Server::Config::catRoot(std::string file){
+
 	std::stringstream ss;
-		ss << this->getRoot() << "/"
+		ss << this->getRoot() << ((file.front() != '/')? "/" : "")
 			<< file;
 	return ss.str();
 }
@@ -14,7 +15,7 @@ std::string Server::Config::catRoot(std::string file){
 std::string Server::Config::readFile(std::string fileName){
 	std::ifstream file(fileName.c_str());
     if (!file.is_open()) {
-        throw std::runtime_error("No such file or directory: " + fileName);
+        throw Server::ServerException("No such file or directory: " + fileName, 404);
     }
     std::stringstream buffer;
    		buffer << file.rdbuf();
@@ -123,6 +124,12 @@ static std::string getErrorDescription(int status){
         case 504: return "Gateway Timeout";
         default: return "Unknown Error";
     }
+}
+
+std::string Server::Config::getFile( std::string fileName ) {
+	if (!fileName.compare("/"))
+		return getIndex();
+	return readFile(catRoot(fileName));
 }
 
 std::string Server::Config::getErrorPage(int status){

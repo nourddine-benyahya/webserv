@@ -125,8 +125,9 @@ void ServerMonitor::addServer(Server *server)
 
 void ServerMonitor::update_maxFds()
 {
+	int maxTMP = maxFds;
 	maxFds = -1;
-	for (int j = 0; j <= FD_SETSIZE; ++j)
+	for (int j = 0; j <= maxTMP; ++j)
 	{
 		if (FD_ISSET(j, &master_set) && j > maxFds)
 		{
@@ -145,19 +146,19 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 		throw ServerMonitorException("Accept Error");
 
 	FD_SET(new_socket, &master_set);
-	if (new_socket > maxFds)
-		maxFds = new_socket;
+	maxFds = (new_socket > maxFds)? new_socket : maxFds;
 
 	ServerAndPort tmp;
-	tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
-	tmp.srv = sockets[i];
-	tmp.contentLength = -1;
+		tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
+		tmp.srv = sockets[i];
+		tmp.contentLength = -1;
 	tmpSockets[new_socket] = tmp;
 	{
 		std::stringstream ss;
-		ss << "new WebSocket connection established with "
-		   << (tmpSockets[new_socket].srv)->getConfig()->getName()
-		   << ":" << tmpSockets[new_socket].port;
+		ss 	<< "new WebSocket connection established " << new_socket
+			<< " with "
+		   	<< (tmpSockets[new_socket].srv)->getConfig()->getName()
+			<< ":" << tmpSockets[new_socket].port;
 		Logger(tmpSockets[new_socket].srv, Logger::INFO, ss.str());
 	}
 }
@@ -179,25 +180,26 @@ int ServerMonitor::returnRecvBuffer(int sock, std::string &buffer){
 	char buff[BUFFER_SIZE] = {0};
 	int bytes_read;
 	int k = 0;
-	while (k < 5 && (bytes_read = recv(sock, buff, sizeof(buff), 0)) > 0)
+	while (k < CHUNK && (bytes_read = recv(sock, buff, sizeof(buff), 0)) > 0)
 	{
 		buffer.append(buff, bytes_read);
 		if (bytes_read < BUFFER_SIZE)
-			break;
+			return bytes_read;
 		k++;
 	}
 	return bytes_read;
 }
 
 void ServerMonitor::handleError(int sock, int bytes_read, std::map<int, ServerAndPort> &tmpSockets) {	
-	if (bytes_read == 0)
-	{
+	if (bytes_read == 0) {
 		std::stringstream ss;
-		ss << "Connection closed at " << tmpSockets[sock].port;
+		ss	<< "Connection closed " << sock
+			<< " at " << tmpSockets[sock].port;
 		Logger(tmpSockets[sock].srv, Logger::WARNING, ss.str());
 	}
 	else
-		Logger(tmpSockets[sock].srv, Logger::ERROR, "Recv Error");
+		// Logger(tmpSockets[sock].srv, Logger::ERROR, "Recv Error");
+		Logger(tmpSockets[sock].srv, Logger::ERROR, strerror(errno));
 	tmpSockets.erase(sock);
 	FD_CLR(sock, &master_set);
 	update_maxFds();
@@ -268,50 +270,29 @@ void ServerMonitor::run()
 			}
 			if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady)
 			{
-				std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
-
-				// //this is where request would be used (using the getRecvBuffer() to get the request)
-				std::cout << "request buffer :" <<  msgTwil << std::endl;
-				request req(msgTwil);
-				Response res(req, tmpSockets[i].srv->getConfig());
-				// Request(msgTwil, tmpSocket[i].srv->getConfig()); : adding Config in case he needed it or for CGI
-				//all what remain would be used as reponse
-				// Response(Request.getElements, tmpSocket[i].srv->getConfig());
-
-
-				// std::string response;
-				// std::string valid = " OK";
-				// int status = 200;
-				// // try
-				// // {
-				// 	response = "tmpSockets[i].srv->getConfig()->getIndex()";
-				// }
-				// catch (std::exception &e)
-				// {
-					// status = 404;
-					// response = tmpSockets[i].srv->getConfig()->getErrorPage(status);
-					// valid = " KO";
-					// Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
-				// }
-
-				// std::stringstream ss;
-				// ss << "HTTP/1.1 " << status << valid;
-				// ss << "\r\nContent-Type: text/html\r\n";
-				// ss << "Content-Length: " << response.size() << "\r\n\r\n";
-				// ss << response;
-				// // send(i, ss.str().c_str(), ss.str().size(), 0);
-				// // std::cout << res.response << std::endl;
-				// // std::cout << res.response << std::endl
-				// // std::cout
-				// send(i, response.c_str(), response.size(), 0);
-				send(i, res.response.c_str(), res.response.size(), 0);
-
+				// std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
 
 				std::stringstream logs;
 				logs << "Sender connection from socket " << i ;
-					//  << i << " with status " << status << valid;
-				Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
+
+				try
+				{
+					request req(tmpSockets[i].srv->getRecvBuffer());
+					Response res(req, tmpSockets[i].srv->getConfig());
+					send(i, res.response.c_str(), res.response.size(), 0);
+						logs << " with status " << 200 << " OK";
+					Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
+				}
+				catch (Server::ServerException &e)
+				{
+					std::string error = e.getError();
+					send(i, error.c_str(), error.size(), 0);
+					Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
+						logs << " with status " << e.getStatus() << " KO";
+					Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
+				}
 				FD_CLR(i, &master_set);
+				tmpSockets.erase(i);
 				close(i);
 			}
 		}

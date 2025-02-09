@@ -37,12 +37,10 @@
 #include <map>
 
 #include "request.hpp"
-// #include "response.hpp"
 #include "../Logger/Logger.hpp"
 #include "Route.hpp"
 #include "parser.hpp"
 
-#define BUFFER_SIZE 1024
 class Route;
 class Server {
 public:
@@ -53,10 +51,17 @@ public:
 
 			class ServerException : public std::exception {
 				std::string msg;
+				std::string error;
+				int status;
 				public :
 					const char * what() const throw();
 					ServerException(std::string);
+					ServerException(std::string, int);
+					ServerException(std::string, std::string, int);
 					~ServerException() throw();
+					int getStatus();
+					std::string getError();
+					std::string createHTTPErrorHeader( int );
 			};
 
 
@@ -99,6 +104,7 @@ public:
 				struct sockaddr_in& getAddress() ;
 				std::string& getName() ;
 				std::string getIndex() ;
+				std::string getFile( std::string ) ;
 				std::map<int, int>& getSockets() ;
 				std::string getRoot();
 				std::string getLogs();

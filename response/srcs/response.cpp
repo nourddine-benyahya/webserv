@@ -17,39 +17,22 @@ Response::Response(request r, Server::Config *srv)
 
 void Response::get()
 {
-    // std::cout << "HEER" << std::endl;
-    std::ifstream file("./html" + req.getReqLine().getReqTarget());
-    if (!file.is_open())
-    {
-        std::ifstream file404("./404.html");
-        std::cout << req.getReqLine().getReqTarget() << std::endl;
-        if (!file404.is_open())
-        {
-            std::cerr << "error opening 404.html" << std::endl;
-            return;
-        }
-        std::cerr << "error with the file" << std::endl;
-        std::ostringstream fileContent;
-        fileContent << file404.rdbuf();
-        body = fileContent.str();
-        header = "HTTP/1.1 404 KO\r\nContent-Length: ";
-        std::stringstream ss;
-        ss << body.length();
-        response = header + ss.str() + "\r\n\r\n" + body;
-        // std::cout << body << std::endl;
-        file404.close();
-        return ;
-    }
-    std::string str;
-    std::ostringstream fileContent;
-    fileContent << file.rdbuf();
-    body = fileContent.str();
-    header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-    std::stringstream ss;
-    ss << body.length();
-    std::string lengthStr = ss.str();
-    response = header + lengthStr + "\r\n\r\n" + body;
-    file.close();
+	try {
+		// have to check the permission of the request to throw ServerException with 403
+		body = srv->getFile(req.getReqLine().getReqTarget());
+
+		// need to add content-type in the case of images or anyother file type
+		header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+
+		std::stringstream lengthStr;
+			lengthStr << body.length();
+		
+		response = header + lengthStr.str() + "\r\n\r\n" + body;
+	} catch (Server::ServerException &e) {
+		body = this->srv->getErrorPage(e.getStatus());
+        response = e.createHTTPErrorHeader(body.length()) + body;
+		throw Server::ServerException(e.what(), response, e.getStatus());
+	}
 }
 void Response::post()
 {

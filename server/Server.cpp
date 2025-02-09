@@ -89,13 +89,36 @@ void Server::initServer() {
 
 // Exception
 
-Server::ServerException::ServerException(std::string msg) : msg("Internal Server Exception::") {
+Server::ServerException::ServerException(std::string msg) : msg("ISE::") {
 	this->msg += msg;
 }
 
-Server::ServerException::~ServerException() throw() {
+Server::ServerException::ServerException(std::string msg, int status) : msg("ISE::"), status(status) {
+	this->msg += msg;
 }
+
+Server::ServerException::ServerException(std::string msg, std::string error, int status) : msg(msg), error(error), status(status) {}
+
+Server::ServerException::~ServerException() throw() {}
 
 const char* Server::ServerException::what() const throw() {
 	return msg.c_str();
+}
+
+std::string Server::ServerException::getError(){
+	return error;
+}
+
+std::string Server::ServerException::createHTTPErrorHeader( int contentLength ) {
+	std::stringstream ss;
+			ss << "HTTP/1.1 "
+				<< status << " KO"
+				<< "\r\nContent-Length: "
+				<< contentLength
+				<< "\r\n\r\n";
+	return ss.str();
+}
+
+int Server::ServerException::getStatus(){
+	return status;
 }

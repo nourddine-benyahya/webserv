@@ -1,4 +1,0 @@
-ext: php
-interpreter: php
-commandpath: /usr/bin/php
-CgiScript: ./data/cgi-files/page.php
