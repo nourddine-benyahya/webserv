@@ -10,6 +10,18 @@ int main(int ac, char **av)
 {
 	// at exit to check leaks
 	// atexit(ls);
+	/*
+		* Parsing
+			* add multiports
+			* add log file
+		* CGI
+			* use root upload or root where to upload
+	
+		* Server
+			* rechecking the health of the servers
+
+	
+	*/
 
 	try
 	{
