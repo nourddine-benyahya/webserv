@@ -30,6 +30,8 @@ std::vector<tokens> Tokenizer(std::ifstream &file)
 
     while(std::getline(file, line))
     {
+        if (line[line.size() - 1] != '{' && line[line.size() - 1] != ',')
+            throw std::runtime_error("error in end of line");
         content += line;
     }
     if (content.empty())
@@ -306,6 +308,8 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
             found = true;
             break;
         }
+        else
+            throw std::runtime_error("unknown token in config file");
         if (it != end)
         {
             it++;
