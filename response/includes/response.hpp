@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Server.hpp"
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -9,11 +10,13 @@
 #include <fstream>
 #include "request.hpp"
 #include "cgi.hpp"
-
+// class Server;
+// class Server::Config;
 class Response
 {
     public :
-        Response(request r);
+        Server::Config *srv;
+        Response(request r, Server::Config *srv);
         std::string body;
         std::string header;
         std::string method;

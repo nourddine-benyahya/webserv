@@ -1,8 +1,9 @@
 #include "response.hpp"
 
-Response::Response(request r)
+Response::Response(request r, Server::Config *srv)
 {
     req = r;
+    this->srv = srv;
     if (req.getReqLine().getMethod() == GET)
     {
         get();
@@ -16,7 +17,7 @@ Response::Response(request r)
 
 void Response::get()
 {
-    std::cout << "HEER" << std::endl;
+    // std::cout << "HEER" << std::endl;
     std::ifstream file("." + req.getReqLine().getReqTarget());
     if (!file.is_open())
     {
@@ -34,7 +35,8 @@ void Response::get()
         header = "HTTP/1.1 404 KO\r\nContent-Length: ";
         std::stringstream ss;
         ss << body.length();
-        response = header + ss.str(); + "\r\n\r\n" + body;
+        response = header + ss.str() + "\r\n\r\n" + body;
+        // std::cout << body << std::endl;
         file404.close();
         return ;
     }

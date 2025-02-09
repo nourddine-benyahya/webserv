@@ -68,6 +68,12 @@
         "vector": "cpp",
         "filesystem": "cpp",
         "set": "cpp",
-        "__memory": "cpp"
+        "__memory": "cpp",
+        "__verbose_abort": "cpp",
+        "print": "cpp",
+        "clocale": "cpp",
+        "execution": "cpp",
+        "queue": "cpp",
+        "variant": "cpp"
     }
 }

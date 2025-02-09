@@ -271,8 +271,9 @@ void ServerMonitor::run()
 				std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
 
 				//this is where request would be used (using the getRecvBuffer() to get the request)
+				std::cout << "request buffer :" <<  msgTwil << std::endl;
 				request req(msgTwil);
-				Response res(req);
+				Response res(req, tmpSocket[i].srv->getConfig());
 				// Request(msgTwil, tmpSocket[i].srv->getConfig()); : adding Config in case he needed it or for CGI
 				//all what remain would be used as reponse
 				// Response(Request.getElements, tmpSocket[i].srv->getConfig());
@@ -301,6 +302,7 @@ void ServerMonitor::run()
 				// send(i, ss.str().c_str(), ss.str().size(), 0);
 				// std::cout << res.response << std::endl;
 				// std::cout << res.response << std::endl
+				// std::cout
 				send(i, res.response.c_str(), res.response.size(), 0);
 
 
