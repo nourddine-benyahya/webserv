@@ -6,7 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
-
+#include "Server.hpp"
 enum TOKENS
 {
     word,
@@ -26,3 +26,4 @@ class tokens
         TOKENS token;
         std::string value;
 };
+void parseConfig();

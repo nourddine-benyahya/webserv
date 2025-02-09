@@ -131,12 +131,11 @@ request::request(const std::string request) {
         // //print request header
         // printRequestHeader();
 
-        // // print request body
-        // printRequestBody();
+        // print qqq
 
-        //save file if it is a file
-        // if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
-        //     reqBody.saveFile();
+        // save file if it is a file
+        if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
+            reqBody.saveFile();
 
 
     } catch(const char *e) {

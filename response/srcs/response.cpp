@@ -34,7 +34,6 @@ void Response::get()
         std::stringstream ss;
         ss << body.length();
         response = header + ss.str(); + "\r\n\r\n" + body;
-        
         file404.close();
         return ;
     }
