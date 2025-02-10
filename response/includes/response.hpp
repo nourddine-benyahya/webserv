@@ -15,6 +15,8 @@ class Server;
 class Response
 {
     public :
+        void matchRoute();
+        Route matchedRoute;
         Server::Config *srv;
         Response(request r, Server::Config *srv);
         std::string body;

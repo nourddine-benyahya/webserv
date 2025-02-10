@@ -1,9 +1,22 @@
 #include "response.hpp"
 
-Response::Response(request r, Server::Config *srv)
+
+void Response::matchRoute()
+{
+    // std::cout << req.getReqLine().getReqTarget() << std::endl;
+    // std::map<std::string, Route>::iterator it = srv->routes.begin();
+    // while (it != srv->routes.end())
+    // {
+    //     if (it->first == req.getReqLine().getReqTarget())
+    //         matchedRoute = it->second;
+    //     it++;
+    // }
+}
+Response::Response(request r, Server::Config *server)
 {
     req = r;
-    this->srv = srv;
+    srv = server;
+    // matchRoute();
     if (req.getReqLine().getMethod() == GET)
     {
         get();
