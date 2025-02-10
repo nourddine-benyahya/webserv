@@ -58,6 +58,8 @@ void Server::Config::build() {
 		create_sock();
 
 	ServerMonitor *serverMonitor = ServerMonitor::getInstance();
+	
+
 
 	serverMonitor->addServer(new Server(this->clone()));
 }
@@ -83,6 +85,7 @@ Server::Config::Config(Server::Config& other) {
 	this->errorPages = other.errorPages;
 	this->rootFolder = other.rootFolder;
 	this->logsFile = other.logsFile;
+	this->routes = other.routes;
 }
 
 // Setters

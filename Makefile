@@ -13,7 +13,7 @@ INCLUDES=   server	Logger	CGI/includes \
 			request/includes	parser/includes \
 			response/includes
 
-CFLAGS=   $(foreach d, $(INCLUDES), -I $d) 
+CFLAGS=   $(foreach d, $(INCLUDES), -I $d) -fsanitize=address -g
 
 all: $(NAME) phpInit
 	

@@ -17,8 +17,14 @@ class Response
     public :
         void matchRoute();
         Route matchedRoute;
+        bool foundRoute;
         Server::Config *srv;
+        std::string reqResourcePath;
         Response(request r, Server::Config *srv);
+        void getResource();
+        void checkResource();
+        bool checkCgiResource();
+        void checkResourceType();
         std::string body;
         std::string header;
         std::string method;
