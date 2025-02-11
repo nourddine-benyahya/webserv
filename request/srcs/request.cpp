@@ -96,9 +96,11 @@ void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
 }
 
 
-request::request(const std::string request) {
+request::request(const std::string request, Server::Config *server) {
+
 
     this->requestString = std::string(request);
+    srv = server;
     std::string line;
 
     // Put the request in a stream and read it line by line
@@ -112,15 +114,37 @@ request::request(const std::string request) {
         reqLine = requestLine(line);
 
         // Read the headers
-        // reqHeader = requestHeader();
         while (std::getline(requestStream, line) && !line.empty() && line != "\r") {
             trim(line);
             reqHeader.setHeader(line);
         }
+        // printRequestHeader();
+
+
+        //check Request if Transfer-Encoding header exist and is different to “chunked”
+        if (reqHeader.getHeader().find("Transfer-Encoding") != reqHeader.getHeader().end()
+            && reqHeader.getHeader()["Transfer-Encoding"] != "chunked")
+            throw Server::ServerException("501 Not Implemented", 501);
+
+        // Transfer-Encoding not exist Content-Length not exist The method is Post
+        if ((reqHeader.getHeader().find("Transfer-Encoding") != reqHeader.getHeader().end()
+            && reqHeader.getHeader()["Transfer-Encoding"] == "chunked"
+            && reqHeader.getHeader().find("Content-Length") == reqHeader.getHeader().end())
+            && reqLine.getMethod() == POST)
+            throw Server::ServerException("411 Length Required", 411);
+
+        // check if Request body larger than client max body size in config file
+        // if (reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end() 
+        //     && std::stoi(reqHeader.getHeader()["Content-Length"]) > srv->body_limit)
+        //     throw Server::ServerException("413 Payload Too Large", 413);
+
+        // check unsupported media type
+        if (reqHeader.getHeader().find("Content-Type") == reqHeader.getHeader().end() && reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end())
+            throw Server::ServerException("415 Unsupported Media Type", 415);
 
         // Read the body
         reqBody = requestBody(requestStream, reqHeader);
-        
+
 
         // print full request
         // printFullRequest();
@@ -141,9 +165,9 @@ request::request(const std::string request) {
         // save file if it is a file
         // if (reqBody.getType() == FORM_DATA && reqBody.getFormFields().find("filename") != reqBody.getFormFields().end())
         //     reqBody.saveFile();
-
-
-    } catch(const char *e) {
-        std::cerr << e << '\n';
-    }
+        } catch (Server::ServerException &e) {
+		std::string body = this->srv->getErrorPage(e.getStatus());
+        std::string response = e.createHTTPErrorHeader(body.length()) + body;
+		throw Server::ServerException(e.what(), response, e.getStatus());
+	}
 }

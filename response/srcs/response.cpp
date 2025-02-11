@@ -49,8 +49,11 @@ void Response::get()
 }
 void Response::post()
 {
+    req.getReqBody().saveFile("data/");
 
-    cgi c(req);
+    cgi c(req, "./data/cgi-files/page.php");
+
+    c.setCgiEnv(".php", "cgi-bin/php-cgi");
 
     c.runCgi();
 

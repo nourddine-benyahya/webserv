@@ -2,13 +2,20 @@
 
 
 // Helper function to save file content
-static void saveFile(const std::string& filePath, const std::vector<char>& data)
+void requestBody::saveFile(const std::string& filePath)
 {
-    std::ofstream outFile(filePath.c_str(), std::ios::binary);
-    if (outFile)
+    for (std::vector<formData>::iterator it = body.begin(); it != body.end(); it++)
     {
-        if (!data.empty())
-            outFile.write(&data[0], data.size());
+        if (it->type == OCTET_STREAM || it->formFields.find("filename") != it->formFields.end())
+        {
+            it->filePath = filePath + it->formFields["filename"];
+            std::ofstream outFile(it->filePath , std::ios::binary);
+            if (outFile)
+            {
+                if (!it->fileBuffer.empty())
+                    outFile.write(&it->fileBuffer[0], it->fileBuffer.size());
+            }
+        }
     }
 }
 
@@ -98,10 +105,10 @@ void requestBody::parsBodyPart(std::string bodyPart)
 
     if (data.type == OCTET_STREAM)
     {
-        std::string fileName = data.formFields["filename"];
-        std::string filePath = DATA_DIR + fileName;
-        saveFile(filePath, data.fileBuffer); // Use helper function
-        data.filePath = filePath;
+        // std::string fileName = data.formFields["filename"];
+        // std::string filePath = DATA_DIR + fileName;
+        // saveFile(filePath, data.fileBuffer); // Use helper function
+        data.filePath = "not Set";
     }
     body.push_back(data);
 }

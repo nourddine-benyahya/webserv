@@ -28,6 +28,7 @@ class requestBody
         requestBody(std::istringstream &stream, requestHeader header);
         //getters
         std::string &getFullBody();
+        void saveFile(const std::string& filePath);
         // dataType &getType();
         // std::string &getFilePath();
         // std::vector<char> &getFileBuffer();

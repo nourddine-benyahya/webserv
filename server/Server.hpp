@@ -36,7 +36,6 @@
 #include <sys/stat.h>
 #include <map>
 
-#include "request.hpp"
 #include "Logger.hpp"
 #include "Route.hpp"
 #include "parser.hpp"
@@ -131,3 +130,4 @@ public:
 
 		Server(Config*);
 };
+#include "request.hpp"

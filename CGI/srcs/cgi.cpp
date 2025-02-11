@@ -2,26 +2,10 @@
 
 void cgi::saveCgiEnv()
 {
-    envComPath tmp;
-    tmp.interpreter = "./cgi-bin/php-cgi";
-    tmp.commandpath = "./cgi-bin/php-cgi";
-    cgiEnv[".php"] = tmp;
-
-    tmp.interpreter = "python3";
-    tmp.commandpath = "/usr/bin/python3";
-    cgiEnv[".py"] = tmp;
-
-    tmp.interpreter = "sh";
-    tmp.commandpath = "/bin/sh";
-    cgiEnv[".sh"] = tmp;
-
-    tmp.interpreter = "java";
-    tmp.commandpath = "/usr/bin/java";
-    cgiEnv[".java"] = tmp;
-
-    tmp.interpreter = "./cgi-bin/php-cgi";
-    tmp.commandpath = "./cgi-bin/php-cgi";
-    cgiEnv[""] = tmp;
+    // cgiEnv[".php"] = "./cgi-bin/php-cgi";
+    cgiEnv[".py"] = "/usr/bin/python3";
+    cgiEnv[".sh"] = "/bin/sh";
+    cgiEnv[".java"] = "/usr/bin/java";
 }
 
 
@@ -94,78 +78,29 @@ char **cgi::mapToPtr()
     return envp;
 }
 
-
-void cgi::pathToScript()
-{
-    CgiScript = CGI_DIR + req.getReqLine().getReqTarget();
-    if (CgiScript.back() == '/')
-        CgiScript.pop_back();
-    if (!fileExists(CgiScript.c_str())) {
-        //read the content of ./404/index.html and put it in cgiResponse
-        std::ifstream file("./404/index.html");
-        if (!file.is_open()) {
-            std::cerr << "404 file not found" << std::endl;
-            throw "404 html page not found";
-        }
-        std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        cgiResponse = "Content-type: text/html\r\n";
-        cgiResponse += "HTTP/1.1 200 OK\r\n";
-        cgiResponse += "\r\n\r\n";
-        cgiResponse = str;
-        throw "CGI script not found";
-    }
-}
-
 void cgi::runCgi()
 {
-    if (err)
-        return ;
     std::string ext = CgiScript.substr(CgiScript.rfind("."));
 
-    if (cgiEnv.find(ext) == cgiEnv.end()) {
-        std::ifstream file("./404/index.html");
-        if (!file.is_open()) {
-            std::cerr << "404 file not found" << std::endl;
-            throw "404 html page not found";
-        }
-        std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        cgiResponse = "Content-type: text/html\r\n";
-        cgiResponse += "HTTP/1.1 200 OK\r\n";
-        cgiResponse += "\r\n\r\n";
-        cgiResponse = str;
-        return ;
-    }
+    if (cgiEnv.find(ext) == cgiEnv.end()) 
+        throw Server::ServerException("404 CGI interpreter not set for " + ext, 404);
 
-    std::string interpreter = cgiEnv[ext].interpreter;
-    std::string commandpath = cgiEnv[ext].commandpath;
+    std::string commandpath = cgiEnv[ext];
 
-    if (!fileExists(commandpath.c_str())) {
-        std::ifstream file("./404/index.html");
-        if (!file.is_open()) {
-            std::cerr << "404 file not found" << std::endl;
-            throw "404 html page not found";
-        }
-        std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        cgiResponse = "Content-type: text/html\r\n";
-        cgiResponse += "HTTP/1.1 200 OK\r\n";
-        cgiResponse += "\r\n\r\n";
-        cgiResponse = str;
-        return ;
-    }
-    char *const argv[] = {(char *)interpreter.c_str()  ,(char *)CgiScript.c_str(), NULL};
+    if (!fileExists(commandpath.c_str()))
+        throw Server::ServerException("cgi interpreter " + commandpath + " not correct for " + ext, 404);
+
+    char *const argv[] = {(char *)commandpath.c_str()  ,(char *)CgiScript.c_str(), NULL};
 
     int stdout_pipe[2], stdin_pipe[2];
     if (pipe(stdout_pipe) == -1 || pipe(stdin_pipe) == -1)
-    {
-        std::cerr << "Pipe creation failed\n";
-        return;
-    }
+        throw Server::ServerException("1 error while piping", 1);
+
 
     pid_t pid = fork();
-    if (pid < 0) {
-        std::cerr << "Fork failed\n";
-        return;
-    }
+    if (pid < 0)
+        throw Server::ServerException("1 error while forking", 1);
+
 
     if (pid == 0) { 
         close(stdin_pipe[1]); 
@@ -204,42 +139,33 @@ void cgi::runCgi()
         close(stdout_pipe[0]);
 
         int status;
-        waitpid(pid, &status, 0); // Wait for CGI process
+        waitpid(pid, &status, 0); 
         int finelStatus = WEXITSTATUS(status);
-        std::cerr << "CGI process exited with status: " << finelStatus << std::endl;
+        // std::cerr << "CGI process exited with status: " << finelStatus << std::endl;
         if (finelStatus == -1)
-            throw "Exit failed";
+            throw Server::ServerException("Exit failed", finelStatus);
+
         cgiResponse = "HTTP/1.1 200 OK\r\n";
         cgiResponse += response;
     }
 }
 
-void cgi::setCgiEnv(std::string interpreter, std::string commandpath)
+void cgi::setCgiEnv(std::string extantion, std::string commandpath)
 {
-    envComPath tmp;
-    tmp.interpreter = interpreter;
-    tmp.commandpath = commandpath;
-    cgiEnv[interpreter] = tmp;
+    std::string ext = extantion;
+    std::string path = commandpath;
+    cgiEnv[ext] = path;
+    // std::cerr << "setCgiEnv: " << extantion << " " << commandpath << std::endl;
+    // std::cerr << "cgiEnv: " << cgiEnv[extantion] << std::endl;
 }
 
 
-cgi::cgi(request request) {
+cgi::cgi(request request, std::string path) {
 
     req = request;
-    try
-    {
-        // save url of cgi script
-        pathToScript();
-
-        // save exeuatable path
-        saveCgiEnv();
-
-        //save env
-        save_env();
-        err = false;
-    } catch (const char *ptr)
-    {
-        err = true;
-        std::cerr << ptr << std::endl;
-    }
+    CgiScript = path;
+    // save exeuatable path
+    saveCgiEnv();
+    //save env
+    save_env();
 }
