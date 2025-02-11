@@ -25,6 +25,8 @@ class Response
         void checkResource();
         bool checkCgiResource();
         void checkResourceType();
+        void checkIndexed();
+        bool checkUploadRoute();
         std::string body;
         std::string header;
         std::string method;

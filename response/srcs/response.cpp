@@ -7,26 +7,23 @@ void Response::matchRoute()
     std::cout << req.getReqLine().getReqTarget() << std::endl;
     foundRoute = false;
     std::map<std::string , Route>::iterator it = srv->routes.begin();
-    // std::cout << it->first << std::endl;
     if (it ==  srv->routes.end())
         std::cout << "empty" << std::endl;
-    while (it != srv->routes.end())
+    it = srv->routes.find(req.getReqLine().getReqTarget());
+    if (it != srv->routes.end())
     {
-        // std::cout << "here " <<it->first << " " <<req.getReqLine().getReqTarget() << std::endl;
-        if (it->first == req.getReqLine().getReqTarget())
-        {
-            // exit(1);
-            // std::cout << "found" << std::endl;
-            matchedRoute = it->second;
-            foundRoute = true;
-        }
-        it++;
-
+        matchedRoute = it->second;
+        foundRoute = true;
+    }
+    else if (srv->routes.find("/") != srv->routes.end())
+    {
+        std::cout << "root route found" << std::endl;
+        matchedRoute = srv->routes.find("/")->second;
+        foundRoute = true;
     }
 }
 Response::Response(request r, Server::Config *server)
 {
-
     req = r;
     srv = server;
     matchRoute();
@@ -73,12 +70,13 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
         resourcePath << "/";
 
     resourcePath << path;
+    std::cout << "in Slash " << resourcePath.str() << "|" << path << "|" << std::endl;
 }
 
 void Response::checkResource()
 {
     std::stringstream resourcePath;
-    checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, matchedRoute.path);
+    checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
     std::cout << "Checking resource: " << reqResourcePath << std::endl;
     if (isDirectory(reqResourcePath))
@@ -127,7 +125,7 @@ void Response::get()
         throw Server::ServerException("Method not allowed ", 405);
         checkResource();
         if (checkCgiResource())
-        return;
+            return;
         header = "HTTP/1.1 200 OK\r\nContent-Length: ";
         body = getContent(reqResourcePath);
         std::stringstream lengthStr;
@@ -135,9 +133,65 @@ void Response::get()
         response = header + lengthStr.str() + "\r\n\r\n" + body;
     }
 }
+
+void Response::checkIndexed()
+{
+    std::stringstream resourcePath;
+    resourcePath << this->srv->getRoot(); 
+    if (req.getReqLine().getReqTarget().front() != '/' && resourcePath.str().back() != '/')
+        resourcePath << "/";
+    reqResourcePath = resourcePath.str();
+    if (isDirectory(reqResourcePath))
+    {
+        if (this->srv->getIndex().empty())
+            throw Server::ServerException("forbidden", 403);
+        else
+        {
+            reqResourcePath +=  this->srv->getIndex();
+            checkFile(reqResourcePath);
+        }
+    }
+    else
+        checkFile(reqResourcePath);
+}
+bool Response::checkUploadRoute()
+{
+    if (matchedRoute.upload)
+    {
+        // req.save call function to save the body
+        return true;
+    }
+    return false;
+}
 void Response::post()
 {
-    std::cout << "inside post" << std::endl;
+    if (foundRoute == false)
+    {
+        throw Server::ServerException("404 not found", 404);
+    }
+    else if (foundRoute)
+    {
+        if (std::find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "POST ") == matchedRoute.allowedMethods.end())
+        throw Server::ServerException("Method not allowed ", 405);
+        checkResource();
+        if (checkUploadRoute())
+        {
+            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+            body = "content created";
+            std::stringstream lengthStr;
+            lengthStr << body.length();
+            response = header + lengthStr.str() + "\r\n\r\n" + body;
+            return ;
+        }
+        if (checkCgiResource())
+            return;
+        throw Server::ServerException("forbidden", 403); 
+        // header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+        // body = getContent(reqResourcePath);
+        // std::stringstream lengthStr;
+        // lengthStr << body.length();
+        // response = header + lengthStr.str() + "\r\n\r\n" + body;
+    }
     cgi c(req);
 
     c.runCgi();
