@@ -192,13 +192,13 @@ void Response::post()
         // lengthStr << body.length();
         // response = header + lengthStr.str() + "\r\n\r\n" + body;
     }
-    cgi c(req);
+    // cgi c(req);
 
-    c.runCgi();
+    // c.runCgi();
 
 
     // response = "HTTP/1.1 200 OK\r\n";
-    response = c.getResponse();
+    // response = c.getResponse();
 }
 
 void Response::DELETE()
