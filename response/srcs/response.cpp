@@ -1,5 +1,5 @@
-#include "response.hpp"
 #include <sys/stat.h>
+#include "response.hpp"
 #include <unistd.h>
 
 void Response::matchRoute()
@@ -89,8 +89,8 @@ void Response::checkResource()
             checkFile(reqResourcePath);
         }
     }
-    std::cout << "final req :"<< reqResourcePath << std::endl;
 }
+
 bool Response::checkCgiResource()
 {
     // std::cout << "final"<< reqResourcePath << std::endl;
@@ -204,41 +204,62 @@ void Response::Delete()
 }
 
 std::string Response::listDir(std::string path) {
-    DIR *dir;
-    struct dirent *entry;
+    DIR* dir;
+    struct dirent* entry;
     struct stat info;
-    std::stringstream result;
+    std::ostringstream result;
 
     if ((dir = opendir(path.c_str())) == NULL) {
-        perror("opendir");
+        throw Server::ServerException("forbidden", 403);
         return "";
     }
-
+    result << "<div id=\"directory-listing\">";
     result << "<ul>";
 
     while ((entry = readdir(dir)) != NULL) {
         std::string fullPath = path + "/" + entry->d_name;
         if (stat(fullPath.c_str(), &info) != 0) {
-            perror("stat");
             continue;
         }
 
         if (S_ISDIR(info.st_mode)) {
             if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
                 continue;
-            result << "<li>Directory: <a href=\"#\" onclick=\"toggleVisibility('" << fullPath << "')\">" << entry->d_name << "</a>";
-            result << "<div id=\"" << fullPath << "\" style=\"display:none;\">";
-            result << listDir(fullPath); // Recursively list the directory contents
-            result << "</div></li>";
+            result << "<li><b onclick=\"toggleDir(event)\">/" << entry->d_name << " >> </b>"
+                   << "<ul style=\"display:none;\">" << listDir(fullPath) << "</ul>"
+                   << "</li>";
         } else {
-            result << "<li>File: <a href=\"" << fullPath << "\">" << entry->d_name << "</a></li>";
+            result << "<li><a href=\"" << fullPath 
+                   << "\">" << entry->d_name << "</a></li>";
         }
     }
 
     result << "</ul>";
+    result << "</div>";
     closedir(dir);
+	result << "<style>"
+           << "body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f0f0; }"
+           << "#directory-listing { margin: 0; padding: 0; list-style-type: none; }"
+           << "#directory-listing ul { margin: 0; padding: 0; list-style-type: none; }"
+           << "#directory-listing li { margin: 5px 0; padding: 5px; border: 1px solid #ddd; border-radius: 4px;  background-color: #FFF5EE;}"
+           << "#directory-listing li a { text-decoration: none; color: #4682B4; }"
+           << "#directory-listing li a:hover { text-decoration: underline; }"
+           << "#directory-listing li b { font-weight: bold; color: #191970; }"
+           << "#directory-listing li ul { margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px; }"
+           << "#directory-listing li ul li { border: none; padding: 2px 0; }"
+           << "</style>";
+	
+	result << "<script>"
+           << "function toggleDir(event) {"
+           << "  var nextUl = event.target.nextElementSibling;"
+           << "  if (nextUl.style.display === 'none' || nextUl.style.display === '') {"
+           << "    nextUl.style.display = 'block';"
+           << "  } else {"
+           << "    nextUl.style.display = 'none';"
+           << "  }"
+           << "}"
+           << "</script>";
     return result.str();
 }
-
 
 
