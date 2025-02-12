@@ -2,6 +2,18 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+template <typename T>
+static std::vector<std::string>::iterator find(std::vector<std::string>::iterator begin, std::vector<std::string>::iterator end, T value)
+{
+    while (begin != end)
+    {
+        if (*begin == value)
+            return begin;
+        begin++;
+    }
+    return end;
+}
+
 void Response::matchRoute()
 {
     foundRoute = false;
@@ -127,8 +139,8 @@ void Response::get()
     }
     else if (foundRoute)
     {
-        if (std::find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
-        throw Server::ServerException("Method not allowed ", 405);
+        if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
+            throw Server::ServerException("Method not allowed ", 405);
         checkResource();
         if (checkCgiResource())
             return;
@@ -184,7 +196,7 @@ void Response::post()
     }
     else if (foundRoute)
     {
-        if (std::find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "POST") == matchedRoute.allowedMethods.end())
+        if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "POST") == matchedRoute.allowedMethods.end())
         {
             throw Server::ServerException("Method not allowed ", 405);
         }
@@ -231,7 +243,7 @@ void Response::Delete()
     }
     else if (foundRoute)
     {
-        if (std::find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "DELETE") == matchedRoute.allowedMethods.end())
+        if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "DELETE") == matchedRoute.allowedMethods.end())
         {
             throw Server::ServerException("Method not allowed ", 405);
         }
