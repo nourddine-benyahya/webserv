@@ -18,8 +18,7 @@ void requestLine::setReqTarget(const std::string url)
 {
     std::string tmp = url;
     trim(tmp);
-    if (!urlFormat(tmp))
-        throw "Invalid URL";
+    urlFormat(tmp);
     this->reqTarget = tmp;
 }
 

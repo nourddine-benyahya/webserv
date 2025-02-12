@@ -93,9 +93,10 @@ void Response::checkResource()
 }
 bool Response::checkCgiResource()
 {
+    // std::cout << "final"<< reqResourcePath << std::endl;
     if (matchedRoute.cgis.size() == 0)
         return false;
-    cgi c(req);
+    cgi c(req, reqResourcePath);
     c.runCgi();
     response = c.getResponse();
     return true;
@@ -159,6 +160,12 @@ bool Response::checkUploadRoute()
     if (matchedRoute.upload)
     {
         // req.save call function to save the body
+        std::stringstream resourcePath;
+        resourcePath << this->srv->getRoot();
+        if (matchedRoute.root.front() != '/' && resourcePath .str().back() != '/')
+        resourcePath << "/";
+        std::cout << "UPLOAD PATH :" << resourcePath.str() << std::endl;
+        req.getReqBody().saveFile(resourcePath.str());
         return true;
     }
     return false;
@@ -171,12 +178,14 @@ void Response::post()
     }
     else if (foundRoute)
     {
-        if (std::find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "POST ") == matchedRoute.allowedMethods.end())
-        throw Server::ServerException("Method not allowed ", 405);
+        if (std::find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "POST") == matchedRoute.allowedMethods.end())
+        {
+            throw Server::ServerException("Method not allowed ", 405);
+        }
         checkResource();
         if (checkUploadRoute())
         {
-            header = "HTTP/1.1 201 Created\r\nContent-Length: ";
+            header = "HTTP/1.1 201 Created\r\nContent-Type: text/html\r\nContent-Length: ";
             body = "content created";
             std::stringstream lengthStr;
             lengthStr << body.length();

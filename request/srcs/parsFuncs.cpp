@@ -20,36 +20,36 @@ void toupper(std::string& str)
         str[i] = std::toupper(str[i]);
 }
 
-bool urlFormat(std::string& url) {
+void urlFormat(std::string& url)
+{
     const std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                       "abcdefghijklmnopqrstuvwxyz"
                                       "0123456789"
                                       "-._~:/?#[]@!$&'()*+,;=";
 
+    //check if Request uri contain more that 2048 chars
     if (url.empty() || url[0] != '/' || url.length() > 2048)
-        return false;
+        throw "414 Request-URI Too Long";
 
 
-    for (std::string::const_iterator it = url.begin(); it != url.end(); ++it) {
+    for (std::string::const_iterator it = url.begin(); it != url.end(); ++it)
+    {
         if (allowed_chars.find(*it) == std::string::npos)
-            return false;
+            throw "400 Bad Request";
     }
 
     size_t query_pos = url.find('?');
     size_t fragment_pos = url.find('#');
 
-    if (fragment_pos != std::string::npos && query_pos != std::string::npos && fragment_pos < query_pos) {
-        return false;
-    }
+    if (fragment_pos != std::string::npos && query_pos != std::string::npos && fragment_pos < query_pos)
+        throw "400 Bad Request";
 
     if (query_pos != std::string::npos && fragment_pos != std::string::npos && fragment_pos < query_pos)
-        return false;
+        throw "400 Bad Request";
 
     if (query_pos != std::string::npos && query_pos == url.length() - 1)
-        return false;
+        throw "400 Bad Request";
 
     if (fragment_pos != std::string::npos && fragment_pos == url.length() - 1)
-        return false;
-
-    return true;
+        throw "400 Bad Request";
 }

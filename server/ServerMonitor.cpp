@@ -274,7 +274,7 @@ void ServerMonitor::run()
 
 				try
 				{
-					request req(tmpSockets[i].srv->getRecvBuffer());
+					request req(tmpSockets[i].srv->getRecvBuffer(), tmpSockets[i].srv->getConfig());
 					Response res(req, tmpSockets[i].srv->getConfig());
 					send(i, res.response.c_str(), res.response.size(), 0);
 						logs << " with status " << 200 << " OK";

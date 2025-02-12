@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Server.hpp"
 #include "request.hpp"
 #include "parsFuncs.hpp"
 #include <cstring>
@@ -7,22 +8,17 @@
 #include <sys/wait.h>
 
 
-struct envComPath
-{
-    std::string interpreter;
-    std::string commandpath;
-};
+
 
 
 class cgi
 {
     private:
-        bool err;
         request req;
         std::string cgiResponse;
         std::string CgiScript;
         std::map<std::string, std::string> env_map;
-        std::map<std::string, envComPath> cgiEnv;
+        std::map<std::string, std::string> cgiEnv;
     public :
         void save_env();
         char **mapToPtr();
@@ -30,7 +26,7 @@ class cgi
         void saveCgiEnv();
 
 
-        cgi(request req);
+        cgi(request req, const std::string path);
         void runCgi();
         void setCgiEnv(std::string interpreter, std::string commandpath);
         std::string &getResponse() { return cgiResponse; }

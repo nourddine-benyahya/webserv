@@ -10,6 +10,7 @@ class requestLine
         std::string reqTarget;
         std::string httpVers;
         void splitParamsFromReqTarget();
+
     public :
         std::map<std::string, std::string> params;
         requestLine(){};

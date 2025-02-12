@@ -121,10 +121,16 @@ static std::string getErrorDescription(int status){
         case 401: return "Unauthorized";
         case 403: return "Forbidden";
         case 404: return "Page Not Found";
+        case 411: return "Length Required";
+        case 413: return "Payload Too Large";
+        case 414: return "Request-URI Too Long";
+        case 415: return "Unsupported Media Type";
         case 500: return "Internal Server Error";
+        case 501: return "Not Implemented";
         case 502: return "Bad Gateway";
         case 503: return "Service Unavailable";
         case 504: return "Gateway Timeout";
+        case 505: return "HTTP Version Not Supported";
         default: return "Unknown Error";
     }
 }

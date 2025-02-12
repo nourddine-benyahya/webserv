@@ -47,4 +47,4 @@ enum Err
 std::string trim(std::string& str);
 bool fileExists(const char *path);
 void toupper(std::string& str);
-bool urlFormat(std::string& url);
+void urlFormat(std::string& url);
