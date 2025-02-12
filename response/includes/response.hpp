@@ -33,7 +33,6 @@ class Response
         request req;
         void get();
         void post();
-        void DELETE();
-        void methodFilter();
+        void Delete();
         std::string response;
 };

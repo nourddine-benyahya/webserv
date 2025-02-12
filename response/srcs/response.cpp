@@ -176,7 +176,7 @@ void Response::post()
         checkResource();
         if (checkUploadRoute())
         {
-            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+            header = "HTTP/1.1 201 Created\r\nContent-Length: ";
             body = "content created";
             std::stringstream lengthStr;
             lengthStr << body.length();
@@ -186,27 +186,12 @@ void Response::post()
         if (checkCgiResource())
             return;
         throw Server::ServerException("forbidden", 403); 
-        // header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-        // body = getContent(reqResourcePath);
-        // std::stringstream lengthStr;
-        // lengthStr << body.length();
-        // response = header + lengthStr.str() + "\r\n\r\n" + body;
     }
-    // cgi c(req);
-
-    // c.runCgi();
-
-
-    // response = "HTTP/1.1 200 OK\r\n";
-    // response = c.getResponse();
 }
 
-void Response::DELETE()
+void Response::Delete()
 {
 
 }
-void Response::methodFilter()
-{
-    // if ()
-}
+
 
