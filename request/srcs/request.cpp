@@ -123,8 +123,8 @@ request::request(const std::string request, Server::Config *server) {
             trim(line);
             reqHeader.setHeader(line);
         }
-        // printRequestHeader();
 
+        // printRequestHeader();
 
         //check Request if Transfer-Encoding header exist and is different to “chunked”
         if (reqHeader.getHeader().find("Transfer-Encoding") != reqHeader.getHeader().end()

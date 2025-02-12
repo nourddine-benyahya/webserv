@@ -94,7 +94,6 @@ void requestBody::parsBodyPart(std::string bodyPart)
     {
         type = OCTET_STREAM;
         std::getline(stream, line);
-        //read all remiding lines with out split it with new line just read it as it is
         std::istreambuf_iterator<char> begin(stream), end;
         fileBuffer.assign(begin, end);
 
@@ -104,12 +103,8 @@ void requestBody::parsBodyPart(std::string bodyPart)
     data.fileBuffer = fileBuffer;
 
     if (data.type == OCTET_STREAM)
-    {
-        // std::string fileName = data.formFields["filename"];
-        // std::string filePath = DATA_DIR + fileName;
-        // saveFile(filePath, data.fileBuffer); // Use helper function
         data.filePath = "not Set";
-    }
+
     body.push_back(data);
 }
 
