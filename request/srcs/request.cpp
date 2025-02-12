@@ -98,7 +98,7 @@ void saveFile(const std::string &fileName, const std::vector<char> &fileBuffer)
 
 request::request(const std::string request, Server::Config *server) {
 
-
+    // std::cout  << request << std::endl;
     this->requestString = std::string(request);
     srv = server;
     std::string line;
