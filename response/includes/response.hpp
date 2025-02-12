@@ -3,11 +3,7 @@
 #include "Server.hpp"
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <iostream>
-#include <cstring>
-#include <sstream>
-#include <fstream>
+#include <dirent.h>
 #include "request.hpp"
 #include "cgi.hpp"
 class Server;
@@ -35,4 +31,6 @@ class Response
         void post();
         void Delete();
         std::string response;
+
+		std::string listDir(std::string);
 };

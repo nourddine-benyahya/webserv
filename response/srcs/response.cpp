@@ -203,4 +203,42 @@ void Response::Delete()
 
 }
 
+std::string Response::listDir(std::string path) {
+    DIR *dir;
+    struct dirent *entry;
+    struct stat info;
+    std::stringstream result;
+
+    if ((dir = opendir(path.c_str())) == NULL) {
+        perror("opendir");
+        return "";
+    }
+
+    result << "<ul>";
+
+    while ((entry = readdir(dir)) != NULL) {
+        std::string fullPath = path + "/" + entry->d_name;
+        if (stat(fullPath.c_str(), &info) != 0) {
+            perror("stat");
+            continue;
+        }
+
+        if (S_ISDIR(info.st_mode)) {
+            if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
+                continue;
+            result << "<li>Directory: <a href=\"#\" onclick=\"toggleVisibility('" << fullPath << "')\">" << entry->d_name << "</a>";
+            result << "<div id=\"" << fullPath << "\" style=\"display:none;\">";
+            result << listDir(fullPath); // Recursively list the directory contents
+            result << "</div></li>";
+        } else {
+            result << "<li>File: <a href=\"" << fullPath << "\">" << entry->d_name << "</a></li>";
+        }
+    }
+
+    result << "</ul>";
+    closedir(dir);
+    return result.str();
+}
+
+
 
