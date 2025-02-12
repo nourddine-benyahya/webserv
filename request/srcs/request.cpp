@@ -1,5 +1,5 @@
 #include "request.hpp"
-
+#include "exeptions.hpp"
 void request::printRequestLine()
 {
     std::cout << std::endl << "-------------------------------------------request Line---------------------------------" << std::endl;
@@ -109,9 +109,14 @@ request::request(const std::string request, Server::Config *server) {
 
     try {
 
-        // Read the request line
         std::getline(requestStream, line);
-        reqLine = requestLine(line);
+        try {
+            // Read the request line
+            reqLine = requestLine(line);
+        } catch (exeptions ex)
+        {
+            throw Server::ServerException(ex.getMsg(), ex.getStatus());
+        }
 
         // Read the headers
         while (std::getline(requestStream, line) && !line.empty() && line != "\r") {
@@ -134,9 +139,9 @@ request::request(const std::string request, Server::Config *server) {
             throw Server::ServerException("411 Length Required", 411);
 
         // check if Request body larger than client max body size in config file
-        // if (reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end() 
-        //     && std::stoi(reqHeader.getHeader()["Content-Length"]) > srv->body_limit)
-        //     throw Server::ServerException("413 Payload Too Large", 413);
+        if (srv->body_limit != -1 && reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end() 
+            && std::stoi(reqHeader.getHeader()["Content-Length"]) > srv->body_limit)
+            throw Server::ServerException("413 Payload Too Large", 413);
 
         // check unsupported media type
         if (reqHeader.getHeader().find("Content-Type") == reqHeader.getHeader().end() && reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end())

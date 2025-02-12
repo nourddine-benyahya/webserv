@@ -83,23 +83,23 @@ void cgi::runCgi()
     std::string ext = CgiScript.substr(CgiScript.rfind("."));
 
     if (cgiEnv.find(ext) == cgiEnv.end()) 
-        throw Server::ServerException("404 CGI interpreter not set for " + ext, 404);
+        throw Server::ServerException("500 CGI interpreter not set for " + ext, 500);
 
     std::string commandpath = cgiEnv[ext];
 
     if (!fileExists(commandpath.c_str()))
-        throw Server::ServerException("cgi interpreter " + commandpath + " not correct for " + ext, 404);
+        throw Server::ServerException("500 cgi interpreter " + commandpath + " not correct for " + ext, 500);
 
     char *const argv[] = {(char *)commandpath.c_str()  ,(char *)CgiScript.c_str(), NULL};
 
     int stdout_pipe[2], stdin_pipe[2];
     if (pipe(stdout_pipe) == -1 || pipe(stdin_pipe) == -1)
-        throw Server::ServerException("1 error while piping", 1);
+        throw Server::ServerException("500 error while piping", 500);
 
 
     pid_t pid = fork();
     if (pid < 0)
-        throw Server::ServerException("1 error while forking", 1);
+        throw Server::ServerException("500 error while forking", 500);
 
 
     if (pid == 0) { 
@@ -141,9 +141,8 @@ void cgi::runCgi()
         int status;
         waitpid(pid, &status, 0); 
         int finelStatus = WEXITSTATUS(status);
-        // std::cerr << "CGI process exited with status: " << finelStatus << std::endl;
         if (finelStatus == -1)
-            throw Server::ServerException("Exit failed", finelStatus);
+            throw Server::ServerException("Exit failed", 500);
 
         cgiResponse = "HTTP/1.1 200 OK\r\n";
         cgiResponse += response;
@@ -155,8 +154,6 @@ void cgi::setCgiEnv(std::string extantion, std::string commandpath)
     std::string ext = extantion;
     std::string path = commandpath;
     cgiEnv[ext] = path;
-    // std::cerr << "setCgiEnv: " << extantion << " " << commandpath << std::endl;
-    // std::cerr << "cgiEnv: " << cgiEnv[extantion] << std::endl;
 }
 
 

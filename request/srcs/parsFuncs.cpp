@@ -1,4 +1,5 @@
 #include "parsFuncs.hpp"
+#include "exeptions.hpp"
 
 bool fileExists(const char *path)
 {
@@ -29,27 +30,38 @@ void urlFormat(std::string& url)
 
     //check if Request uri contain more that 2048 chars
     if (url.empty() || url[0] != '/' || url.length() > 2048)
-        throw "414 Request-URI Too Long";
+        throw exeptions(414, "414 Request-URI Too Long");
+
+        // throw "414 Request-URI Too Long";
 
 
     for (std::string::const_iterator it = url.begin(); it != url.end(); ++it)
     {
         if (allowed_chars.find(*it) == std::string::npos)
-            throw "400 Bad Request";
+            // throw "400 Bad Request";
+            throw exeptions(400, "400 bad Request");
     }
 
     size_t query_pos = url.find('?');
     size_t fragment_pos = url.find('#');
 
     if (fragment_pos != std::string::npos && query_pos != std::string::npos && fragment_pos < query_pos)
-        throw "400 Bad Request";
+            throw exeptions(400, "400 bad Request");
+
+        // throw "400 Bad Request";
 
     if (query_pos != std::string::npos && fragment_pos != std::string::npos && fragment_pos < query_pos)
-        throw "400 Bad Request";
+            throw exeptions(400, "400 bad Request");
+
+        // throw "400 Bad Request";
 
     if (query_pos != std::string::npos && query_pos == url.length() - 1)
-        throw "400 Bad Request";
+            throw exeptions(400, "400 bad Request");
+
+        // throw "400 Bad Request";
 
     if (fragment_pos != std::string::npos && fragment_pos == url.length() - 1)
-        throw "400 Bad Request";
+            throw exeptions(400, "400 bad Request");
+
+        // throw "400 Bad Request";
 }

@@ -1,4 +1,5 @@
 #include "requestLine.hpp"
+#include "exeptions.hpp"
 
 void requestLine::setMethod(const std::string method)
 {
@@ -10,7 +11,9 @@ void requestLine::setMethod(const std::string method)
     toupper(tmp);
     for (i = 0; i < 9 && tmp != methods[i]; i++){}
     if (i == 8 && tmp != methods[8])
-        throw "Invalid Method";
+        throw exeptions(405, "405 Method Not Allowed");
+
+        // throw "Invalid Method";
     this->method = (MethodType)i;
 }
 
@@ -27,7 +30,9 @@ void requestLine::setHttpVers(const std::string vers)
     std::string tmp = vers;
     trim(tmp);
     if (tmp != "HTTP/1.1")
-        throw "Invalid HTTP Version";
+        throw exeptions(505, "505 HTTP Version Not Supported");
+
+        // throw "Invalid HTTP Version";
     this->httpVers = tmp;
 }
 

@@ -1,4 +1,3 @@
-
 #include "Server.hpp"
 
 #include "ServerMonitor.hpp"
@@ -74,6 +73,7 @@ Server::Config::Config() : name("0.0.0.0") {
 	this->fileIndex = "index.html";
 	this->rootFolder = "html";
 	this->logsFile = "";
+	this->body_limit = -1;
 }
 
 
@@ -86,6 +86,7 @@ Server::Config::Config(Server::Config& other) {
 	this->rootFolder = other.rootFolder;
 	this->logsFile = other.logsFile;
 	this->routes = other.routes;
+	this->body_limit = other.body_limit;
 }
 
 // Setters
@@ -121,6 +122,7 @@ static std::string getErrorDescription(int status){
         case 401: return "Unauthorized";
         case 403: return "Forbidden";
         case 404: return "Page Not Found";
+        case 405: return "Method Not Allowed";
         case 411: return "Length Required";
         case 413: return "Payload Too Large";
         case 414: return "Request-URI Too Long";
