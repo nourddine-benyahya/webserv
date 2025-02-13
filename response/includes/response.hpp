@@ -28,6 +28,7 @@ class Response
         void checkIndexed();
         bool checkUploadRoute();
         int deleteContent();
+        void DeletecheckResource();
         std::string body;
         std::string header;
         std::string method;

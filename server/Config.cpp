@@ -72,7 +72,7 @@ Server::Config::Config() : name("0.0.0.0") {
 	this->address.sin_port = htons(80);
 	sock_port.clear();
 	this->fileIndex = "index.html";
-	this->rootFolder = "html";
+	this->rootFolder = ".";
 	this->logsFile = "";
 }
 
@@ -169,6 +169,7 @@ std::string Server::Config::getErrorPage(int status){
 
 
 Server::Config& Server::Config::setRoot(std::string folderPath){
+	std::cout << "THIS IS FROM SET ROOOOOOOOOOOOOOOOOT" << std::endl;
 	this->rootFolder = folderPath;
 	return *this;
 }

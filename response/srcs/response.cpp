@@ -23,35 +23,40 @@ void Response::matchRoute()
     it = srv->routes.find(req.getReqLine().getReqTarget());
     if (it != srv->routes.end())
     {
+
         matchedRoute = it->second;
         foundRoute = true;
     }
     else if (srv->routes.find("/") != srv->routes.end())
     {
-        std::cout << "root route found" << std::endl;
+        // std::cout << "root route found" << std::endl;
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
+    std::cout << "MATCHED ROUTE " << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
     req = r;
     srv = server;
+    std::cout << "SERVER ROOT: " << srv->getRoot() << " " << srv->getPort() << std::endl;
     matchRoute();
     try
     {
         if (req.getReqLine().getMethod() == GET)
         {
+            std::cout << "GET " << foundRoute << std::endl;
+
             get();
         }
         else if (req.getReqLine().getMethod() == POST)
         {
-            std::cout << "POST AND NOT DELETE" << std::endl;
+            // std::cout << "POST AND NOT DELETE" << std::endl;
             post();
         }
         else if (req.getReqLine().getMethod() == DELETE)
         {
-            std::cout << "DELETE REEEEEEEEEEEEEEEEE" << std::endl;
+            // std::cout << "DELETE REEEEEEEEEEEEEEEEE" << std::endl;
             Delete();
         }
     }
@@ -79,7 +84,7 @@ bool isDirectory(const std::string &path) {
 void checkSlash(std::stringstream &resourcePath, std::string root, std::string &routeRoot, std::string &path)
 {
     resourcePath << root;
-
+    std::cout << "|" << root << "|" << std::endl;
     if (!routeRoot.empty() && routeRoot.front() != '/' && resourcePath.str().back() != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
@@ -87,7 +92,7 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
         resourcePath << "/";
 
     resourcePath << path;
-    std::cout << "in Slash " << resourcePath.str() << std::endl;
+    // std::cout << "in Slash " << resourcePath.str() << std::endl;
 }
 
 void Response::checkResource()
@@ -95,7 +100,6 @@ void Response::checkResource()
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
-    std::cout << "Checking resource: " << reqResourcePath << std::endl;
     if (isDirectory(reqResourcePath))
     {
         if (matchedRoute.index.empty())
@@ -106,11 +110,23 @@ void Response::checkResource()
             checkFile(reqResourcePath);
         }
     }
-    std::cout << "final req :"<< reqResourcePath << std::endl;
+}
+void Response::DeletecheckResource()
+{
+    std::stringstream resourcePath;
+    checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
+    reqResourcePath = resourcePath.str();
+    if (isDirectory(reqResourcePath))
+    {
+        if (!matchedRoute.index.empty())
+        {
+            reqResourcePath +=  matchedRoute.index;
+            checkFile(reqResourcePath);
+        }
+    }
 }
 bool Response::checkCgiResource()
 {
-    // std::cout << "final"<< reqResourcePath << std::endl;
     if (matchedRoute.cgis.size() == 0)
         return false;
     cgi c(req, reqResourcePath);
@@ -139,6 +155,7 @@ void Response::get()
     }
     else if (foundRoute)
     {
+        std::cout << "FOUND ROUTE " << req.getReqLine().getReqTarget() << std::endl;
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
             throw Server::ServerException("Method not allowed ", 405);
         checkResource();
@@ -182,7 +199,7 @@ bool Response::checkUploadRoute()
         if (matchedRoute.root.front() != '/' && resourcePath .str().back() != '/')
             resourcePath << "/";
         resourcePath << matchedRoute.root;
-        std::cout << "UPLOAD PATH :" << resourcePath.str() << std::endl;
+        // std::cout << "UPLOAD PATH :" << resourcePath.str() << std::endl;
         req.getReqBody().saveFile(resourcePath.str());
         return true;
     }
@@ -247,25 +264,24 @@ void Response::Delete()
         {
             throw Server::ServerException("Method not allowed ", 405);
         }
-        checkResource();
-        
+        DeletecheckResource();
         if (checkCgiResource())
             return;
-        if (deleteContent() == 1)
-        {
-            header = "HTTP/1.1 204 No Content\r\nContent-Type: text/html\r\nContent-Length: ";
-            body = "file deleted";
-            std::stringstream lengthStr;
-            lengthStr << body.length();
-            response = header + lengthStr.str() + "\r\n\r\n" + body;
-            return ;
-        }
+        // if (deleteContent() == 1)
+        // {
+        //     header = "HTTP/1.1 204 No Content\r\nContent-Type: text/html\r\nContent-Length: ";
+        //     body = "file deleted";
+        //     std::stringstream lengthStr;
+        //     lengthStr << body.length();
+        //     response = header + lengthStr.str() + "\r\n\r\n" + body;
+        //     return ;
+        // }
         // header = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\nContent-Length: ";
         // body = "Error in server";
         // std::stringstream lengthStr;
         // lengthStr << body.length();
         // response = header + lengthStr.str() + "\r\n\r\n" + body;
-        throw Server::ServerException("Internal Server Error", 500); 
+        throw Server::ServerException("No content", 204); 
     }
 }
 
