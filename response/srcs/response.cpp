@@ -100,10 +100,20 @@ void Response::checkResource()
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
-    if (isDirectory(reqResourcePath))
+    if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
     {
         if (matchedRoute.index.empty())
+            reqResourcePath +=  srv->fileIndex;
+        else
+            reqResourcePath +=  matchedRoute.index;
+        checkFile(reqResourcePath);
+    }
+    else if (isDirectory(reqResourcePath))
+    {
+        if (matchedRoute.index.empty())
+        {
             throw Server::ServerException("forbidden", 403);
+        }
         else
         {
             reqResourcePath +=  matchedRoute.index;
@@ -155,7 +165,7 @@ void Response::get()
     }
     else if (foundRoute)
     {
-        std::cout << "FOUND ROUTE " << req.getReqLine().getReqTarget() << std::endl;
+        std::cout << "REQUEST " << req.getReqLine().getReqTarget() << " MATCHED ROUTE " << matchedRoute.path << std::endl;
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
             throw Server::ServerException("Method not allowed ", 405);
         checkResource();
