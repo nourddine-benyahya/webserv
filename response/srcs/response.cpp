@@ -23,40 +23,32 @@ void Response::matchRoute()
     it = srv->routes.find(req.getReqLine().getReqTarget());
     if (it != srv->routes.end())
     {
-
         matchedRoute = it->second;
         foundRoute = true;
     }
     else if (srv->routes.find("/") != srv->routes.end())
     {
-        // std::cout << "root route found" << std::endl;
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    std::cout << "MATCHED ROUTE " << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
     req = r;
     srv = server;
-    std::cout << "SERVER ROOT: " << srv->getRoot() << " " << srv->getPort() << std::endl;
     matchRoute();
     try
     {
         if (req.getReqLine().getMethod() == GET)
         {
-            std::cout << "GET " << foundRoute << std::endl;
-
             get();
         }
         else if (req.getReqLine().getMethod() == POST)
         {
-            // std::cout << "POST AND NOT DELETE" << std::endl;
             post();
         }
         else if (req.getReqLine().getMethod() == DELETE)
         {
-            // std::cout << "DELETE REEEEEEEEEEEEEEEEE" << std::endl;
             Delete();
         }
     }
@@ -84,7 +76,6 @@ bool isDirectory(const std::string &path) {
 void checkSlash(std::stringstream &resourcePath, std::string root, std::string &routeRoot, std::string &path)
 {
     resourcePath << root;
-    std::cout << "|" << root << "|" << std::endl;
     if (!routeRoot.empty() && routeRoot.front() != '/' && resourcePath.str().back() != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
@@ -92,7 +83,6 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
         resourcePath << "/";
 
     resourcePath << path;
-    // std::cout << "in Slash " << resourcePath.str() << std::endl;
 }
 
 void Response::checkResource()
@@ -170,7 +160,6 @@ void Response::get()
     }
     else if (foundRoute)
     {
-        std::cout << "REQUEST " << req.getReqLine().getReqTarget() << " MATCHED ROUTE " << matchedRoute.path << std::endl;
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
             throw Server::ServerException("Method not allowed ", 405);
         checkResource();
@@ -214,7 +203,6 @@ bool Response::checkUploadRoute()
         if (matchedRoute.root.front() != '/' && resourcePath .str().back() != '/')
             resourcePath << "/";
         resourcePath << matchedRoute.root;
-        // std::cout << "UPLOAD PATH :" << resourcePath.str() << std::endl;
         req.getReqBody().saveFile(resourcePath.str());
         return true;
     }
@@ -261,6 +249,7 @@ int Response::deleteContent()
     }
     return 0;
 }
+
 void Response::Delete()
 {
     if (foundRoute == false)
