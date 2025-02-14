@@ -215,6 +215,5 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         if (it != end)
             it++;
     }
-    std::cout << "ROOT IN PARSING "<< srv.getRoot() << std::endl;
     srv.build();
 }

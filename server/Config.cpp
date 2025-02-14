@@ -169,7 +169,6 @@ std::string Server::Config::getErrorPage(int status){
 
 
 Server::Config& Server::Config::setRoot(std::string folderPath){
-	std::cout << "THIS IS FROM SET ROOOOOOOOOOOOOOOOOT" << std::endl;
 	this->rootFolder = folderPath;
 	return *this;
 }

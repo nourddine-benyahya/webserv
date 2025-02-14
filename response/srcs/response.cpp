@@ -134,6 +134,9 @@ void Response::DeletecheckResource()
             checkFile(reqResourcePath);
         }
     }
+    else
+        checkFile(reqResourcePath);
+
 }
 bool Response::checkCgiResource()
 {
@@ -246,15 +249,9 @@ void Response::post()
 
 int Response::deleteContent()
 {
-    // std::stringstream resourcePath;
-    // resourcePath << this->srv->getRoot();
-    // if (matchedRoute.root.front() != '/' && resourcePath .str().back() != '/')
-    //     resourcePath << "/";
-    std::cout << "YOOOOOOOO "<< reqResourcePath << std::endl;
     if (isDirectory(reqResourcePath))
     {
-
-        return rmdir(reqResourcePath.c_str()) == 0;
+        throw Server::ServerException("Conflict", 409);
     }
     else
     {
@@ -277,21 +274,16 @@ void Response::Delete()
         DeletecheckResource();
         if (checkCgiResource())
             return;
-        // if (deleteContent() == 1)
-        // {
-        //     header = "HTTP/1.1 204 No Content\r\nContent-Type: text/html\r\nContent-Length: ";
-        //     body = "file deleted";
-        //     std::stringstream lengthStr;
-        //     lengthStr << body.length();
-        //     response = header + lengthStr.str() + "\r\n\r\n" + body;
-        //     return ;
-        // }
-        // header = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html\r\nContent-Length: ";
-        // body = "Error in server";
-        // std::stringstream lengthStr;
-        // lengthStr << body.length();
-        // response = header + lengthStr.str() + "\r\n\r\n" + body;
-        throw Server::ServerException("No content", 204); 
+        if (deleteContent() == 1)
+        {
+            header = "HTTP/1.1 204 No Content\r\nContent-Type: text/html\r\nContent-Length: ";
+            body = "file deleted";
+            std::stringstream lengthStr;
+            lengthStr << body.length();
+            response = header + lengthStr.str() + "\r\n\r\n" + body;
+            return ;
+        }
+        throw Server::ServerException("Internal Server Error", 500); 
     }
 }
 
