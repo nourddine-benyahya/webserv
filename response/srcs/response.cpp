@@ -120,6 +120,8 @@ void Response::checkResource()
             checkFile(reqResourcePath);
         }
     }
+    else if (!isDirectory(reqResourcePath))
+        checkFile(reqResourcePath);
 }
 void Response::DeletecheckResource()
 {
