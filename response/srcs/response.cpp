@@ -281,5 +281,3 @@ void Response::Delete()
         throw Server::ServerException("Internal Server Error", 500); 
     }
 }
-
-
