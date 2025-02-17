@@ -1,5 +1,5 @@
-#include "response.hpp"
 #include <sys/stat.h>
+#include "response.hpp"
 #include <unistd.h>
 
 template <typename T>
@@ -31,7 +31,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    std::cout << "MATCHED ROUTE REDIR :" << matchedRoute.redir << std::endl;
+    std::cout << "MATCHED ROUTE  :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -88,7 +88,7 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
     resourcePath << path;
 }
 
-void Response::checkResource()
+bool Response::checkResource()
 {
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
@@ -103,18 +103,32 @@ void Response::checkResource()
     }
     else if (isDirectory(reqResourcePath))
     {
-        if (matchedRoute.index.empty())
+        if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs)
+        {
+        // std::cout << "YES DIR :" << reqResourcePath << std::endl;
+            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+            body = listDir(reqResourcePath);
+            std::stringstream lengthStr;
+            lengthStr << body.length();
+            response = header + lengthStr.str() + "\r\n\r\n" + body;
+            return true;
+        }
+        else if (matchedRoute.index.empty())
         {
             throw Server::ServerException("forbidden", 403);
         }
-        else
+        else if (!matchedRoute.index.empty())
         {
             reqResourcePath +=  matchedRoute.index;
             checkFile(reqResourcePath);
         }
     }
     else if (!isDirectory(reqResourcePath))
+    {
         checkFile(reqResourcePath);
+
+    }
+    return false;
 }
 void Response::DeletecheckResource()
 {
@@ -133,6 +147,7 @@ void Response::DeletecheckResource()
         checkFile(reqResourcePath);
 
 }
+
 bool Response::checkCgiResource()
 {
     if (matchedRoute.cgis.size() == 0)
@@ -175,7 +190,8 @@ void Response::get()
     {
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
             throw Server::ServerException("Method not allowed ", 405);
-        checkResource();
+        if (checkResource())
+            return ;
         if (checkCgiResource())
             return;
         header = "HTTP/1.1 200 OK\r\nContent-Length: ";
@@ -294,3 +310,63 @@ void Response::Delete()
         throw Server::ServerException("Internal Server Error", 500); 
     }
 }
+std::string Response::listDir(std::string path) {
+    DIR* dir;
+    struct dirent* entry;
+    struct stat info;
+    std::ostringstream result;
+
+    if ((dir = opendir(path.c_str())) == NULL) {
+        throw Server::ServerException("forbidden", 403);
+        return "";
+    }
+    result << "<div id=\"directory-listing\">";
+    result << "<ul>";
+
+    while ((entry = readdir(dir)) != NULL) {
+        std::string fullPath = path + "/" + entry->d_name;
+        if (stat(fullPath.c_str(), &info) != 0) {
+            continue;
+        }
+
+        if (S_ISDIR(info.st_mode)) {
+            if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
+                continue;
+            result << "<li><b onclick=\"toggleDir(event)\">/" << entry->d_name << " >> </b>"
+                   << "<ul style=\"display:none;\">" << listDir(fullPath) << "</ul>"
+                   << "</li>";
+        } else {
+            result << "<li><a href=\"" << fullPath 
+                   << "\">" << entry->d_name << "</a></li>";
+        }
+    }
+
+    result << "</ul>";
+    result << "</div>";
+    closedir(dir);
+	result << "<style>"
+           << "body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f0f0; }"
+           << "#directory-listing { margin: 0; padding: 0; list-style-type: none; }"
+           << "#directory-listing ul { margin: 0; padding: 0; list-style-type: none; }"
+           << "#directory-listing li { margin: 5px 0; padding: 5px; border: 1px solid #ddd; border-radius: 4px;  background-color: #FFF5EE;}"
+           << "#directory-listing li a { text-decoration: none; color: #4682B4; }"
+           << "#directory-listing li a:hover { text-decoration: underline; }"
+           << "#directory-listing li b { font-weight: bold; color: #191970; }"
+           << "#directory-listing li ul { margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px; }"
+           << "#directory-listing li ul li { border: none; padding: 2px 0; }"
+           << "</style>";
+	
+	result << "<script>"
+           << "function toggleDir(event) {"
+           << "  var nextUl = event.target.nextElementSibling;"
+           << "  if (nextUl.style.display === 'none' || nextUl.style.display === '') {"
+           << "    nextUl.style.display = 'block';"
+           << "  } else {"
+           << "    nextUl.style.display = 'none';"
+           << "  }"
+           << "}"
+           << "</script>";
+    return result.str();
+}
+
+
