@@ -31,6 +31,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
+    std::cout << "MATCHED ROUTE REDIR :" << matchedRoute.redir << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -39,6 +40,8 @@ Response::Response(request r, Server::Config *server)
     matchRoute();
     try
     {
+        if (checkRedir() == true)
+            return;
         if (req.getReqLine().getMethod() == GET)
         {
             get();
@@ -147,6 +150,16 @@ std::string getContent(std::string fileName)
     std::stringstream content;
     content << resource.rdbuf();
     return content.str();
+}
+bool Response::checkRedir()
+{
+    if (matchedRoute.redir.empty())
+        return false;
+
+    response =    "HTTP/1.1 301 Moved Permanently\r\n"
+                "Location: http://localhost:8080" + matchedRoute.redir + "\r\n"
+                "Content-Length: 0\r\n\r\n";
+    return true;
 }
 void Response::get()
 {
