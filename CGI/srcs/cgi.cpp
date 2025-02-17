@@ -56,7 +56,6 @@ void cgi::save_env()
     }
     query_string.pop_back();
     env_map["QUERY_STRING"] = query_string;
-
     //all header
     std::map<std::string, std::string> header = req.getReqHeader().getHeader();
     for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); ++it) {

@@ -32,13 +32,9 @@ void urlFormat(std::string& url)
     if (url.empty() || url[0] != '/' || url.length() > 2048)
         throw exeptions(414, "414 Request-URI Too Long");
 
-        // throw "414 Request-URI Too Long";
-
-
     for (std::string::const_iterator it = url.begin(); it != url.end(); ++it)
     {
         if (allowed_chars.find(*it) == std::string::npos)
-            // throw "400 Bad Request";
             throw exeptions(400, "400 bad Request");
     }
 
@@ -48,20 +44,15 @@ void urlFormat(std::string& url)
     if (fragment_pos != std::string::npos && query_pos != std::string::npos && fragment_pos < query_pos)
             throw exeptions(400, "400 bad Request");
 
-        // throw "400 Bad Request";
 
     if (query_pos != std::string::npos && fragment_pos != std::string::npos && fragment_pos < query_pos)
             throw exeptions(400, "400 bad Request");
 
-        // throw "400 Bad Request";
 
     if (query_pos != std::string::npos && query_pos == url.length() - 1)
             throw exeptions(400, "400 bad Request");
 
-        // throw "400 Bad Request";
 
     if (fragment_pos != std::string::npos && fragment_pos == url.length() - 1)
             throw exeptions(400, "400 bad Request");
-
-        // throw "400 Bad Request";
 }

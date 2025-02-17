@@ -17,8 +17,6 @@ class requestBody
         std::string fullBody;
         dataType type;
         std::vector<formData> body;
-        // void save_formfield(std::istringstream &stream);
-        // void parseContentDisposition(const std::string &line);
         void setType(const std::string type);
         void parsBodyPart(std::string bodyPart);
 
@@ -28,10 +26,6 @@ class requestBody
         requestBody(std::istringstream &stream, requestHeader header);
         //getters
         std::string &getFullBody();
+        // save content of the file
         void saveFile(const std::string& filePath);
-        // dataType &getType();
-        // std::string &getFilePath();
-        // std::vector<char> &getFileBuffer();
-        // std::map<std::string, std::string> &getFormFields();
-        // void saveFile();
 };

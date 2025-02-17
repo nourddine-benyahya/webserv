@@ -16,12 +16,7 @@ class request
         std::string    requestString;
         Server::Config *srv;
 
-        //debuging functions
     public :
-        void printFullRequest();
-        void printRequestLine();
-        void printRequestHeader();
-        void printRequestBody();
         request(){};
         request(const std::string request, Server::Config *server);
         requestLine &getReqLine() { return reqLine; }
