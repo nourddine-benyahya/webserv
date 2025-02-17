@@ -215,6 +215,5 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
         if (it != end)
             it++;
     }
-    
     srv.build();
 }

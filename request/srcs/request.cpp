@@ -4,7 +4,6 @@
 
 request::request(const std::string request, Server::Config *server)
 {
-
     this->requestString = std::string(request);
     srv = server;
     std::string line;

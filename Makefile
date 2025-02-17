@@ -13,7 +13,7 @@ INCLUDES=   server	Logger	CGI/includes \
 			request/includes	parser/includes \
 			response/includes
 
-CFLAGS=   $(foreach d, $(INCLUDES), -I $d) -fsanitize=address -g
+CFLAGS=   $(foreach d, $(INCLUDES), -I $d) 
 
 all: $(NAME) phpInit
 	
@@ -26,11 +26,11 @@ phpInit:
 # source ~/.zshrc
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -fsanitize=address -g
 	@echo "Server Created ./"$(NAME)
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Object file created for:" $<
 
 clean:

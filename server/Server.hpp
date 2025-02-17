@@ -69,7 +69,6 @@ public:
 				void create_sock();
 				bool portRedifined;
 
-				std::string fileIndex;
 				std::map<int, int> sock_port;
 				struct sockaddr_in address;
 				std::string name;
@@ -81,6 +80,7 @@ public:
 				std::string readFile(std::string);
 				std::string catRoot(std::string file);
 			public:
+				std::string fileIndex;
 				int body_limit;
 				std::map<std::string , Route> routes;
 				~Config();

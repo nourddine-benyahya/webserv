@@ -71,7 +71,7 @@ Server::Config::Config() : name("0.0.0.0") {
 	this->address.sin_port = htons(80);
 	sock_port.clear();
 	this->fileIndex = "index.html";
-	this->rootFolder = "html";
+	this->rootFolder = ".";
 	this->logsFile = "";
 	this->body_limit = -1;
 }
