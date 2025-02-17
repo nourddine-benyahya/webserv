@@ -19,4 +19,5 @@ class Route
         std::string root;
         std::string index;
         bool list_dirs;
+        std::string redir;
 };

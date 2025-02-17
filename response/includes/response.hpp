@@ -29,6 +29,7 @@ class Response
         bool checkUploadRoute();
         int deleteContent();
         void DeletecheckResource();
+        bool checkRedir();
         std::string body;
         std::string header;
         std::string method;

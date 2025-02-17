@@ -147,6 +147,17 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
             else
                 route.list_dirs = false;
         }
+        else if (it->token == word && it->value == "redirect")
+        {
+            std::string res = setPathUpload(it, end, srv);
+            if (res.empty())
+                throw std::runtime_error("ConfigFile: Error with redirect");
+            route.redir = res;
+            // if (res == "yes")
+            //     route.list_dirs = true;
+            // else
+            //     route.list_dirs = false;
+        }
         else
             throw std::runtime_error("ConfigFile :Error with syntax 9");
         if (it != end)
