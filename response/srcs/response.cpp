@@ -200,9 +200,13 @@ bool Response::checkUploadRoute()
         // req.save call function to save the body
         std::stringstream resourcePath;
         resourcePath << this->srv->getRoot();
-        if (matchedRoute.root.front() != '/' && resourcePath .str().back() != '/')
+        if (matchedRoute.root.front() != '/' && resourcePath.str().back() != '/')
+        {
             resourcePath << "/";
+        }
         resourcePath << matchedRoute.root;
+        if (resourcePath.str().back() != '/')
+            resourcePath << "/";
         req.getReqBody().saveFile(resourcePath.str());
         return true;
     }
