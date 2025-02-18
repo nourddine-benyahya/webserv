@@ -67,7 +67,6 @@ void checkFile(std::string fileName)
     std::ifstream resource(fileName);
     if (!resource.is_open())
     {
-        // std::cout << "FILE NOT FOUND " <<  << std::endl;
         throw Server::ServerException("file not found", 404);
     }
     resource.close();
@@ -350,11 +349,11 @@ std::string Response::listDir(std::string path) {
             if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
                 continue;
             result << "<li><b onclick=\"toggleDir(event)\">/" << entry->d_name << " >> </b>"
-                   << "<ul style=\"display:none;\">" << listDir(fullPath) << "</ul>"
-                   << "</li>";
+                    << "<ul style=\"display:none;\">" << listDir(fullPath) << "</ul>"
+                    << "</li>";
         } else {
             result << "<li><a href=\"" << fullPath 
-                   << "\">" << entry->d_name << "</a></li>";
+                    << "\">" << entry->d_name << "</a></li>";
         }
     }
 
@@ -362,27 +361,27 @@ std::string Response::listDir(std::string path) {
     result << "</div>";
     closedir(dir);
 	result << "<style>"
-           << "body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f0f0; }"
-           << "#directory-listing { margin: 0; padding: 0; list-style-type: none; }"
-           << "#directory-listing ul { margin: 0; padding: 0; list-style-type: none; }"
-           << "#directory-listing li { margin: 5px 0; padding: 5px; border: 1px solid #ddd; border-radius: 4px;  background-color: #FFF5EE;}"
-           << "#directory-listing li a { text-decoration: none; color: #4682B4; }"
-           << "#directory-listing li a:hover { text-decoration: underline; }"
-           << "#directory-listing li b { font-weight: bold; color: #191970; }"
-           << "#directory-listing li ul { margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px; }"
-           << "#directory-listing li ul li { border: none; padding: 2px 0; }"
-           << "</style>";
+            << "body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f0f0; }"
+            << "#directory-listing { margin: 0; padding: 0; list-style-type: none; }"
+            << "#directory-listing ul { margin: 0; padding: 0; list-style-type: none; }"
+            << "#directory-listing li { margin: 5px 0; padding: 5px; border: 1px solid #ddd; border-radius: 4px;  background-color: #FFF5EE;}"
+            << "#directory-listing li a { text-decoration: none; color: #4682B4; }"
+            << "#directory-listing li a:hover { text-decoration: underline; }"
+            << "#directory-listing li b { font-weight: bold; color: #191970; }"
+            << "#directory-listing li ul { margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px; }"
+            << "#directory-listing li ul li { border: none; padding: 2px 0; }"
+            << "</style>";
 	
 	result << "<script>"
-           << "function toggleDir(event) {"
-           << "  var nextUl = event.target.nextElementSibling;"
-           << "  if (nextUl.style.display === 'none' || nextUl.style.display === '') {"
-           << "    nextUl.style.display = 'block';"
-           << "  } else {"
-           << "    nextUl.style.display = 'none';"
-           << "  }"
-           << "}"
-           << "</script>";
+            << "function toggleDir(event) {"
+            << "  var nextUl = event.target.nextElementSibling;"
+            << "  if (nextUl.style.display === 'none' || nextUl.style.display === '') {"
+            << "    nextUl.style.display = 'block';"
+            << "  } else {"
+            << "    nextUl.style.display = 'none';"
+            << "  }"
+            << "}"
+            << "</script>";
     return result.str();
 }
 
