@@ -144,8 +144,14 @@ std::string Server::Config::getFile( std::string fileName ) {
 }
 
 std::string Server::Config::getErrorPage(int status){
-	if (errorPages.find(status) != errorPages.end())
-		return readFile(catRoot(errorPages[status]));
+	if (errorPages.find(status) != errorPages.end()){
+		try {
+			return readFile(catRoot(errorPages[status]));
+		} catch (ServerException& e){
+			if (status != 404)
+				throw e;
+		}
+	}
 	// create a template error page
 
 	std::ostringstream oss;

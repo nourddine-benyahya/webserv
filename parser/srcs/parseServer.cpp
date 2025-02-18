@@ -99,7 +99,9 @@ std::string setPathUpload(std::vector<tokens>::iterator &it, std::vector<tokens>
 void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv)
 {
     Route route;
-    // std::cout << "route" << std::endl;
+    route.list_dirs = false;
+    route.upload = false;
+    // std::cout << "list dir : "  << route.list_dirs << std::endl;
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
@@ -141,7 +143,7 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         {
             std::string res = setPathUpload(it, end, srv);
             if (res.empty() || (res != "yes" && res != "no"))
-                throw std::runtime_error("ConfigFile: Error with upload");
+                throw std::runtime_error("ConfigFile: Error with list dir");
             if (res == "yes")
                 route.list_dirs = true;
             else
