@@ -1,5 +1,39 @@
 #include "requestLine.hpp"
 #include "exeptions.hpp"
+#include <cstdlib> 
+
+bool isValidHex(char c)
+{
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+}
+
+bool isValidPercentEncoding(const std::string &str, size_t pos)
+{
+    return (pos + 2 < str.size() && isValidHex(str[pos + 1]) && isValidHex(str[pos + 2]));
+}
+
+std::string urlDecode(std::string &url)
+{
+    std::string decodedString;
+
+    int i = 0;
+    while (i < url.length())
+    {
+        if (url[i] == '%' && isValidPercentEncoding(url, i))
+        {
+            char hex[3]  = {url[i+1], url[i+2], '\0'};
+            char decodedChar = static_cast<char>(std::strtol(hex,NULL, 16));
+            decodedString += decodedChar;
+            i += 2;
+        }
+        else if (url[i] == '+')
+            decodedString += ' ';
+        else
+            decodedString += url[i];
+        i++;
+    }
+    return decodedString;
+}
 
 void requestLine::setMethod(const std::string method)
 {
@@ -44,6 +78,8 @@ requestLine::requestLine(const std::string requestLine)
 
     std::string method = tmp.substr(0, tmp.find(" "));
     std::string url = tmp.substr(tmp.find(" ") + 1, tmp.rfind(" ") - tmp.find(" ") - 1);
+    std::string decodedUrl = urlDecode(url);
+    std::cout  << "--------------" << decodedUrl << "------------" << std::endl;
     std::string vers = tmp.substr(tmp.rfind(" ") + 1);
 
     setMethod(method);
