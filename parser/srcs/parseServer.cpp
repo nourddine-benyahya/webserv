@@ -108,8 +108,8 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         if (it->token == word && it->value == "path")
         {
             route.path = setPathUpload(it, end, srv);
-            if (route.path.empty())
-                std::cout << "error with the config file";
+            if (route.path.empty() || route.path.front() != '/')
+                throw std::runtime_error("error with the path route in config file");
         }
         else if (it->token == word && it->value == "upload")
         {
@@ -153,10 +153,6 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
             if (res.empty())
                 throw std::runtime_error("ConfigFile: Error with redirect");
             route.redir = res;
-            // if (res == "yes")
-            //     route.list_dirs = true;
-            // else
-            //     route.list_dirs = false;
         }
         else
             throw std::runtime_error("ConfigFile :Error with syntax 9");

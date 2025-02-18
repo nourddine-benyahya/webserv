@@ -38,6 +38,7 @@ Response::Response(request r, Server::Config *server)
     req = r;
     srv = server;
     matchRoute();
+    std::cout << "REQ :" << req.getReqLine().getReqTarget() << std::endl;
     try
     {
         if (checkRedir() == true)
@@ -65,7 +66,10 @@ void checkFile(std::string fileName)
 {
     std::ifstream resource(fileName);
     if (!resource.is_open())
+    {
+        // std::cout << "FILE NOT FOUND " <<  << std::endl;
         throw Server::ServerException("file not found", 404);
+    }
     resource.close();
 }
 bool isDirectory(const std::string &path) {
@@ -90,12 +94,24 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
 
 bool Response::checkResource()
 {
+
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
+        std::cout << "YES DIR :" << reqResourcePath << std::endl;
     if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
     {
-        if (matchedRoute.index.empty())
+
+        if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs)
+        {
+            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+            body = listDir(reqResourcePath);
+            std::stringstream lengthStr;
+            lengthStr << body.length();
+            response = header + lengthStr.str() + "\r\n\r\n" + body;
+            return true;
+        }
+        else if (matchedRoute.index.empty())
             reqResourcePath +=  srv->fileIndex;
         else
             reqResourcePath +=  matchedRoute.index;
@@ -105,7 +121,6 @@ bool Response::checkResource()
     {
         if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs)
         {
-        // std::cout << "YES DIR :" << reqResourcePath << std::endl;
             header = "HTTP/1.1 200 OK\r\nContent-Length: ";
             body = listDir(reqResourcePath);
             std::stringstream lengthStr;
@@ -119,6 +134,8 @@ bool Response::checkResource()
         }
         else if (!matchedRoute.index.empty())
         {
+            if (reqResourcePath.back() != '/' &&  matchedRoute.index.front() != '/')
+                reqResourcePath += "/";
             reqResourcePath +=  matchedRoute.index;
             checkFile(reqResourcePath);
         }
@@ -126,7 +143,6 @@ bool Response::checkResource()
     else if (!isDirectory(reqResourcePath))
     {
         checkFile(reqResourcePath);
-
     }
     return false;
 }
@@ -180,6 +196,7 @@ void Response::get()
 {
     if (foundRoute == false)
     {
+        std::cout << "test FALSE" << std::endl;
         body = srv->getFile(req.getReqLine().getReqTarget());
         header = "HTTP/1.1 200 OK\r\nContent-Length: ";
         std::stringstream lengthStr;

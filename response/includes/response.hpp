@@ -11,12 +11,12 @@ class Server;
 class Response
 {
     public :
+        Response(request r, Server::Config *srv);
         void matchRoute();
         Route matchedRoute;
         bool foundRoute;
         Server::Config *srv;
         std::string reqResourcePath;
-        Response(request r, Server::Config *srv);
         void getResource();
         bool checkResource();
         bool checkCgiResource();
@@ -31,9 +31,9 @@ class Response
         std::string method;
         request req;
         void get();
+        std::string response;
         void post();
         void Delete();
-        std::string response;
 
 		std::string listDir(std::string);
 };
