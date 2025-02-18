@@ -26,34 +26,34 @@ void urlFormat(std::string& url)
     const std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                       "abcdefghijklmnopqrstuvwxyz"
                                       "0123456789"
-                                      "-._~:/?#[]@!$&'()*+,;=";
+                                      "-._~:/?#[]@!$&'()*+,;=%";
 
     //check if Request uri contain more that 2048 chars
     if (url.empty() || url[0] != '/' || url.length() > 2048)
         throw exeptions(414, "414 Request-URI Too Long");
 
-    std::cout << "---" << url << "------------" << std::endl;
+    // std::cout << "---" << url << "------------" << std::endl;
     for (std::string::const_iterator it = url.begin(); it != url.end(); ++it)
     {
         if (allowed_chars.find(*it) == std::string::npos)
-            throw exeptions(400, "400 bad Request 1");
+            throw exeptions(400, "400 bad Request");
     }
 
     size_t query_pos = url.find('?');
     size_t fragment_pos = url.find('#');
 
     if (fragment_pos != std::string::npos && query_pos != std::string::npos && fragment_pos < query_pos)
-            throw exeptions(400, "400 bad Request 2");
+            throw exeptions(400, "400 bad Request");
 
 
     if (query_pos != std::string::npos && fragment_pos != std::string::npos && fragment_pos < query_pos)
-            throw exeptions(400, "400 bad Request 3");
+            throw exeptions(400, "400 bad Request");
 
 
     if (query_pos != std::string::npos && query_pos == url.length() - 1)
-            throw exeptions(400, "400 bad Request 4");
+            throw exeptions(400, "400 bad Request");
 
 
     if (fragment_pos != std::string::npos && fragment_pos == url.length() - 1)
-            throw exeptions(400, "400 bad Request 5");
+            throw exeptions(400, "400 bad Request");
 }
