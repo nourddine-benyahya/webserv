@@ -33,13 +33,13 @@ int main(int ac, char **av)
 
 		serverMonitor->run();
 		delete ServerMonitor::getInstance();
+		Logger(Logger::INFO, "Exited[0] : Server Terminated");
 	}
 	catch (std::exception &e)
 	{
 		Logger(Logger::ERROR, e.what());
 		delete ServerMonitor::getInstance();
 		Logger(Logger::NOTICE, "Exited[1] : Server failed");
-		while(1);
 		return (EXIT_FAILURE);
 	}
 	return 0;
