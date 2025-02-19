@@ -90,6 +90,18 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
 
     resourcePath << path;
 }
+void Response::redirectToFolder()
+{
+    std::stringstream resourcePath;
+
+    resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
+    resourcePath << "Location: http://localhost:";
+    resourcePath << srv->getPort();
+    resourcePath << req.getReqLine().getReqTarget() << "/\r\n";
+    resourcePath << "Content-Length: 0\r\n\r\n";
+    response = resourcePath.str();
+    std::cout << "response :" << response << std::endl;
+}
 
 bool Response::checkResource()
 {
@@ -100,8 +112,15 @@ bool Response::checkResource()
         std::cout << "YES DIR :" << reqResourcePath << std::endl;
     if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
     {
-
-        if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs)
+        if (req.getReqLine().getReqTarget().back() != '/')
+        {
+            // response =    "HTTP/1.1 301 Moved Permanently\r\n"
+            //     "Location: http://localhost" + srv->getPort() + reqResourcePath + "/" + "\r\n"
+            //     "Content-Length: 0\r\n\r\n";
+            redirectToFolder();
+            return true;
+        }
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs)
         {
             header = "HTTP/1.1 200 OK\r\nContent-Length: ";
             body = listDir(reqResourcePath);
@@ -118,7 +137,15 @@ bool Response::checkResource()
     }
     else if (isDirectory(reqResourcePath))
     {
-        if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs)
+        if (req.getReqLine().getReqTarget().back() != '/')
+        {
+            // response =    "HTTP/1.1 301 Moved Permanently\r\n"
+            //     "Location: http://localhost" + srv->getPort() + reqResourcePath + "/" + "\r\n"
+            //     "Content-Length: 0\r\n\r\n";
+            redirectToFolder();
+            return true;
+        }
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs)
         {
             header = "HTTP/1.1 200 OK\r\nContent-Length: ";
             body = listDir(reqResourcePath);

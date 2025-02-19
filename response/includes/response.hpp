@@ -25,6 +25,7 @@ class Response
         bool checkUploadRoute();
         int deleteContent();
         void DeletecheckResource();
+        void redirectToFolder();
         bool checkRedir();
         std::string body;
         std::string header;
