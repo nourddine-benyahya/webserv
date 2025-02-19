@@ -114,9 +114,6 @@ bool Response::checkResource()
     {
         if (req.getReqLine().getReqTarget().back() != '/')
         {
-            // response =    "HTTP/1.1 301 Moved Permanently\r\n"
-            //     "Location: http://localhost" + srv->getPort() + reqResourcePath + "/" + "\r\n"
-            //     "Content-Length: 0\r\n\r\n";
             redirectToFolder();
             return true;
         }
@@ -139,9 +136,6 @@ bool Response::checkResource()
     {
         if (req.getReqLine().getReqTarget().back() != '/')
         {
-            // response =    "HTTP/1.1 301 Moved Permanently\r\n"
-            //     "Location: http://localhost" + srv->getPort() + reqResourcePath + "/" + "\r\n"
-            //     "Content-Length: 0\r\n\r\n";
             redirectToFolder();
             return true;
         }
