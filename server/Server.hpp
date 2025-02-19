@@ -35,6 +35,7 @@
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <map>
+#include <netdb.h>
 
 #include "Logger.hpp"
 #include "Route.hpp"

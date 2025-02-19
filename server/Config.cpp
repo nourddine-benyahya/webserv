@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include <netdb.h>
 #include "ServerMonitor.hpp"
 
 std::string Server::Config::catRoot(std::string file){
