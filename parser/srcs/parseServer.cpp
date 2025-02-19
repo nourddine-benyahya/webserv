@@ -175,54 +175,65 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
-    while(it != end)
-    {
-        if (it->token == word && it->value == "port")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                if (!isNumeric((++it)->value.c_str()))
-                    throw std::runtime_error("ConfigFile :Error with syntax 10");
-                srv.setPort(std::atoi((it)->value.c_str()));
-            }
-        }
-        else if (it->token == word && it->value == "index")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                srv.setIndex((++it)->value);
-            }
-        }
-        else if (it->token == word && it->value == "root")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                srv.setRoot((++it)->value);
-            }
-        }
-        else if (it->token == word && it->value == "name")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                srv.setName((++it)->value);
-            }
-        }
-        else if (it->token == word && it->value == "error")
-            parseErrorPages(it, end, srv);
-        else if (it->token == word && it->value == "route")
-            parseRoute(it, end, srv);
-        else if (it->token == word && it->value == "body_limit")
-            parseBodyLimit(it, end, srv);
-        else if (it->token == close_bracket)
-            break;
-        else
-            throw std::runtime_error("ConfigFile :Error with syntax 11");
-        if (it != end)
-            it++;
-    }
-    srv.build();
+	try{
+
+		while(it != end)
+		{
+			if (it->token == word && it->value == "port")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					if (!isNumeric((++it)->value.c_str()))
+						throw std::runtime_error("ConfigFile :Error with syntax 10");
+					srv.setPort(std::atoi((it)->value.c_str()));
+				}
+			}
+			else if (it->token == word && it->value == "index")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					srv.setIndex((++it)->value);
+				}
+			}
+			else if (it->token == word && it->value == "root")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					srv.setRoot((++it)->value);
+				}
+			}
+			else if (it->token == word && it->value == "name")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					srv.setName((++it)->value);
+				}
+			}
+			else if (it->token == word && it->value == "error")
+				parseErrorPages(it, end, srv);
+			else if (it->token == word && it->value == "route")
+				parseRoute(it, end, srv);
+			else if (it->token == word && it->value == "body_limit")
+				parseBodyLimit(it, end, srv);
+			else if (it->token == close_bracket)
+				break;
+			else
+				throw std::runtime_error("ConfigFile :Error with syntax 11");
+			if (it != end)
+				it++;
+		}
+		srv.build();
+	} catch (Server::ServerException &e){
+		for (std::map<int, int>::iterator it = srv.getSockets().begin(); it != srv.getSockets().end(); it++)
+			close(it->first);
+		std::stringstream ss;
+			ss << "Server failed to start : " << srv.getName()
+				<< ":" << srv.getPort()
+				<< " <" << e.what() << ">";
+		Logger(Logger::ERROR, ss.str());
+	}
 }

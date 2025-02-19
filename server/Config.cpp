@@ -28,21 +28,26 @@ void Server::Config::create_sock(){
 	}
 	int opt = 1;
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		close(server_fd);
 		throw Server::ServerException("Setsockopt error");
 	}
 	
 	int flags = fcntl(server_fd, F_GETFL, 0);
     if (flags == -1) {
+		close(server_fd);
         throw Server::ServerException("fcntl F_GETFL error");
     }
     if (fcntl(server_fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+		close(server_fd);
         throw Server::ServerException("fcntl F_SETFL error");
     }
 
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+		close(server_fd);
 		throw Server::ServerException("Bind: Address already in use");
 	}
 	if (listen(server_fd, 10) < 0) {
+		close(server_fd);
 		throw Server::ServerException("Listen error");
 	}
 
@@ -68,6 +73,7 @@ Server::Config::~Config() {}
 Server::Config::Config() : name("0.0.0.0") {
 	this->address.sin_family = AF_INET;
 	this->address.sin_addr.s_addr = INADDR_ANY;
+	// this->address.sin_addr.s_addr = inet_addr(name.c_str());
 	this->address.sin_port = htons(80);
 	sock_port.clear();
 	this->fileIndex = "index.html";
@@ -103,6 +109,7 @@ Server::Config& Server::Config::setPort(int port) {
 
 Server::Config& Server::Config::setName(std::string name) {
 	this->name = name;
+	this->address.sin_addr.s_addr = inet_addr(name.c_str());
 	return *this;
 }
 
@@ -221,9 +228,6 @@ std::string Server::Config::getLogs(){
 std::map<int, std::string> Server::Config::getErrorPages(){
 	return this->errorPages;
 }
-
-
-
 
 Server::Config* Server::Config::clone() {
 	return new Server::Config(*this);

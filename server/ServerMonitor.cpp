@@ -80,6 +80,7 @@ ServerMonitor::~ServerMonitor()
 	for (std::map<int, Server *>::iterator it = sockets.begin(); it != sockets.end(); it++)
 	{
 		srvs.insert(sockets[it->first]);
+		close(it->first);
 	}
 	for (std::set<Server *>::iterator it = srvs.begin(); it != srvs.end(); ++it)
 	{

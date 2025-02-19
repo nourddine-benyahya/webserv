@@ -39,6 +39,7 @@ int main(int ac, char **av)
 		Logger(Logger::ERROR, e.what());
 		delete ServerMonitor::getInstance();
 		Logger(Logger::NOTICE, "Exited[1] : Server failed");
+		while(1);
 		return (EXIT_FAILURE);
 	}
 	return 0;
