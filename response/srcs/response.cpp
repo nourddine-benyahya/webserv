@@ -353,7 +353,7 @@ std::string Response::listDir(std::string path) {
                     << "</li>";
         } else {
             result << "<li><a href=\"" << fullPath 
-                    << "\">" << entry->d_name << "</a></li>";
+                    << "\" style=\"pointer-events: none\">" << entry->d_name << "</a></li>";
         }
     }
 
@@ -384,5 +384,4 @@ std::string Response::listDir(std::string path) {
             << "</script>";
     return result.str();
 }
-
 
