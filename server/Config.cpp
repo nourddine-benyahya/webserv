@@ -107,8 +107,8 @@ Server::Config& Server::Config::setPort(int port) {
 }
 
 Server::Config& Server::Config::setName(std::string name) {
-	if (name.empty() || name != "0.0.0.0")
-		throw Server::ServerException("Host name Error");
+	if (name.empty() || this->name != "0.0.0.0")
+		throw Server::ServerException("Host name failed:" + name);
 
 	this->name = name;
 
