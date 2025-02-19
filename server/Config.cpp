@@ -1,5 +1,5 @@
 #include "Server.hpp"
-
+#include <netdb.h>
 #include "ServerMonitor.hpp"
 
 std::string Server::Config::catRoot(std::string file){
@@ -108,9 +108,25 @@ Server::Config& Server::Config::setPort(int port) {
 }
 
 Server::Config& Server::Config::setName(std::string name) {
+	if (name.empty() || name != "0.0.0.0")
+		throw Server::ServerException("Host name Error");
+
 	this->name = name;
-	this->address.sin_addr.s_addr = inet_addr(name.c_str());
-	return *this;
+
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int status = getaddrinfo(name.c_str(), NULL, &hints, &res);
+    if (status != 0) {
+        throw Server::ServerException("Failed to resolve host name: " + name);
+    }
+
+    this->address.sin_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
+    freeaddrinfo(res);
+
+    return *this;
 }
 
 Server::Config& Server::Config::setIndex(std::string file){

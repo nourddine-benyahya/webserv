@@ -111,7 +111,7 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         {
             route.path = setPathUpload(it, end, srv);
             if (route.path.empty() || route.path.front() != '/')
-                throw std::runtime_error("error with the path route in config file");
+                throw std::runtime_error("error with the path route in config file " + route.path);
         }
         else if (it->token == word && it->value == "upload")
         {
@@ -231,7 +231,7 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
 		for (std::map<int, int>::iterator it = srv.getSockets().begin(); it != srv.getSockets().end(); it++)
 			close(it->first);
 		std::stringstream ss;
-			ss << "Server failed to start : " << srv.getName()
+			ss << "Server " << srv.getName()
 				<< ":" << srv.getPort()
 				<< " <" << e.what() << ">";
 		Logger(Logger::ERROR, ss.str());

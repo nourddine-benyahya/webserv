@@ -26,7 +26,7 @@ phpInit:
 # source ~/.zshrc
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -fsanitize=address -g
+	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -fsanitize=address -g
 	@echo "Server Created ./"$(NAME)
 
 %.o: %.cpp
