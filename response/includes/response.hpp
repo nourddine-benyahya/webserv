@@ -21,7 +21,7 @@ class Response
         bool checkResource();
         bool checkCgiResource();
         void checkResourceType();
-        void checkIndexed();
+        bool checkIndexed();
         bool checkUploadRoute();
         int deleteContent();
         void DeletecheckResource();
