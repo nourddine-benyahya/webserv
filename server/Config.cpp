@@ -75,7 +75,8 @@ Server::Config::Config() : name("0.0.0.0") {
 	// this->address.sin_addr.s_addr = inet_addr(name.c_str());
 	this->address.sin_port = htons(80);
 	sock_port.clear();
-	this->fileIndex = "index.html";
+	// this->fileIndex = "index.html";
+	this->fileIndex = "";
 	this->rootFolder = ".";
 	this->logsFile = "";
 	this->body_limit = -1;
@@ -119,13 +120,14 @@ Server::Config& Server::Config::setName(std::string name) {
 
     int status = getaddrinfo(name.c_str(), NULL, &hints, &res);
     if (status != 0) {
-        throw Server::ServerException("Failed to resolve host name: " + name);
+    	return *this;
+        // throw Server::ServerException("Failed to resolve host name: " + name);
     }
 
     this->address.sin_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
     freeaddrinfo(res);
 
-    return *this;
+    	return *this;
 }
 
 Server::Config& Server::Config::setIndex(std::string file){

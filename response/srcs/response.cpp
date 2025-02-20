@@ -100,7 +100,7 @@ void Response::redirectToFolder()
     resourcePath << req.getReqLine().getReqTarget() << "/\r\n";
     resourcePath << "Content-Length: 0\r\n\r\n";
     response = resourcePath.str();
-    std::cout << "response :" << response << std::endl;
+    // std::cout << "response :" << response << std::endl;
 }
 
 bool Response::checkResource()
@@ -216,10 +216,16 @@ bool Response::checkRedir()
 {
     if (matchedRoute.redir.empty())
         return false;
-
-    response =    "HTTP/1.1 301 Moved Permanently\r\n"
-                "Location: http://localhost:8080" + matchedRoute.redir + "\r\n"
-                "Content-Length: 0\r\n\r\n";
+    std::stringstream resourcePath;
+    resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
+    resourcePath << "Location: http://localhost:";
+    resourcePath << srv->getPort();
+    resourcePath << matchedRoute.redir << "\r\n";
+    resourcePath << "Content-Length: 0\r\n\r\n";
+    response = resourcePath.str();
+    // response =    "HTTP/1.1 301 Moved Permanently\r\n"
+    //             "Location: http://localhost:8080" + matchedRoute.redir + "\r\n"
+    //             "Content-Length: 0\r\n\r\n";
     return true;
 }
 void Response::get()
@@ -238,7 +244,7 @@ void Response::get()
                 return ;
             }
         }
-        
+
         throw Server::ServerException("file not found", 404);
         // std::cout << "test FALSE" << std::endl;
         // body = srv->getFile(req.getReqLine().getReqTarget());
