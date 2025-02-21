@@ -157,6 +157,16 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
                 throw std::runtime_error("ConfigFile: Error with redirect");
             route.redir = res;
         }
+        else if (it->token == word && it->value == "has_cgi")
+        {
+            std::string res = setPathUpload(it, end, srv);
+            if (res.empty() || (res != "yes" && res != "no"))
+                throw std::runtime_error("ConfigFile: Error with has cgi");
+            if (res == "yes")
+                route.hasCgi = true;
+            else
+                route.hasCgi = false;
+        }
         else
             throw std::runtime_error("ConfigFile :Error with syntax 9");
         if (it != end)

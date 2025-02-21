@@ -10,7 +10,7 @@
 class Route
 {
     public :
-        Route() {};
+        Route() {hasCgi = false;};
         ~Route() {};
         std::string path;
         bool upload;
@@ -20,4 +20,5 @@ class Route
         std::string index;
         bool list_dirs;
         std::string redir;
+        bool hasCgi;
 };

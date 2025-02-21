@@ -231,7 +231,7 @@ void Response::DeletecheckResource()
 
 bool Response::checkCgiResource()
 {
-    if (matchedRoute.cgis.size() == 0)
+    if (matchedRoute.hasCgi == false)
         return false;
     int port = srv->getPort();
     cgi c(req, reqResourcePath, port);
