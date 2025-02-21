@@ -19,6 +19,7 @@ class cgi
         std::string CgiScript;
         std::map<std::string, std::string> env_map;
         std::map<std::string, std::string> cgiEnv;
+        std::stringstream port;
     public :
         void save_env();
         char **mapToPtr();
@@ -26,7 +27,7 @@ class cgi
         void saveCgiEnv();
 
 
-        cgi(request req, const std::string path);
+        cgi(request req, const std::string path, int port);
         void runCgi();
         void setCgiEnv(std::string interpreter, std::string commandpath);
         std::string &getResponse() { return cgiResponse; }
