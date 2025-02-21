@@ -99,7 +99,8 @@ std::string setPathUpload(std::vector<tokens>::iterator &it, std::vector<tokens>
 void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv)
 {
     Route route;
-    // std::cout << "route" << std::endl;
+    route.list_dirs = false;
+    route.upload = false;
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
@@ -108,8 +109,8 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         if (it->token == word && it->value == "path")
         {
             route.path = setPathUpload(it, end, srv);
-            if (route.path.empty())
-                std::cout << "error with the config file";
+            if (route.path.empty() || route.path.front() != '/')
+                throw std::runtime_error("error with the path route in config file " + route.path);
         }
         else if (it->token == word && it->value == "upload")
         {
@@ -141,7 +142,7 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         {
             std::string res = setPathUpload(it, end, srv);
             if (res.empty() || (res != "yes" && res != "no"))
-                throw std::runtime_error("ConfigFile: Error with upload");
+                throw std::runtime_error("ConfigFile: Error with list dir");
             if (res == "yes")
                 route.list_dirs = true;
             else
@@ -153,10 +154,6 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
             if (res.empty())
                 throw std::runtime_error("ConfigFile: Error with redirect");
             route.redir = res;
-            // if (res == "yes")
-            //     route.list_dirs = true;
-            // else
-            //     route.list_dirs = false;
         }
         else
             throw std::runtime_error("ConfigFile :Error with syntax 9");
@@ -168,8 +165,6 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
     if (srv.routes.find(route.path) != srv.routes.end())
         throw std::runtime_error("ConfigFile: duplicated paths for location");
     srv.routes[route.path] = route;
-
-    // std::cout << "|" << srv.routes[route.path].path << "|"<< std::endl;
 }
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
 {
@@ -177,54 +172,65 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
-    while(it != end)
-    {
-        if (it->token == word && it->value == "port")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                if (!isNumeric((++it)->value.c_str()))
-                    throw std::runtime_error("ConfigFile :Error with syntax 10");
-                srv.setPort(std::atoi((it)->value.c_str()));
-            }
-        }
-        else if (it->token == word && it->value == "index")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                srv.setIndex((++it)->value);
-            }
-        }
-        else if (it->token == word && it->value == "root")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                srv.setRoot((++it)->value);
-            }
-        }
-        else if (it->token == word && it->value == "name")
-        {
-            if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
-            {
-                it++;
-                srv.setName((++it)->value);
-            }
-        }
-        else if (it->token == word && it->value == "error")
-            parseErrorPages(it, end, srv);
-        else if (it->token == word && it->value == "route")
-            parseRoute(it, end, srv);
-        else if (it->token == word && it->value == "body_limit")
-            parseBodyLimit(it, end, srv);
-        else if (it->token == close_bracket)
-            break;
-        else
-            throw std::runtime_error("ConfigFile :Error with syntax 11");
-        if (it != end)
-            it++;
-    }
-    srv.build();
+	try{
+
+		while(it != end)
+		{
+			if (it->token == word && it->value == "port")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					if (!isNumeric((++it)->value.c_str()))
+						throw std::runtime_error("ConfigFile :Error with syntax 10");
+					srv.setPort(std::atoi((it)->value.c_str()));
+				}
+			}
+			else if (it->token == word && it->value == "index")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					srv.setIndex((++it)->value);
+				}
+			}
+			else if (it->token == word && it->value == "root")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					srv.setRoot((++it)->value);
+				}
+			}
+			else if (it->token == word && it->value == "name")
+			{
+				if (it + 1 != end && (it + 1)->token == equal && it + 2 != end && (it + 2)->token == word)
+				{
+					it++;
+					srv.setName((++it)->value);
+				}
+			}
+			else if (it->token == word && it->value == "error")
+				parseErrorPages(it, end, srv);
+			else if (it->token == word && it->value == "route")
+				parseRoute(it, end, srv);
+			else if (it->token == word && it->value == "body_limit")
+				parseBodyLimit(it, end, srv);
+			else if (it->token == close_bracket)
+				break;
+			else
+				throw std::runtime_error("ConfigFile :Error with syntax 11");
+			if (it != end)
+				it++;
+		}
+		srv.build();
+	} catch (Server::ServerException &e){
+		for (std::map<int, int>::iterator it = srv.getSockets().begin(); it != srv.getSockets().end(); it++)
+			close(it->first);
+		std::stringstream ss;
+			ss << "Server " << srv.getName()
+				<< ":" << srv.getPort()
+				<< " <" << e.what() << ">";
+		Logger(Logger::ERROR, ss.str());
+	}
 }

@@ -80,6 +80,7 @@ ServerMonitor::~ServerMonitor()
 	for (std::map<int, Server *>::iterator it = sockets.begin(); it != sockets.end(); it++)
 	{
 		srvs.insert(sockets[it->first]);
+		close(it->first);
 	}
 	for (std::set<Server *>::iterator it = srvs.begin(); it != srvs.end(); ++it)
 	{
@@ -267,27 +268,27 @@ void ServerMonitor::run()
 				}
 			}
 			if (FD_ISSET(i, &write_set) && tmpSockets[i].isReady) {
-				// std::string msgTwil = tmpSockets[i].srv->getRecvBuffer();
-
 				std::stringstream logs;
 					logs << "Sender connection from socket " << i ;
-
+				tmpSockets[i].srv->getConfig()->updatePort(tmpSockets[i].port);
+				std::string response;
 				try
 				{
 					request req(tmpSockets[i].srv->getRecvBuffer(), tmpSockets[i].srv->getConfig());
 					Response res(req, tmpSockets[i].srv->getConfig());
-					send(i, res.response.c_str(), res.response.size(), 0);
+					response = res.response;
 						logs << " with status " << 200 << " OK";
-					Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
 				}
 				catch (Server::ServerException &e)
 				{
-					std::string error = e.getError();
-					send(i, error.c_str(), error.size(), 0);
+					response = e.getError();
 					Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
 						logs << " with status " << e.getStatus() << " KO";
-					Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
 				}
+				if (send(i, response.c_str(), response.size(), 0) < 0){
+					Logger(tmpSockets[i].srv, Logger::ERROR, strerror(errno));
+				}
+				Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
 				FD_CLR(i, &master_set);
 				tmpSockets.erase(i);
 				close(i);

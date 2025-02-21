@@ -1,5 +1,4 @@
 #include "Server.hpp"
-
 #include "ServerMonitor.hpp"
 
 std::string Server::Config::catRoot(std::string file){
@@ -28,21 +27,26 @@ void Server::Config::create_sock(){
 	}
 	int opt = 1;
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+		close(server_fd);
 		throw Server::ServerException("Setsockopt error");
 	}
 	
 	int flags = fcntl(server_fd, F_GETFL, 0);
     if (flags == -1) {
+		close(server_fd);
         throw Server::ServerException("fcntl F_GETFL error");
     }
     if (fcntl(server_fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+		close(server_fd);
         throw Server::ServerException("fcntl F_SETFL error");
     }
 
 	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+		close(server_fd);
 		throw Server::ServerException("Bind: Address already in use");
 	}
 	if (listen(server_fd, 10) < 0) {
+		close(server_fd);
 		throw Server::ServerException("Listen error");
 	}
 
@@ -70,7 +74,7 @@ Server::Config::Config() : name("0.0.0.0") {
 	this->address.sin_addr.s_addr = INADDR_ANY;
 	this->address.sin_port = htons(80);
 	sock_port.clear();
-	this->fileIndex = "index.html";
+	this->fileIndex = "";
 	this->rootFolder = ".";
 	this->logsFile = "";
 	this->body_limit = -1;
@@ -91,6 +95,10 @@ Server::Config::Config(Server::Config& other) {
 
 // Setters
 
+void Server::Config::updatePort(int port) {
+	address.sin_port = htons(port);
+}
+
 Server::Config& Server::Config::setPort(int port) {
 	if (port <= 0 || port > 65535) {
 		throw Server::ServerException("Port number must be between 1 and 65535");
@@ -102,8 +110,24 @@ Server::Config& Server::Config::setPort(int port) {
 }
 
 Server::Config& Server::Config::setName(std::string name) {
+	if (name.empty() || this->name != "0.0.0.0")
+		throw Server::ServerException("Host name failed:" + name);
+
 	this->name = name;
-	return *this;
+
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    int status = getaddrinfo(name.c_str(), NULL, &hints, &res);
+    if (status != 0) {
+    	return *this;
+    }
+
+    this->address.sin_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
+    freeaddrinfo(res);
+    return *this;
 }
 
 Server::Config& Server::Config::setIndex(std::string file){
@@ -144,8 +168,14 @@ std::string Server::Config::getFile( std::string fileName ) {
 }
 
 std::string Server::Config::getErrorPage(int status){
-	if (errorPages.find(status) != errorPages.end())
-		return readFile(catRoot(errorPages[status]));
+	if (errorPages.find(status) != errorPages.end()){
+		try {
+			return readFile(catRoot(errorPages[status]));
+		} catch (ServerException& e){
+			if (status != 404)
+				throw e;
+		}
+	}
 	// create a template error page
 
 	std::ostringstream oss;
@@ -215,9 +245,6 @@ std::string Server::Config::getLogs(){
 std::map<int, std::string> Server::Config::getErrorPages(){
 	return this->errorPages;
 }
-
-
-
 
 Server::Config* Server::Config::clone() {
 	return new Server::Config(*this);

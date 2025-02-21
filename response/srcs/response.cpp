@@ -1,5 +1,5 @@
-#include "response.hpp"
 #include <sys/stat.h>
+#include "response.hpp"
 #include <unistd.h>
 
 template <typename T>
@@ -31,12 +31,12 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    std::cout << "MATCHED ROUTE REDIR :" << matchedRoute.redir << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
     req = r;
     srv = server;
+    indexed = false;
     matchRoute();
     try
     {
@@ -61,11 +61,17 @@ Response::Response(request r, Server::Config *server)
 		throw Server::ServerException(e.what(), response, e.getStatus());
 	}
 }
-void checkFile(std::string fileName)
+void Response::checkFile(std::string fileName)
 {
     std::ifstream resource(fileName);
     if (!resource.is_open())
-        throw Server::ServerException("file not found", 404);
+    {
+        if (!indexed)
+            throw Server::ServerException("file not found" + fileName, 404);
+        else
+            throw Server::ServerException("forbidden" + fileName, 403);
+
+    }
     resource.close();
 }
 bool isDirectory(const std::string &path) {
@@ -87,34 +93,113 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
 
     resourcePath << path;
 }
-
-void Response::checkResource()
+void Response::redirectToFolder()
 {
+    std::stringstream resourcePath;
+
+    resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
+    resourcePath << "Location: http://localhost:";
+    resourcePath << srv->getPort();
+    resourcePath << req.getReqLine().getReqTarget() << "/\r\n";
+    resourcePath << "Content-Length: 0\r\n\r\n";
+    response = resourcePath.str();
+    // std::cout << "response :" << response << std::endl;
+}
+
+bool Response::checkResource()
+{
+
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
+    bool temp = checkIndexed();
     if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
     {
-        if (matchedRoute.index.empty())
+        if (req.getReqLine().getReqTarget().back() != '/')
+        {
+            redirectToFolder();
+            return true;
+        }
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs && !temp)
+        {
+            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+            body = listDir(reqResourcePath);
+            std::stringstream lengthStr;
+            lengthStr << body.length();
+            response = header + lengthStr.str() + "\r\n\r\n" + body;
+            return true;
+        }
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs && temp)
+        {
+            return true;
+        }
+        else if (matchedRoute.index.empty())
+        {
             reqResourcePath +=  srv->fileIndex;
+            indexed = true;
+        }
         else
+        {
             reqResourcePath +=  matchedRoute.index;
+            indexed = true;
+        }
         checkFile(reqResourcePath);
     }
     else if (isDirectory(reqResourcePath))
     {
-        if (matchedRoute.index.empty())
+        std::cout << "FUCK DIR" << std::endl;
+        if (req.getReqLine().getReqTarget().back() != '/')
+        {
+            redirectToFolder();
+            return true;
+        }
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs && srv->fileIndex.empty()  && !temp)
+        {
+            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+            body = listDir(reqResourcePath);
+            std::stringstream lengthStr;
+            lengthStr << body.length();
+            response = header + lengthStr.str() + "\r\n\r\n" + body;
+            return true;
+        }
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs && temp)
+        {
+            return true;
+        }
+        else if (matchedRoute.index.empty() && srv->fileIndex.empty())
         {
             throw Server::ServerException("forbidden", 403);
         }
-        else
+        else if (!matchedRoute.index.empty())
         {
+            if (reqResourcePath.back() != '/' &&  matchedRoute.index.front() != '/')
+                reqResourcePath += "/";
             reqResourcePath +=  matchedRoute.index;
+            indexed = true;
+            checkFile(reqResourcePath);
+        }
+        else if (!srv->fileIndex.empty())
+        {
+            std::cout << "YO I JUST GOT HERE" << std::endl;
+            if (reqResourcePath.back() != '/' &&  srv->fileIndex.front() != '/')
+                reqResourcePath += "/";
+            reqResourcePath +=  srv->fileIndex;
+            indexed = true;
             checkFile(reqResourcePath);
         }
     }
     else if (!isDirectory(reqResourcePath))
+    {
         checkFile(reqResourcePath);
+    }
+    return false;
+}
+bool checkExistence(std::string &path)
+{
+    std::ifstream file(path.c_str());
+    if (!file.is_open())
+        return false;
+    return true;
 }
 void Response::DeletecheckResource()
 {
@@ -123,16 +208,27 @@ void Response::DeletecheckResource()
     reqResourcePath = resourcePath.str();
     if (isDirectory(reqResourcePath))
     {
+        std::string tmp = reqResourcePath + matchedRoute.index;
+        std::string tmp2 = reqResourcePath + srv->fileIndex;
         if (!matchedRoute.index.empty())
         {
-            reqResourcePath +=  matchedRoute.index;
-            checkFile(reqResourcePath);
+            if (checkExistence(tmp))
+            {
+                reqResourcePath +=  matchedRoute.index;
+                indexed = true;
+            }
+        }
+        else if (!srv->fileIndex.empty() && checkExistence(tmp2))
+        {
+            reqResourcePath +=  srv->fileIndex;
+            indexed = true;
         }
     }
     else
         checkFile(reqResourcePath);
 
 }
+
 bool Response::checkCgiResource()
 {
     if (matchedRoute.cgis.size() == 0)
@@ -146,7 +242,7 @@ std::string getContent(std::string fileName)
 {
     std::ifstream resource(fileName);
     if (!resource.is_open())
-        throw Server::ServerException("file not found", 404);
+        throw Server::ServerException("file not found: " + fileName, 404);
     std::stringstream content;
     content << resource.rdbuf();
     return content.str();
@@ -155,27 +251,39 @@ bool Response::checkRedir()
 {
     if (matchedRoute.redir.empty())
         return false;
-
-    response =    "HTTP/1.1 301 Moved Permanently\r\n"
-                "Location: http://localhost:8080" + matchedRoute.redir + "\r\n"
-                "Content-Length: 0\r\n\r\n";
+    std::stringstream resourcePath;
+    resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
+    resourcePath << "Location: http://localhost:";
+    resourcePath << srv->getPort();
+    resourcePath << matchedRoute.redir << "\r\n";
+    resourcePath << "Content-Length: 0\r\n\r\n";
+    response = resourcePath.str();
     return true;
 }
 void Response::get()
 {
     if (foundRoute == false)
     {
-        body = srv->getFile(req.getReqLine().getReqTarget());
-        header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-        std::stringstream lengthStr;
-        lengthStr << body.length();
-        response = header + lengthStr.str() + "\r\n\r\n" + body;
+        std::stringstream resourcePath;
+        checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
+        reqResourcePath = resourcePath.str();
+        if (isDirectory(reqResourcePath))
+        {
+            if (req.getReqLine().getReqTarget().back() != '/')
+            {
+
+                redirectToFolder();
+                return ;
+            }
+        }
+        throw Server::ServerException("file not found: " + reqResourcePath, 404);
     }
     else if (foundRoute)
     {
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
-            throw Server::ServerException("Method not allowed ", 405);
-        checkResource();
+            throw Server::ServerException("Method not allowed", 405);
+        if (checkResource())
+            return ;
         if (checkCgiResource())
             return;
         header = "HTTP/1.1 200 OK\r\nContent-Length: ";
@@ -186,25 +294,22 @@ void Response::get()
     }
 }
 
-void Response::checkIndexed()
+bool Response::checkIndexed()
 {
     std::stringstream resourcePath;
-    resourcePath << this->srv->getRoot(); 
-    if (req.getReqLine().getReqTarget().front() != '/' && resourcePath.str().back() != '/')
+    resourcePath << reqResourcePath; 
+    if (reqResourcePath.back() != '/')
         resourcePath << "/";
-    reqResourcePath = resourcePath.str();
-    if (isDirectory(reqResourcePath))
+    resourcePath << "index.html";
+    std::ifstream resource(resourcePath.str());
+    if (!resource.is_open())
     {
-        if (this->srv->getIndex().empty())
-            throw Server::ServerException("forbidden", 403);
-        else
-        {
-            reqResourcePath +=  this->srv->getIndex();
-            checkFile(reqResourcePath);
-        }
+        return false;
     }
-    else
-        checkFile(reqResourcePath);
+    reqResourcePath = resourcePath.str();
+    resource.close();
+    return true;
+    // checkFile(reqResourcePath);
 }
 bool Response::checkUploadRoute()
 {
@@ -294,3 +399,62 @@ void Response::Delete()
         throw Server::ServerException("Internal Server Error", 500); 
     }
 }
+std::string Response::listDir(std::string path) {
+    DIR* dir;
+    struct dirent* entry;
+    struct stat info;
+    std::ostringstream result;
+
+    if ((dir = opendir(path.c_str())) == NULL) {
+        throw Server::ServerException("forbidden", 403);
+        return "";
+    }
+    result << "<div id=\"directory-listing\">";
+    result << "<ul>";
+
+    while ((entry = readdir(dir)) != NULL) {
+        std::string fullPath = path + "/" + entry->d_name;
+        if (stat(fullPath.c_str(), &info) != 0) {
+            continue;
+        }
+
+        if (S_ISDIR(info.st_mode)) {
+            if (std::string(entry->d_name) == "." || std::string(entry->d_name) == "..")
+                continue;
+            result << "<li><b onclick=\"toggleDir(event)\">/" << entry->d_name << " >> </b>"
+                    << "<ul style=\"display:none;\">" << listDir(fullPath) << "</ul>"
+                    << "</li>";
+        } else {
+            result << "<li><a href=\"" << fullPath 
+                    << "\" style=\"pointer-events: none\">" << entry->d_name << "</a></li>";
+        }
+    }
+
+    result << "</ul>";
+    result << "</div>";
+    closedir(dir);
+	result << "<style>"
+            << "body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f0f0; }"
+            << "#directory-listing { margin: 0; padding: 0; list-style-type: none; }"
+            << "#directory-listing ul { margin: 0; padding: 0; list-style-type: none; }"
+            << "#directory-listing li { margin: 5px 0; padding: 5px; border: 1px solid #ddd; border-radius: 4px;  background-color: #FFF5EE;}"
+            << "#directory-listing li a { text-decoration: none; color: #4682B4; }"
+            << "#directory-listing li a:hover { text-decoration: underline; }"
+            << "#directory-listing li b { font-weight: bold; color: #191970; }"
+            << "#directory-listing li ul { margin-left: 20px; border-left: 2px solid #ddd; padding-left: 10px; }"
+            << "#directory-listing li ul li { border: none; padding: 2px 0; }"
+            << "</style>";
+	
+	result << "<script>"
+            << "function toggleDir(event) {"
+            << "  var nextUl = event.target.nextElementSibling;"
+            << "  if (nextUl.style.display === 'none' || nextUl.style.display === '') {"
+            << "    nextUl.style.display = 'block';"
+            << "  } else {"
+            << "    nextUl.style.display = 'none';"
+            << "  }"
+            << "}"
+            << "</script>";
+    return result.str();
+}
+
