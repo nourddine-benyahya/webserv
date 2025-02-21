@@ -210,10 +210,13 @@ void Response::DeletecheckResource()
     {
         std::string tmp = reqResourcePath + matchedRoute.index;
         std::string tmp2 = reqResourcePath + srv->fileIndex;
-        if (!matchedRoute.index.empty() && checkExistence(tmp))
+        if (!matchedRoute.index.empty())
         {
-            reqResourcePath +=  matchedRoute.index;
-            indexed = true;
+            if (checkExistence(tmp))
+            {
+                reqResourcePath +=  matchedRoute.index;
+                indexed = true;
+            }
         }
         else if (!srv->fileIndex.empty() && checkExistence(tmp2))
         {
