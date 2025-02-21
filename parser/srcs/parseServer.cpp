@@ -101,7 +101,6 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
     Route route;
     route.list_dirs = false;
     route.upload = false;
-    // std::cout << "list dir : "  << route.list_dirs << std::endl;
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
@@ -166,8 +165,6 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
     if (srv.routes.find(route.path) != srv.routes.end())
         throw std::runtime_error("ConfigFile: duplicated paths for location");
     srv.routes[route.path] = route;
-
-    // std::cout << "|" << srv.routes[route.path].path << "|"<< std::endl;
 }
 void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end)
 {

@@ -22,8 +22,6 @@ phpInit:
 	@mkdir -p ~/my-php-config
 	@cp ./cgi-bin/php.ini ~/my-php-config/
 	@export PHPRC=~/my-php-config
-	
-# source ~/.zshrc
 
 $(NAME): $(OBJ)
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -fsanitize=address -g

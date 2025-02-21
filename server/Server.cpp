@@ -2,14 +2,7 @@
 
 #include "Server.hpp"
 #include "response.hpp"
-// static void printServerInfo(Server srv) {
-// 	std::cout << "Address Info :\n"
-//     			<< " IP family: " << ((srv.getConfig()->getAddress().sin_family == AF_INET)? "IPv4":"NONE") << std::endl;
-//     std::cout << " Port: " << ntohs(srv.getConfig()->getAddress().sin_port) << std::endl;
-//     std::cout << " Logs: " << srv.getConfig()->getLogs() << std::endl;
 
-//     // std::cout << "Address: " << inet_ntoa(addr.sin_addr) << std::endl;
-// }
 void Server::closeSocks(){
 	std::map<int, int>::iterator it = this->getConfig()->getSockets().begin();
 	std::map<int, int>::iterator end = this->getConfig()->getSockets().end();
@@ -23,9 +16,7 @@ void Server::closeSocks(){
 	}
 }
 
-Server::Server(Config* conf): conf(conf) {
-	// std::cout << "Server Cretead " << std::endl;
-}
+Server::Server(Config* conf): conf(conf) {}
 
 Server::~Server() {
 	// shutdown all socks

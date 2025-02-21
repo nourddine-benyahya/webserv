@@ -110,6 +110,7 @@ public:
 				std::string getLogs();
 				std::map<int, std::string> getErrorPages();
 				std::string getErrorPage(int);
+				void updatePort(int) ;
 				int getPort() ;
 			};
 

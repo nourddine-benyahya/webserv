@@ -31,14 +31,12 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    std::cout << "MATCHED ROUTE  :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
     req = r;
     srv = server;
     matchRoute();
-    std::cout << "REQ :" << req.getReqLine().getReqTarget() << std::endl;
     try
     {
         if (checkRedir() == true)
@@ -67,7 +65,7 @@ void checkFile(std::string fileName)
     std::ifstream resource(fileName);
     if (!resource.is_open())
     {
-        throw Server::ServerException("file not found", 404);
+        throw Server::ServerException("file not found: " + fileName, 404);
     }
     resource.close();
 }
@@ -109,7 +107,6 @@ bool Response::checkResource()
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
-    std::cout << "reqResourcePath :" << reqResourcePath << std::endl;
     bool temp = checkIndexed();
     if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
     {
@@ -175,7 +172,6 @@ bool Response::checkResource()
             if (reqResourcePath.back() != '/' &&  srv->fileIndex.front() != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  srv->fileIndex;
-            std::cout << reqResourcePath << std::endl;
             checkFile(reqResourcePath);
         }
     }
@@ -216,7 +212,7 @@ std::string getContent(std::string fileName)
 {
     std::ifstream resource(fileName);
     if (!resource.is_open())
-        throw Server::ServerException("file not found", 404);
+        throw Server::ServerException("file not found: " + fileName, 404);
     std::stringstream content;
     content << resource.rdbuf();
     return content.str();
@@ -232,9 +228,6 @@ bool Response::checkRedir()
     resourcePath << matchedRoute.redir << "\r\n";
     resourcePath << "Content-Length: 0\r\n\r\n";
     response = resourcePath.str();
-    // response =    "HTTP/1.1 301 Moved Permanently\r\n"
-    //             "Location: http://localhost:8080" + matchedRoute.redir + "\r\n"
-    //             "Content-Length: 0\r\n\r\n";
     return true;
 }
 void Response::get()
@@ -253,13 +246,7 @@ void Response::get()
                 return ;
             }
         }
-        throw Server::ServerException("file not found", 404);
-        // std::cout << "test FALSE" << std::endl;
-        // body = srv->getFile(req.getReqLine().getReqTarget());
-        // header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-        // std::stringstream lengthStr;
-        // lengthStr << body.length();
-        // response = header + lengthStr.str() + "\r\n\r\n" + body;
+        throw Server::ServerException("file not found: " + reqResourcePath, 404);
     }
     else if (foundRoute)
     {
@@ -283,20 +270,13 @@ bool Response::checkIndexed()
     resourcePath << reqResourcePath; 
     if (reqResourcePath.back() != '/')
         resourcePath << "/";
-    // reqResourcePath = resourcePath.str();
     resourcePath << "index.html";
     std::ifstream resource(resourcePath.str());
     if (!resource.is_open())
     {
         return false;
-        // throw Server::ServerException("file not found", 404);
     }
     reqResourcePath = resourcePath.str();
-    // header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-    // body = getContent(reqResourcePath);
-    // std::stringstream lengthStr;
-    // lengthStr << body.length();
-    // response = header + lengthStr.str() + "\r\n\r\n" + body;
     resource.close();
     return true;
     // checkFile(reqResourcePath);
