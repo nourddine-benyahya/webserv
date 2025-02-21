@@ -235,6 +235,7 @@ bool Response::checkCgiResource()
         return false;
     int port = srv->getPort();
     cgi c(req, reqResourcePath, port);
+    //set env
     c.runCgi();
     response = c.getResponse();
     return true;
