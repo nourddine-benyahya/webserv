@@ -46,7 +46,7 @@ void cgi::save_env()
 	env_map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	env_map["REDIRECT_STATUS"] = "1";
 	env_map["SERVER_PORT"] = "80";
-	env_map["REMOTE_HOST"] = "localhost";
+	// env_map["REMOTE_HOST"] = "localhost";
 
     //params
     std::map<std::string, std::string> params = req.getReqLine().getParams();
