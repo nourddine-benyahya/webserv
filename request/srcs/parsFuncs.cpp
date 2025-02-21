@@ -26,12 +26,13 @@ void urlFormat(std::string& url)
     const std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                       "abcdefghijklmnopqrstuvwxyz"
                                       "0123456789"
-                                      "-._~:/?#[]@!$&'()*+,;=";
+                                      "-._~:/?#[]@!$&'()*+,;=%";
 
     //check if Request uri contain more that 2048 chars
     if (url.empty() || url[0] != '/' || url.length() > 2048)
         throw exeptions(414, "414 Request-URI Too Long");
 
+    // std::cout << "---" << url << "------------" << std::endl;
     for (std::string::const_iterator it = url.begin(); it != url.end(); ++it)
     {
         if (allowed_chars.find(*it) == std::string::npos)

@@ -20,6 +20,7 @@ request::request(const std::string request, Server::Config *server)
             reqLine = requestLine(line);
         } catch (exeptions ex)
         {
+            std::cout << "err in requist line " << std::endl;
             throw Server::ServerException(ex.getMsg(), ex.getStatus());
         }
 

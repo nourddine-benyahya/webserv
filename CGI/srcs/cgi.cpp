@@ -45,8 +45,7 @@ void cgi::save_env()
     env_map["SERVER_SOFTWARE"] = "webserv/1.0";
 	env_map["GATEWAY_INTERFACE"] = "CGI/1.1";
 	env_map["REDIRECT_STATUS"] = "1";
-	env_map["SERVER_PORT"] = "80";
-	env_map["REMOTE_HOST"] = "localhost";
+	env_map["SERVER_PORT"] = port.str();
 
     //params
     std::map<std::string, std::string> params = req.getReqLine().getParams();
@@ -156,10 +155,11 @@ void cgi::setCgiEnv(std::string extantion, std::string commandpath)
 }
 
 
-cgi::cgi(request request, std::string path) {
+cgi::cgi(request request, std::string path, int port) {
 
     req = request;
     CgiScript = path;
+    this->port << port;
     // save exeuatable path
     saveCgiEnv();
     //save env

@@ -233,7 +233,8 @@ bool Response::checkCgiResource()
 {
     if (matchedRoute.cgis.size() == 0)
         return false;
-    cgi c(req, reqResourcePath);
+    int port = srv->getPort();
+    cgi c(req, reqResourcePath, port);
     c.runCgi();
     response = c.getResponse();
     return true;
