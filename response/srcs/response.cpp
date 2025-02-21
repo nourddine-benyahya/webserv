@@ -36,6 +36,7 @@ Response::Response(request r, Server::Config *server)
 {
     req = r;
     srv = server;
+    indexed = false;
     matchRoute();
     try
     {
@@ -60,12 +61,16 @@ Response::Response(request r, Server::Config *server)
 		throw Server::ServerException(e.what(), response, e.getStatus());
 	}
 }
-void checkFile(std::string fileName)
+void Response::checkFile(std::string fileName)
 {
     std::ifstream resource(fileName);
     if (!resource.is_open())
     {
-        throw Server::ServerException("file not found: " + fileName, 404);
+        if (!indexed)
+            throw Server::ServerException("file not found" + fileName, 404);
+        else
+            throw Server::ServerException("forbidden" + fileName, 403);
+
     }
     resource.close();
 }
@@ -129,9 +134,15 @@ bool Response::checkResource()
             return true;
         }
         else if (matchedRoute.index.empty())
+        {
             reqResourcePath +=  srv->fileIndex;
+            indexed = true;
+        }
         else
+        {
             reqResourcePath +=  matchedRoute.index;
+            indexed = true;
+        }
         checkFile(reqResourcePath);
     }
     else if (isDirectory(reqResourcePath))
@@ -164,6 +175,7 @@ bool Response::checkResource()
             if (reqResourcePath.back() != '/' &&  matchedRoute.index.front() != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  matchedRoute.index;
+            indexed = true;
             checkFile(reqResourcePath);
         }
         else if (!srv->fileIndex.empty())
@@ -172,6 +184,7 @@ bool Response::checkResource()
             if (reqResourcePath.back() != '/' &&  srv->fileIndex.front() != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  srv->fileIndex;
+            indexed = true;
             checkFile(reqResourcePath);
         }
     }
@@ -191,6 +204,7 @@ void Response::DeletecheckResource()
         if (!matchedRoute.index.empty())
         {
             reqResourcePath +=  matchedRoute.index;
+            indexed = true;
             checkFile(reqResourcePath);
         }
     }

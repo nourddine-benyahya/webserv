@@ -27,6 +27,8 @@ class Response
         void DeletecheckResource();
         void redirectToFolder();
         bool checkRedir();
+        void checkFile(std::string fileName);
+        bool indexed;
         std::string body;
         std::string header;
         std::string method;
