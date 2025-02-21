@@ -55,10 +55,12 @@ void parseCgi(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &
     while (it != end && it->token != close_bracket)
     {
         std::vector<std::string>v = split(it->value, "=");
-        if (v.size() != 2)
+        if (v.size() != 2 || v[0].empty() || v[1].empty())
             throw std::runtime_error("ConfigFile :Error with syntax 5");
         if (route.cgis.find(v[0]) != route.cgis.end())
             throw std::runtime_error("ConfigFile :duplicated values in cgi");
+        if (v[0].front() != '.' && v[0].size() > 1)
+            throw std::runtime_error("error in cgi extension");
         route.cgis[v[0]] = v[1];
         it++;
     }
