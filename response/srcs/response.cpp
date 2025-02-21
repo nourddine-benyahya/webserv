@@ -194,6 +194,13 @@ bool Response::checkResource()
     }
     return false;
 }
+bool checkExistence(std::string &path)
+{
+    std::ifstream file(path.c_str());
+    if (!file.is_open())
+        return false;
+    return true;
+}
 void Response::DeletecheckResource()
 {
     std::stringstream resourcePath;
@@ -201,11 +208,17 @@ void Response::DeletecheckResource()
     reqResourcePath = resourcePath.str();
     if (isDirectory(reqResourcePath))
     {
-        if (!matchedRoute.index.empty())
+        std::string tmp = reqResourcePath + matchedRoute.index;
+        std::string tmp2 = reqResourcePath + srv->fileIndex;
+        if (!matchedRoute.index.empty() && checkExistence(tmp))
         {
             reqResourcePath +=  matchedRoute.index;
             indexed = true;
-            checkFile(reqResourcePath);
+        }
+        else if (!srv->fileIndex.empty() && checkExistence(tmp2))
+        {
+            reqResourcePath +=  srv->fileIndex;
+            indexed = true;
         }
     }
     else
