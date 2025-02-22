@@ -38,9 +38,7 @@ void cgi::save_env()
     }
 
     env_map["REQUEST_URI"] = CgiScript;
-	env_map["PATH_INFO"] = CgiScript;
 	env_map["SCRIPT_FILENAME"] = CgiScript;
-	env_map["PATH_TRANSLATED"] = req.getReqLine().getReqTarget();
     env_map["SERVER_PROTOCOL"] = req.getReqLine().getHttpVers();
     env_map["SERVER_SOFTWARE"] = "webserv/1.0";
 	env_map["GATEWAY_INTERFACE"] = "CGI/1.1";
@@ -55,10 +53,18 @@ void cgi::save_env()
     }
     query_string.pop_back();
     env_map["QUERY_STRING"] = query_string;
+
     //all header
     std::map<std::string, std::string> header = req.getReqHeader().getHeader();
     for (std::map<std::string, std::string>::iterator it = header.begin(); it != header.end(); ++it) {
-        env_map[toupper(it->first)] = it->second;
+        if (it->first == "Cookie")
+            env_map["HTTP_COOKIE"] = it->second;
+        else if (it->first == "User-Agent")
+            env_map["HTTP_USER_AGENT"] = it->second;
+        else if (it->first == "Referer")
+            env_map["HTTP_REFERER"] = it->second;
+        else
+            env_map[toupper(it->first)] = it->second;
     }
 }
 
