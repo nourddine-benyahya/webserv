@@ -1,7 +1,7 @@
 #include <sys/stat.h>
 #include "response.hpp"
 #include <unistd.h>
-
+static std::map<std::string, std::string> mimeTypes;
 template <typename T>
 static std::vector<std::string>::iterator find(std::vector<std::string>::iterator begin, std::vector<std::string>::iterator end, T value)
 {
@@ -12,6 +12,28 @@ static std::vector<std::string>::iterator find(std::vector<std::string>::iterato
         begin++;
     }
     return end;
+}
+void initializeMimeTypes() {
+    mimeTypes[".html"] = "text/html";
+    mimeTypes[".css"] = "text/css";
+    mimeTypes[".js"] = "application/javascript";
+    mimeTypes[".json"] = "application/json";
+    mimeTypes[".png"] = "image/png";
+    mimeTypes[".jpg"] = "image/jpeg";
+    mimeTypes[".jpeg"] = "image/jpeg";
+    mimeTypes[".gif"] = "image/gif";
+    mimeTypes[".txt"] = "text/plain";
+}
+std::string getContentType(const std::string& extension) {
+    if (mimeTypes.empty()) {
+        initializeMimeTypes();
+    }
+
+    std::map<std::string, std::string>::iterator it = mimeTypes.find(extension);
+    if (it != mimeTypes.end()) {
+        return it->second;
+    }
+    return "application/octet-stream"; // Default MIME type
 }
 
 void Response::matchRoute()
@@ -287,11 +309,15 @@ void Response::get()
             return ;
         if (checkCgiResource())
             return;
-        header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+        std::string extension = reqResourcePath.substr(reqResourcePath.find_last_of('.'));
+        std::string contentType = getContentType(extension);
+        header = "HTTP/1.1 200 OK\r\nContent-Type: " + contentType + "\r\nContent-Length: ";
         body = getContent(reqResourcePath);
         std::stringstream lengthStr;
         lengthStr << body.length();
         response = header + lengthStr.str() + "\r\n\r\n" + body;
+
+        std::cout  << "req " << req.getReqLine().getReqTarget() << " length :" << lengthStr.str()  << std::endl;
     }
 }
 
