@@ -1,5 +1,6 @@
 <?php
 session_start();
+// session.save_path = "/Users/nbenyahy/Desktop/42-webserv/sessiondta";
 
 // Set session and cookie when form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -10,6 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $favorite_treat = $_POST['favorite_treat'];
     setcookie('pet_treat', $favorite_treat, time() + 86400, '/');
 }
+
+?>
+
+<?php
+phpinfo();
 ?>
 
 <!DOCTYPE html>

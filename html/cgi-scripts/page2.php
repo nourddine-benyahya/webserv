@@ -2,7 +2,14 @@
 session_start();
 $pet_name = $_SESSION['detective_pet'] ?? 'Mystery Creature';
 $favorite_treat = $_COOKIE['pet_treat'] ?? 'unknown treats';
+
+// Set session and cookie when form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    session_destroy();
+}
 ?>
+
+
 
 <!DOCTYPE html>
 <html>
@@ -49,6 +56,9 @@ $favorite_treat = $_COOKIE['pet_treat'] ?? 'unknown treats';
         <div style="margin-top: 2rem;">
             <a href="page1.php" style="color: #4CAF50;">↩️ Create New Profile</a>
         </div>
+        <form method="POST">
+            <button type="submit">destroy btn</button>
+        </form>
     </div>
 </body>
 </html>
