@@ -1,7 +1,8 @@
 #include <sys/stat.h>
 #include "response.hpp"
 #include <unistd.h>
-
+static std::map<std::string, std::string> mimeTypes;
+//PROBLEM IN MATCH ROUTE
 template <typename T>
 static std::vector<std::string>::iterator find(std::vector<std::string>::iterator begin, std::vector<std::string>::iterator end, T value)
 {
@@ -12,6 +13,28 @@ static std::vector<std::string>::iterator find(std::vector<std::string>::iterato
         begin++;
     }
     return end;
+}
+void initializeMimeTypes() {
+    mimeTypes[".html"] = "text/html";
+    mimeTypes[".css"] = "text/css";
+    mimeTypes[".js"] = "application/javascript";
+    mimeTypes[".json"] = "application/json";
+    mimeTypes[".png"] = "image/png";
+    mimeTypes[".jpg"] = "image/jpeg";
+    mimeTypes[".jpeg"] = "image/jpeg";
+    mimeTypes[".gif"] = "image/gif";
+    mimeTypes[".txt"] = "text/plain";
+}
+std::string getContentType(const std::string& extension) {
+    if (mimeTypes.empty()) {
+        initializeMimeTypes();
+    }
+
+    std::map<std::string, std::string>::iterator it = mimeTypes.find(extension);
+    if (it != mimeTypes.end()) {
+        return it->second;
+    }
+    return "application/octet-stream"; // Default MIME type
 }
 
 void Response::matchRoute()
@@ -41,7 +64,10 @@ Response::Response(request r, Server::Config *server)
     try
     {
         if (checkRedir() == true)
+        {
             return;
+
+        }
         if (req.getReqLine().getMethod() == GET)
         {
             get();
@@ -105,22 +131,60 @@ void Response::redirectToFolder()
     response = resourcePath.str();
     // std::cout << "response :" << response << std::endl;
 }
-
+bool checkExistence(std::string &path)
+{
+    std::ifstream file(path.c_str());
+    if (!file.is_open())
+        return false;
+    return true;
+}
 bool Response::checkResource()
 {
 
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
-    bool temp = checkIndexed();
-    if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
+    // if (isDirectory(reqResourcePath) && matchedRoute.index.empty() && srv->fileIndex.empty())
+    //     checkIndexed();
+    // if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
+    // {
+    //     if ( req.getReqLine().getReqTarget().back() != '/')
+    //     {
+    //         redirectToFolder();
+    //         return true;
+    //     }
+    //     else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs)
+    //     {
+    //         header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+    //         body = listDir(reqResourcePath);
+    //         std::stringstream lengthStr;
+    //         lengthStr << body.length();
+    //         response = header + lengthStr.str() + "\r\n\r\n" + body;
+    //         return true;
+    //     }
+    //     else if (matchedRoute.index.empty())
+    //     {
+    //         reqResourcePath +=  srv->fileIndex;
+    //         indexed = true;
+    //     }
+    //     else
+    //     {
+    //         reqResourcePath +=  matchedRoute.index;
+    //         indexed = true;
+    //     }
+    //     checkFile(reqResourcePath);
+    // }
+    if (isDirectory(reqResourcePath))
     {
+        std::cout << "FUCK DIR " << reqResourcePath << std::endl;
+        std::string t1 = reqResourcePath + matchedRoute.index;
+        std::string t2 = reqResourcePath + srv->fileIndex;
         if (req.getReqLine().getReqTarget().back() != '/')
         {
             redirectToFolder();
             return true;
         }
-        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs && !temp)
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs && srv->fileIndex.empty())
         {
             header = "HTTP/1.1 200 OK\r\nContent-Length: ";
             body = listDir(reqResourcePath);
@@ -129,48 +193,7 @@ bool Response::checkResource()
             response = header + lengthStr.str() + "\r\n\r\n" + body;
             return true;
         }
-        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs && temp)
-        {
-            return true;
-        }
-        else if (matchedRoute.index.empty())
-        {
-            reqResourcePath +=  srv->fileIndex;
-            indexed = true;
-        }
-        else
-        {
-            reqResourcePath +=  matchedRoute.index;
-            indexed = true;
-        }
-        checkFile(reqResourcePath);
-    }
-    else if (isDirectory(reqResourcePath))
-    {
-        std::cout << "FUCK DIR" << std::endl;
-        if (req.getReqLine().getReqTarget().back() != '/')
-        {
-            redirectToFolder();
-            return true;
-        }
-        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs && srv->fileIndex.empty()  && !temp)
-        {
-            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-            body = listDir(reqResourcePath);
-            std::stringstream lengthStr;
-            lengthStr << body.length();
-            response = header + lengthStr.str() + "\r\n\r\n" + body;
-            return true;
-        }
-        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs && temp)
-        {
-            return true;
-        }
-        else if (matchedRoute.index.empty() && srv->fileIndex.empty())
-        {
-            throw Server::ServerException("forbidden", 403);
-        }
-        else if (!matchedRoute.index.empty())
+        else if (!matchedRoute.index.empty() && checkExistence(t1))
         {
             if (reqResourcePath.back() != '/' &&  matchedRoute.index.front() != '/')
                 reqResourcePath += "/";
@@ -178,14 +201,19 @@ bool Response::checkResource()
             indexed = true;
             checkFile(reqResourcePath);
         }
-        else if (!srv->fileIndex.empty())
+        else if (!srv->fileIndex.empty() && checkExistence(t2))
         {
-            std::cout << "YO I JUST GOT HERE" << std::endl;
             if (reqResourcePath.back() != '/' &&  srv->fileIndex.front() != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  srv->fileIndex;
             indexed = true;
             checkFile(reqResourcePath);
+        }
+        else if (checkIndexed())
+            return false;
+        else if (matchedRoute.index.empty() && srv->fileIndex.empty())
+        {
+            throw Server::ServerException("forbidden", 403);
         }
     }
     else if (!isDirectory(reqResourcePath))
@@ -194,13 +222,7 @@ bool Response::checkResource()
     }
     return false;
 }
-bool checkExistence(std::string &path)
-{
-    std::ifstream file(path.c_str());
-    if (!file.is_open())
-        return false;
-    return true;
-}
+
 void Response::DeletecheckResource()
 {
     std::stringstream resourcePath;
@@ -231,7 +253,7 @@ void Response::DeletecheckResource()
 
 bool Response::checkCgiResource()
 {
-    if (matchedRoute.cgis.size() == 0)
+    if (matchedRoute.hasCgi == false)
         return false;
     int port = srv->getPort();
     cgi c(req, reqResourcePath, port);
@@ -282,17 +304,22 @@ void Response::get()
     }
     else if (foundRoute)
     {
+        std::cout << "FOUND THE FUCK ROUTE"  << std::endl;
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
             throw Server::ServerException("Method not allowed", 405);
         if (checkResource())
             return ;
         if (checkCgiResource())
             return;
-        header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+        std::string extension = reqResourcePath.substr(reqResourcePath.find_last_of('.'));
+        std::string contentType = getContentType(extension);
+        header = "HTTP/1.1 200 OK\r\nContent-Type: " + contentType + "\r\nContent-Length: ";
         body = getContent(reqResourcePath);
         std::stringstream lengthStr;
         lengthStr << body.length();
         response = header + lengthStr.str() + "\r\n\r\n" + body;
+
+        std::cout  << "req " << req.getReqLine().getReqTarget() << " length :" << lengthStr.str()  << std::endl;
     }
 }
 
@@ -309,6 +336,7 @@ bool Response::checkIndexed()
         return false;
     }
     reqResourcePath = resourcePath.str();
+
     resource.close();
     return true;
     // checkFile(reqResourcePath);
