@@ -51,7 +51,7 @@ request::request(const std::string request, Server::Config *server)
             throw Server::ServerException("413 Payload Too Large", 413);
 
         // check unsupported media type
-        if (reqHeader.getHeader().find("Content-Type") == reqHeader.getHeader().end() && reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end())
+        if (reqHeader.getHeader().find("Content-Type") == reqHeader.getHeader().end() && reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end() && std::atol(reqHeader.getHeader()["Content-Length"].c_str()) > 0)
             throw Server::ServerException("415 Unsupported Media Type", 415);
 
         // Read the body
