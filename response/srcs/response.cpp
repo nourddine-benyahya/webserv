@@ -116,8 +116,11 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
     resourcePath << routeRoot;
     if (!path.empty() && path.front() != '/' && resourcePath.str().back() != '/')
         resourcePath << "/";
-
+    // std::cout << "BEFORE : " << resourcePath.str() << " " << path.front() << std::endl;
+    if (resourcePath.str().back() == '/' && path == "/")
+        return ;
     resourcePath << path;
+    // std::cout << "AFTER : " << resourcePath.str() << std::endl;
 }
 void Response::redirectToFolder()
 {
@@ -176,21 +179,11 @@ bool Response::checkResource()
     // }
     if (isDirectory(reqResourcePath))
     {
-        std::cout << "FUCK DIR " << reqResourcePath << std::endl;
         std::string t1 = reqResourcePath + matchedRoute.index;
         std::string t2 = reqResourcePath + srv->fileIndex;
         if (req.getReqLine().getReqTarget().back() != '/')
         {
             redirectToFolder();
-            return true;
-        }
-        else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() && matchedRoute.list_dirs && srv->fileIndex.empty())
-        {
-            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-            body = listDir(reqResourcePath);
-            std::stringstream lengthStr;
-            lengthStr << body.length();
-            response = header + lengthStr.str() + "\r\n\r\n" + body;
             return true;
         }
         else if (!matchedRoute.index.empty() && checkExistence(t1))
@@ -211,7 +204,16 @@ bool Response::checkResource()
         }
         else if (checkIndexed())
             return false;
-        else if (matchedRoute.index.empty() && srv->fileIndex.empty())
+        else if (req.getReqLine().getMethod() == GET && matchedRoute.list_dirs)
+        {
+            header = "HTTP/1.1 200 OK\r\nContent-Length: ";
+            body = listDir(reqResourcePath);
+            std::stringstream lengthStr;
+            lengthStr << body.length();
+            response = header + lengthStr.str() + "\r\n\r\n" + body;
+            return true;
+        }
+        else
         {
             throw Server::ServerException("forbidden", 403);
         }
