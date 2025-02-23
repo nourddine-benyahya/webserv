@@ -110,10 +110,9 @@ Server::Config& Server::Config::setPort(int port) {
 }
 
 Server::Config& Server::Config::setName(std::string name) {
-	if (name.empty() || this->name != "0.0.0.0")
+	if (name.empty() || (this->name != "0.0.0.0" && this->name != "localhost"))
 		throw Server::ServerException("Host name failed:" + name);
 
-	this->name = name;
 
     struct addrinfo hints, *res;
     memset(&hints, 0, sizeof(hints));
@@ -122,8 +121,10 @@ Server::Config& Server::Config::setName(std::string name) {
 
     int status = getaddrinfo(name.c_str(), NULL, &hints, &res);
     if (status != 0) {
+		this->name = "localhost";
     	return *this;
     }
+	this->name = name;
 
     this->address.sin_addr = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
     freeaddrinfo(res);

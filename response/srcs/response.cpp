@@ -41,8 +41,8 @@ void Response::matchRoute()
 {
     foundRoute = false;
     std::map<std::string , Route>::iterator it = srv->routes.begin();
-    if (it ==  srv->routes.end())
-        std::cout << "empty" << std::endl;
+    // if (it ==  srv->routes.end())
+    //     std::cout << "empty" << std::endl;
     it = srv->routes.find(req.getReqLine().getReqTarget());
     if (it != srv->routes.end())
     {
@@ -60,13 +60,14 @@ Response::Response(request r, Server::Config *server)
     req = r;
     srv = server;
     indexed = false;
+    // std::cout << "SHITTY REQUEST :" << req.getReqLine().getReqTarget() << "}"<< std::endl;
     matchRoute();
+    // std::cout << "SHITTY ROUTE !!!!!!!!! :" << matchedRoute.path << std::endl;
     try
     {
         if (checkRedir() == true)
         {
             return;
-
         }
         if (req.getReqLine().getMethod() == GET)
         {
@@ -93,7 +94,7 @@ void Response::checkFile(std::string fileName)
     if (!resource.is_open())
     {
         if (!indexed)
-            throw Server::ServerException("file not found" + fileName, 404);
+            throw Server::ServerException("file not found:" + fileName, 404);
         else
             throw Server::ServerException("forbidden" + fileName, 403);
 
@@ -114,20 +115,21 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
     if (!routeRoot.empty() && routeRoot.front() != '/' && resourcePath.str().back() != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
+    // std::cout << "BEFORE : " << resourcePath.str() << " " << path.front() << std::endl;
     if (!path.empty() && path.front() != '/' && resourcePath.str().back() != '/')
         resourcePath << "/";
-    // std::cout << "BEFORE : " << resourcePath.str() << " " << path.front() << std::endl;
+    // std::cout << "AFTER : " << resourcePath.str() << std::endl;
     if (resourcePath.str().back() == '/' && path == "/")
         return ;
     resourcePath << path;
-    // std::cout << "AFTER : " << resourcePath.str() << std::endl;
 }
 void Response::redirectToFolder()
 {
     std::stringstream resourcePath;
 
     resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
-    resourcePath << "Location: http://localhost:";
+    resourcePath << "Location: http://" + srv->getName();
+    resourcePath << ":";
     resourcePath << srv->getPort();
     resourcePath << req.getReqLine().getReqTarget() << "/\r\n";
     resourcePath << "Content-Length: 0\r\n\r\n";
@@ -177,6 +179,7 @@ bool Response::checkResource()
     //     }
     //     checkFile(reqResourcePath);
     // }
+    // std::cout << "REQ " << reqResourcePath << std::endl;
     if (isDirectory(reqResourcePath))
     {
         std::string t1 = reqResourcePath + matchedRoute.index;
@@ -279,7 +282,8 @@ bool Response::checkRedir()
         return false;
     std::stringstream resourcePath;
     resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
-    resourcePath << "Location: http://localhost:";
+    resourcePath << "Location: http://" + srv->getName();
+    resourcePath << ":";
     resourcePath << srv->getPort();
     resourcePath << matchedRoute.redir << "\r\n";
     resourcePath << "Content-Length: 0\r\n\r\n";
@@ -288,6 +292,7 @@ bool Response::checkRedir()
 }
 void Response::get()
 {
+    // std::cout << "SHITTY REQUEST" << req.getReqLine().getReqTarget() << std::endl;
     if (foundRoute == false)
     {
         std::stringstream resourcePath;
@@ -306,7 +311,7 @@ void Response::get()
     }
     else if (foundRoute)
     {
-        std::cout << "FOUND THE FUCK ROUTE"  << std::endl;
+        // std::cout << "FOUND THE FUCK ROUTE"  << std::endl;
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
             throw Server::ServerException("Method not allowed", 405);
         if (checkResource())
@@ -321,7 +326,7 @@ void Response::get()
         lengthStr << body.length();
         response = header + lengthStr.str() + "\r\n\r\n" + body;
 
-        std::cout  << "req " << req.getReqLine().getReqTarget() << " length :" << lengthStr.str()  << std::endl;
+        // std::cout  << "req " << req.getReqLine().getReqTarget() << " length :" << lengthStr.str()  << std::endl;
     }
 }
 
