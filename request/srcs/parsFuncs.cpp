@@ -11,7 +11,7 @@ std::string trim(std::string& str)
    std::string whiteSpaces(" \t\f\v\n\r");
 
    while(whiteSpaces.find(str[0]) != std::string::npos) str.erase(str.begin());
-   while(whiteSpaces.find(str[str.size() - 1]) != std::string::npos) str.pop_back();
+   while(whiteSpaces.find(str[str.size() - 1]) != std::string::npos) str.erase(str.size() - 1);
    return (str);
 }
 

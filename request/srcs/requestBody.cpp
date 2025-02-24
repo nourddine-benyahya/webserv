@@ -60,7 +60,7 @@ void requestBody::parsBodyPart(std::string bodyPart)
 
     //parse first line
     std::getline(stream, line);
-    line.pop_back();
+    line.erase(line.size() - 1);
     line.push_back(';');
     int pos = 0;
     while ((pos = line.find(";")) != std::string::npos)
@@ -78,7 +78,7 @@ void requestBody::parsBodyPart(std::string bodyPart)
             std::string value = tmp.substr(tmp.find("=") + 2, tmp.length() - tmp.find("=") - 3);
             if (value[value.length() - 1] == '"' && value[0] == '"')
             {
-                value.pop_back();
+                value.erase(value.size() - 1);
                 value.erase(0, 1);
             }
             formFields[trim(key)] = trim(value);

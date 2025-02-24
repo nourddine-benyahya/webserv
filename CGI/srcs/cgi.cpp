@@ -51,7 +51,7 @@ void cgi::save_env()
     for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); ++it) {
         query_string += it->first + "=" + it->second + "&";
     }
-    query_string.pop_back();
+    query_string.erase(str.size() - 1);
     env_map["QUERY_STRING"] = query_string;
 
     //all header
