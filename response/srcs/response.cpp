@@ -263,6 +263,10 @@ bool Response::checkCgiResource()
     int port = srv->getPort();
     cgi c(req, reqResourcePath, port);
     //set env
+    for (std::map<std::string, std::string>::iterator it = matchedRoute.cgis.begin() ; it != matchedRoute.cgis.end(); it++)
+    {
+        c.setCgiEnv(it->first, it->second);
+    }
     c.runCgi();
     response = c.getResponse();
     return true;
