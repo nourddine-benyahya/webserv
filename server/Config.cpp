@@ -11,13 +11,21 @@ std::string Server::Config::catRoot(std::string file){
 
 
 std::string Server::Config::readFile(std::string fileName){
-	std::ifstream file(fileName.c_str());
-    if (!file.is_open()) {
+	struct stat fileStat;
+    if (stat(fileName.c_str(), &fileStat) != 0) {
         throw Server::ServerException("No such file or directory: " + fileName, 404);
     }
+    if (!(fileStat.st_mode & S_IRUSR)) {
+        throw Server::ServerException("Permission denied: " + fileName, 403);
+    }
+    std::ifstream file(fileName.c_str());
+    if (!file.is_open()) {
+        throw Server::ServerException("Unable to open file: " + fileName, 500);
+    }
+
     std::stringstream buffer;
-   		buffer << file.rdbuf();
-	return buffer.str();
+    buffer << file.rdbuf();
+    return buffer.str();
 }
 
 void Server::Config::create_sock(){
@@ -148,6 +156,7 @@ static std::string getErrorDescription(int status){
         case 403: return "Forbidden";
         case 404: return "Page Not Found";
         case 405: return "Method Not Allowed";
+        case 409: return "Conflict";
         case 411: return "Length Required";
         case 413: return "Payload Too Large";
         case 414: return "Request-URI Too Long";
@@ -172,8 +181,8 @@ std::string Server::Config::getErrorPage(int status){
 	if (errorPages.find(status) != errorPages.end()){
 		try {
 			return readFile(catRoot(errorPages[status]));
-		} catch (ServerException& e){
-			if (status != 404)
+		} catch (Server::ServerException& e){
+			if ((status = e.getStatus()) != 404)
 				throw e;
 		}
 	}
