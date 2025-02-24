@@ -285,8 +285,9 @@ void ServerMonitor::run()
 					Logger(tmpSockets[i].srv, Logger::WARNING, e.what());
 						logs << " with status " << e.getStatus() << " KO";
 				}
-				if (send(i, response.c_str(), response.size(), 0) < 0){
-					Logger(tmpSockets[i].srv, Logger::ERROR, strerror(errno));
+				int sendBytes = 0;
+				if ((sendBytes = send(i, response.c_str(), response.size(), 0)) <= 0){
+					Logger(tmpSockets[i].srv, Logger::INFO, (sendBytes < 0)? strerror(errno): "Connection closed by client");
 				}
 				Logger(tmpSockets[i].srv, Logger::DEBUG, logs.str());
 				FD_CLR(i, &master_set);
