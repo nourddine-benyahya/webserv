@@ -89,7 +89,7 @@ Response::Response(request r, Server::Config *server)
 }
 void Response::checkFile(std::string fileName)
 {
-    std::ifstream resource(fileName);
+    std::ifstream resource(fileName.c_str());
     if (!resource.is_open())
     {
         if (!indexed)
@@ -111,14 +111,14 @@ bool isDirectory(const std::string &path) {
 void checkSlash(std::stringstream &resourcePath, std::string root, std::string &routeRoot, std::string &path)
 {
     resourcePath << root;
-    if (!routeRoot.empty() && routeRoot[0] != '/' && resourcePath.str().back() != '/')
+    if (!routeRoot.empty() && routeRoot[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
     // std::cout << "BEFORE : " << resourcePath.str() << " " << path[0] << std::endl;
-    if (!path.empty() && path[0] != '/' && resourcePath.str().back() != '/')
+    if (!path.empty() && path[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     // std::cout << "AFTER : " << resourcePath.str() << std::endl;
-    if (resourcePath.str().back() == '/' && path == "/")
+    if (resourcePath.str()[resourcePath.str().size() - 1] == '/' && path == "/")
         return ;
     resourcePath << path;
 }
@@ -161,14 +161,14 @@ bool Response::checkResource()
     {
         std::string t1 = reqResourcePath + matchedRoute.index;
         std::string t2 = reqResourcePath + srv->fileIndex;
-        if (req.getReqLine().getReqTarget().back() != '/')
+        if (req.getReqLine().getReqTarget()[req.getReqLine().getReqTarget().size() - 1] != '/')
         {
             redirectToFolder();
             return true;
         }
         else if (!matchedRoute.index.empty() && fileExists(t1) && access(t1.c_str(), R_OK) == 0)
         {
-            if (reqResourcePath.back() != '/' &&  matchedRoute.index[0] != '/')
+            if (reqResourcePath[reqResourcePath.size() - 1] != '/' &&  matchedRoute.index[0] != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  matchedRoute.index;
             indexed = true;
@@ -176,7 +176,7 @@ bool Response::checkResource()
         }
         else if (!srv->fileIndex.empty() && fileExists(t2) && access(t2.c_str(), R_OK) == 0)
         {
-            if (reqResourcePath.back() != '/' &&  srv->fileIndex[0] != '/')
+            if (reqResourcePath[reqResourcePath.size() - 1] != '/' &&  srv->fileIndex[0] != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  srv->fileIndex;
             indexed = true;
@@ -252,7 +252,7 @@ bool Response::checkCgiResource()
 }
 std::string getContent(std::string fileName)
 {
-    std::ifstream resource(fileName);
+    std::ifstream resource(fileName.c_str());
     if (!resource.is_open())
         throw Server::ServerException("file not found: " + fileName, 404);
     std::stringstream content;
@@ -282,7 +282,7 @@ void Response::get()
         reqResourcePath = resourcePath.str();
         if (isDirectory(reqResourcePath))
         {
-            if (req.getReqLine().getReqTarget().back() != '/')
+            if (req.getReqLine().getReqTarget()[req.getReqLine().getReqTarget().size() - 1] != '/')
             {
 
                 redirectToFolder();
@@ -313,10 +313,10 @@ bool Response::checkIndexed()
 {
     std::stringstream resourcePath;
     resourcePath << reqResourcePath; 
-    if (reqResourcePath.back() != '/')
+    if (reqResourcePath[reqResourcePath.size() - 1] != '/')
         resourcePath << "/";
     resourcePath << "index.html";
-    std::ifstream resource(resourcePath.str());
+    std::ifstream resource(resourcePath.str().c_str());
     if (!resource.is_open())
     {
         return false;
@@ -333,12 +333,12 @@ bool Response::checkUploadRoute()
         // req.save call function to save the body
         std::stringstream resourcePath;
         resourcePath << this->srv->getRoot();
-        if (matchedRoute.root[0] != '/' && resourcePath.str().back() != '/')
+        if (matchedRoute.root[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         {
             resourcePath << "/";
         }
         resourcePath << matchedRoute.root;
-        if (resourcePath.str().back() != '/')
+        if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
             resourcePath << "/";
         req.getReqBody().saveFile(resourcePath.str());
         return true;

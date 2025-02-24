@@ -51,7 +51,8 @@ void cgi::save_env()
     for (std::map<std::string, std::string>::iterator it = params.begin(); it != params.end(); ++it) {
         query_string += it->first + "=" + it->second + "&";
     }
-    query_string.erase(str.size() - 1);
+    if (query_string.size() > 0)
+        query_string.erase(query_string.size() - 1);
     env_map["QUERY_STRING"] = query_string;
 
     //all header
@@ -119,7 +120,7 @@ void cgi::runCgi()
         char **envp = mapToPtr();
         if ((execve(commandpath.c_str(), argv, envp)) < 0)
         {
-            std::cerr << "Exec failed: " << errno << CgiScript << std::endl;
+            std::cerr << "Exec :"<< strerror(errno) << ":" << CgiScript << std::endl;
             exit(-1);
         }
     } 

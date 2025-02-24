@@ -87,6 +87,7 @@ void parseAllowedMethods(std::vector<tokens>::iterator &it, std::vector<tokens>:
 
 std::string setPathUpload(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &end, Server::Config &srv)
 {
+    (void)srv;
     std::string s;
     if (it + 1 != end && (it + 1)->token == equal)
         it++;
@@ -188,8 +189,9 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
-    else
+    else {
         throw std::runtime_error("ConfigFile :Error with syntax");
+    }
 	try{
 
 		while(it != end)
