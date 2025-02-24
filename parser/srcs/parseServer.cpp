@@ -28,6 +28,8 @@ void parseErrorPages(std::vector<tokens>::iterator &it, std::vector<tokens>::ite
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
+    else
+        throw std::runtime_error("ConfigFile :Error with syntax");
     while(it != end && it->token != close_bracket)
     {
         if (it->token == word && isNumeric(it->value))
@@ -106,6 +108,8 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
+    else
+        throw std::runtime_error("Error with syntaxe");
     while (it != end && it->token != close_bracket)
     {
         if (it->token == word && it->value == "path")
@@ -184,6 +188,8 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
     it++;
     if (it != end && (it)->token == equal && it + 1 != end && (it + 1)->token == open_bracket)
         it += 2;
+    else
+        throw std::runtime_error("ConfigFile :Error with syntax");
 	try{
 
 		while(it != end)
@@ -194,9 +200,11 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
 				{
 					it++;
 					if (!isNumeric((++it)->value.c_str()))
-						throw std::runtime_error("ConfigFile :Error with syntax 10");
+						throw std::runtime_error("ConfigFile :Error with syntax");
 					srv.setPort(std::atoi((it)->value.c_str()));
 				}
+                else
+                    throw std::runtime_error("ConfigFile :Error with syntax");
 			}
 			else if (it->token == word && it->value == "index")
 			{
@@ -205,6 +213,8 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
 					it++;
 					srv.setIndex((++it)->value);
 				}
+                else
+                    throw std::runtime_error("ConfigFile :Error with syntax");
 			}
 			else if (it->token == word && it->value == "root")
 			{
@@ -213,6 +223,8 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
 					it++;
 					srv.setRoot((++it)->value);
 				}
+                else
+                    throw std::runtime_error("ConfigFile :Error with syntax");
 			}
 			else if (it->token == word && it->value == "name")
 			{
@@ -221,6 +233,8 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
 					it++;
 					srv.setName((++it)->value);
 				}
+                else
+                    throw std::runtime_error("ConfigFile :Error with syntax");
 			}
 			else if (it->token == word && it->value == "error")
 				parseErrorPages(it, end, srv);
@@ -229,12 +243,17 @@ void parseServer(std::vector<tokens>::iterator &it, std::vector<tokens>::iterato
 			else if (it->token == word && it->value == "body_limit")
 				parseBodyLimit(it, end, srv);
 			else if (it->token == close_bracket)
+            {
+                // std::cout << "yo" << std::endl;
 				break;
+            }
 			else
-				throw std::runtime_error("ConfigFile :Error with syntax 11");
+				throw std::runtime_error("ConfigFile :Error with syntax");
 			if (it != end)
 				it++;
 		}
+        if (srv.routes.size() == 0)
+            throw std::runtime_error("Error : At least one route needed");
 		srv.build();
 	} catch (Server::ServerException &e){
 		for (std::map<int, int>::iterator it = srv.getSockets().begin(); it != srv.getSockets().end(); it++)
