@@ -23,7 +23,6 @@ void initializeMimeTypes() {
     mimeTypes[".jpg"] = "image/jpeg";
     mimeTypes[".jpeg"] = "image/jpeg";
     mimeTypes[".gif"] = "image/gif";
-    mimeTypes[".txt"] = "text/plain";
 }
 std::string getContentType(const std::string& extension) {
     if (mimeTypes.empty()) {
@@ -34,7 +33,7 @@ std::string getContentType(const std::string& extension) {
     if (it != mimeTypes.end()) {
         return it->second;
     }
-    return "application/octet-stream"; // Default MIME type
+    return "text/plain";
 }
 
 void Response::matchRoute()
