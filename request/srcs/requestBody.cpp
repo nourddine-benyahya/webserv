@@ -62,7 +62,7 @@ void requestBody::parsBodyPart(std::string bodyPart)
     std::getline(stream, line);
     line.erase(line.size() - 1);
     line.push_back(';');
-    long unsigned int pos = 0;
+    size_t pos = 0;
     while ((pos = line.find(";")) != std::string::npos)
     {
         std::string tmp = line.substr(0, pos);

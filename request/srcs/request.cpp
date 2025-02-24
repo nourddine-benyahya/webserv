@@ -47,7 +47,7 @@ request::request(const std::string request, Server::Config *server)
 
         // check if Request body larger than client max body size in config file
         if (srv->body_limit != -1 && reqHeader.getHeader().find("Content-Length") != reqHeader.getHeader().end() 
-            && std::stoi(reqHeader.getHeader()["Content-Length"]) > srv->body_limit)
+            && std::atoi(reqHeader.getHeader()["Content-Length"].c_str()) > srv->body_limit)
             throw Server::ServerException("413 Payload Too Large", 413);
 
         // check unsupported media type
