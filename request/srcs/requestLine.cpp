@@ -16,7 +16,7 @@ std::string urlDecode(std::string &url)
 {
     std::string decodedString;
 
-    int i = 0;
+    size_t i = 0;
     while (i < url.length())
     {
         if (url[i] == '%' && isValidPercentEncoding(url, i))
