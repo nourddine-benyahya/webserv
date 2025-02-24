@@ -200,7 +200,6 @@ void ServerMonitor::handleError(int sock, int bytes_read, std::map<int, ServerAn
 		Logger(tmpSockets[sock].srv, Logger::WARNING, ss.str());
 	}
 	else{
-		//! DONT FORGET TO REMOVE ERRNO
 		Logger(tmpSockets[sock].srv, Logger::ERROR, "Recv Error");
 		Logger(tmpSockets[sock].srv, Logger::ERROR, strerror(errno)); 
 	}
