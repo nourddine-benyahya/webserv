@@ -40,8 +40,6 @@ void Response::matchRoute()
 {
     foundRoute = false;
     std::map<std::string , Route>::iterator it = srv->routes.begin();
-    // if (it ==  srv->routes.end())
-    //     std::cout << "empty" << std::endl;
     it = srv->routes.find(req.getReqLine().getReqTarget());
     if (it != srv->routes.end())
     {
@@ -79,6 +77,10 @@ Response::Response(request r, Server::Config *server)
         else if (req.getReqLine().getMethod() == DELETE)
         {
             Delete();
+        }
+        else
+        {
+            throw Server::ServerException("Method not allowed", 405);
         }
     }
     catch (Server::ServerException &e) {
@@ -142,43 +144,22 @@ bool checkExistence(std::string &path)
         return false;
     return true;
 }
+bool fileExists(const std::string& path) {
+    struct stat buffer;
+    return (stat(path.c_str(), &buffer) == 0);
+}
+
+void checkRPerm(std::string &path)
+{
+    if (access(path.c_str(), R_OK) != 0)
+            throw Server::ServerException("Iternal Server Error", 500);
+}
 bool Response::checkResource()
 {
 
     std::stringstream resourcePath;
     checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
     reqResourcePath = resourcePath.str();
-    // if (isDirectory(reqResourcePath) && matchedRoute.index.empty() && srv->fileIndex.empty())
-    //     checkIndexed();
-    // if (matchedRoute.path == "/" && isDirectory(reqResourcePath))
-    // {
-    //     if ( req.getReqLine().getReqTarget().back() != '/')
-    //     {
-    //         redirectToFolder();
-    //         return true;
-    //     }
-    //     else if (req.getReqLine().getMethod() == GET && matchedRoute.index.empty() &&  srv->fileIndex.empty() && matchedRoute.list_dirs)
-    //     {
-    //         header = "HTTP/1.1 200 OK\r\nContent-Length: ";
-    //         body = listDir(reqResourcePath);
-    //         std::stringstream lengthStr;
-    //         lengthStr << body.length();
-    //         response = header + lengthStr.str() + "\r\n\r\n" + body;
-    //         return true;
-    //     }
-    //     else if (matchedRoute.index.empty())
-    //     {
-    //         reqResourcePath +=  srv->fileIndex;
-    //         indexed = true;
-    //     }
-    //     else
-    //     {
-    //         reqResourcePath +=  matchedRoute.index;
-    //         indexed = true;
-    //     }
-    //     checkFile(reqResourcePath);
-    // }
-    // std::cout << "REQ " << reqResourcePath << std::endl;
     if (isDirectory(reqResourcePath))
     {
         std::string t1 = reqResourcePath + matchedRoute.index;
@@ -188,7 +169,7 @@ bool Response::checkResource()
             redirectToFolder();
             return true;
         }
-        else if (!matchedRoute.index.empty() && checkExistence(t1))
+        else if (!matchedRoute.index.empty() && fileExists(t1) && access(t1.c_str(), R_OK) == 0)
         {
             if (reqResourcePath.back() != '/' &&  matchedRoute.index.front() != '/')
                 reqResourcePath += "/";
@@ -196,7 +177,7 @@ bool Response::checkResource()
             indexed = true;
             checkFile(reqResourcePath);
         }
-        else if (!srv->fileIndex.empty() && checkExistence(t2))
+        else if (!srv->fileIndex.empty() && fileExists(t2) && access(t2.c_str(), R_OK) == 0)
         {
             if (reqResourcePath.back() != '/' &&  srv->fileIndex.front() != '/')
                 reqResourcePath += "/";
@@ -220,13 +201,14 @@ bool Response::checkResource()
             throw Server::ServerException("forbidden", 403);
         }
     }
-    else if (!isDirectory(reqResourcePath))
+    if (fileExists(reqResourcePath))
     {
-        checkFile(reqResourcePath);
+        checkRPerm(reqResourcePath);
     }
+    else
+        throw Server::ServerException("file not found", 404);
     return false;
 }
-
 void Response::DeletecheckResource()
 {
     std::stringstream resourcePath;
@@ -236,23 +218,24 @@ void Response::DeletecheckResource()
     {
         std::string tmp = reqResourcePath + matchedRoute.index;
         std::string tmp2 = reqResourcePath + srv->fileIndex;
-        if (!matchedRoute.index.empty())
+        if (!matchedRoute.index.empty() && fileExists(tmp))
         {
-            if (checkExistence(tmp))
-            {
-                reqResourcePath +=  matchedRoute.index;
-                indexed = true;
-            }
+            reqResourcePath +=  matchedRoute.index;
+            indexed = true;
         }
-        else if (!srv->fileIndex.empty() && checkExistence(tmp2))
+        else if (!srv->fileIndex.empty() && fileExists(tmp2))
         {
             reqResourcePath +=  srv->fileIndex;
             indexed = true;
         }
     }
+    if (fileExists(reqResourcePath))
+    {
+        if (access(reqResourcePath.c_str(), R_OK) != 0)
+            throw Server::ServerException("Iternal Server Error", 500);
+    }
     else
-        checkFile(reqResourcePath);
-
+        throw Server::ServerException("file not found", 404);
 }
 
 bool Response::checkCgiResource()
@@ -294,6 +277,7 @@ void Response::get()
     // std::cout << "SHITTY REQUEST" << req.getReqLine().getReqTarget() << std::endl;
     if (foundRoute == false)
     {
+        // std::cout << "FALSE" << std::endl;
         std::stringstream resourcePath;
         checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
         reqResourcePath = resourcePath.str();
@@ -310,7 +294,6 @@ void Response::get()
     }
     else if (foundRoute)
     {
-        // std::cout << "FOUND THE FUCK ROUTE"  << std::endl;
         if (find(matchedRoute.allowedMethods.begin(), matchedRoute.allowedMethods.end(), "GET") == matchedRoute.allowedMethods.end())
             throw Server::ServerException("Method not allowed", 405);
         if (checkResource())
@@ -324,8 +307,6 @@ void Response::get()
         std::stringstream lengthStr;
         lengthStr << body.length();
         response = header + lengthStr.str() + "\r\n\r\n" + body;
-
-        // std::cout  << "req " << req.getReqLine().getReqTarget() << " length :" << lengthStr.str()  << std::endl;
     }
 }
 
@@ -345,7 +326,6 @@ bool Response::checkIndexed()
 
     resource.close();
     return true;
-    // checkFile(reqResourcePath);
 }
 bool Response::checkUploadRoute()
 {
@@ -412,6 +392,7 @@ void Response::Delete()
 {
     if (foundRoute == false)
     {
+        std::cout << "YO ?" << std::endl;
         throw Server::ServerException("404 not found", 404);
     }
     else if (foundRoute)
