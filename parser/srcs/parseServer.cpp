@@ -61,7 +61,7 @@ void parseCgi(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator &
             throw std::runtime_error("ConfigFile :Error with syntax 5");
         if (route.cgis.find(v[0]) != route.cgis.end())
             throw std::runtime_error("ConfigFile :duplicated values in cgi");
-        if (v[0].front() != '.' && v[0].size() > 1)
+        if (v[0][0] != '.' && v[0].size() > 1)
             throw std::runtime_error("error in cgi extension");
         route.cgis[v[0]] = v[1];
         it++;
@@ -115,7 +115,7 @@ void parseRoute(std::vector<tokens>::iterator &it, std::vector<tokens>::iterator
         if (it->token == word && it->value == "path")
         {
             route.path = setPathUpload(it, end, srv);
-            if (route.path.empty() || route.path.front() != '/')
+            if (route.path.empty() || route.path[0] != '/')
                 throw std::runtime_error("error with the path route in config file " + route.path);
         }
         else if (it->token == word && it->value == "upload")

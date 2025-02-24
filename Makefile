@@ -9,11 +9,13 @@ NAME= webserv
 
 CC= c++
 
-INCLUDES=   server	Logger	CGI/includes \
+INCLUDES_FOLDERS=   server	Logger	CGI/includes \
 			request/includes	parser/includes \
 			response/includes
 
-CFLAGS=   $(foreach d, $(INCLUDES), -I $d) 
+INCLUDES=   $(foreach d, $(INCLUDES_FOLDERS), -I $d)
+
+CFLAGS= -Wall -Wextra -Werror --std=c++98
 
 all: $(NAME) phpInit
 	
@@ -24,11 +26,11 @@ phpInit:
 	@export PHPRC=~/my-php-config
 
 $(NAME): $(OBJ)
-	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -fsanitize=address -g
+	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 	@echo "Server Created ./"$(NAME)
 
 %.o: %.cpp
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 	@echo "Object file created for:" $<
 
 clean:

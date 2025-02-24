@@ -111,11 +111,11 @@ bool isDirectory(const std::string &path) {
 void checkSlash(std::stringstream &resourcePath, std::string root, std::string &routeRoot, std::string &path)
 {
     resourcePath << root;
-    if (!routeRoot.empty() && routeRoot.front() != '/' && resourcePath.str().back() != '/')
+    if (!routeRoot.empty() && routeRoot[0] != '/' && resourcePath.str().back() != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
-    // std::cout << "BEFORE : " << resourcePath.str() << " " << path.front() << std::endl;
-    if (!path.empty() && path.front() != '/' && resourcePath.str().back() != '/')
+    // std::cout << "BEFORE : " << resourcePath.str() << " " << path[0] << std::endl;
+    if (!path.empty() && path[0] != '/' && resourcePath.str().back() != '/')
         resourcePath << "/";
     // std::cout << "AFTER : " << resourcePath.str() << std::endl;
     if (resourcePath.str().back() == '/' && path == "/")
@@ -168,7 +168,7 @@ bool Response::checkResource()
         }
         else if (!matchedRoute.index.empty() && fileExists(t1) && access(t1.c_str(), R_OK) == 0)
         {
-            if (reqResourcePath.back() != '/' &&  matchedRoute.index.front() != '/')
+            if (reqResourcePath.back() != '/' &&  matchedRoute.index[0] != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  matchedRoute.index;
             indexed = true;
@@ -176,7 +176,7 @@ bool Response::checkResource()
         }
         else if (!srv->fileIndex.empty() && fileExists(t2) && access(t2.c_str(), R_OK) == 0)
         {
-            if (reqResourcePath.back() != '/' &&  srv->fileIndex.front() != '/')
+            if (reqResourcePath.back() != '/' &&  srv->fileIndex[0] != '/')
                 reqResourcePath += "/";
             reqResourcePath +=  srv->fileIndex;
             indexed = true;
@@ -333,7 +333,7 @@ bool Response::checkUploadRoute()
         // req.save call function to save the body
         std::stringstream resourcePath;
         resourcePath << this->srv->getRoot();
-        if (matchedRoute.root.front() != '/' && resourcePath.str().back() != '/')
+        if (matchedRoute.root[0] != '/' && resourcePath.str().back() != '/')
         {
             resourcePath << "/";
         }
