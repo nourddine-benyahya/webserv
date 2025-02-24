@@ -57,9 +57,7 @@ Response::Response(request r, Server::Config *server)
     req = r;
     srv = server;
     indexed = false;
-    // std::cout << "SHITTY REQUEST :" << req.getReqLine().getReqTarget() << "}"<< std::endl;
     matchRoute();
-    // std::cout << "SHITTY ROUTE !!!!!!!!! :" << matchedRoute.path << std::endl;
     try
     {
         if (checkRedir() == true)
@@ -135,7 +133,6 @@ void Response::redirectToFolder()
     resourcePath << req.getReqLine().getReqTarget() << "/\r\n";
     resourcePath << "Content-Length: 0\r\n\r\n";
     response = resourcePath.str();
-    // std::cout << "response :" << response << std::endl;
 }
 bool checkExistence(std::string &path)
 {
@@ -278,10 +275,8 @@ bool Response::checkRedir()
 }
 void Response::get()
 {
-    // std::cout << "SHITTY REQUEST" << req.getReqLine().getReqTarget() << std::endl;
     if (foundRoute == false)
     {
-        // std::cout << "FALSE" << std::endl;
         std::stringstream resourcePath;
         checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
         reqResourcePath = resourcePath.str();

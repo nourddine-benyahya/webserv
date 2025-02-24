@@ -18,9 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         } else {
             setcookie('user_color', '', time() - 3600, "/"); // Remove cookie
         }
-    }
-    //refresh the page to apply the changes
-    header("Location: /");
+    };
 }
 ?>
 
@@ -349,7 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <div class="team-section" >
             <!-- Team Member 1 -->
             <div class="member-card reveal">
-                <img src="../assets/nbenyahy.jpg" alt="Nourddine Benyahya" class="member-img">
+                <img src="./assets/nbenyahy.jpg" alt="Nourddine Benyahya" class="member-img">
                 <h3>Nourddine Benyahya</h3>
                 <div class="links">
                     <a href="[Github URL]" target="_blank" aria-label="GitHub">
@@ -366,7 +364,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <!-- Repeat for other members -->
             <!-- Team Member 1 -->
             <div class="member-card reveal">
-                <img src="../assets/amejdoub.jpeg" alt="Anas Mejdoub" class="member-img">
+                <img src="./assets/amejdoub.jpg" alt="Anas Mejdoub" class="member-img">
                 <h3>Anas Mejdoub</h3>
                 <div class="links">
                     <a href="[Github URL]" target="_blank" aria-label="GitHub">
@@ -382,13 +380,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             </div>
             <!-- Team Member 1 -->
             <div class="member-card reveal">
-                <img src="../assets/abounab.jpeg" alt="Abdellah Bounab" class="member-img">
+                <img src="./assets/abounab.jpg" alt="Abdellah Bounab" class="member-img">
                 <h3>Abdellah Bounab</h3>
                 <div class="links">
                     <a href="[Github URL]" target="_blank" aria-label="GitHub">
                         <i class="fab fa-github"></i>
                     </a>
-                    <a href="[LinkedIn URL]" target="_blank" aria-label="LinkedIn">
+                    <a href="https://www.linkedin.com/in/abdellah-bounab" target="_blank" aria-label="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                     </a>
                     <a href="[42 Intra URL]" target="_blank" aria-label="42 Intra">
@@ -446,19 +444,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <h2 class="section-title reveal"  id="config">Configuration Example</h2>
         <div class="code-section reveal">
             <pre>
-    server {
-        listen 8080;
-        server_name localhost;
-        
-        location / {
-            root /var/www/html;
-            index index.html;
-            allowed_methods GET POST;
-        }
-        
-        cgi .php /usr/bin/php;
-        client_max_body_size 100M;
-    }
+            server : {
+                port : 81,
+                name : localhost,
+                root : html,
+                error : {
+                    404 : 404.html,
+                    500 : 500.html,
+                },
+                route : {
+                    path :  /index.php,
+                    allowed_mthods : {
+                    POST,
+                    GET,
+                    },
+                    has_cgi : yes,
+                    cgi : {
+                        .php=cgi-bin/php-cgi,
+                        .py=/usr/local/bin/python3,
+                    },
+                    index : test.html,
+                    },
+                }
                 </pre>
             </div>
 
