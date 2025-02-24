@@ -200,7 +200,6 @@ void ServerMonitor::handleError(int sock, int bytes_read, std::map<int, ServerAn
 		Logger(tmpSockets[sock].srv, Logger::WARNING, ss.str());
 	}
 	else{
-		//! DONT FORGET TO REMOVE ERRNO
 		Logger(tmpSockets[sock].srv, Logger::ERROR, "Recv Error");
 		Logger(tmpSockets[sock].srv, Logger::ERROR, strerror(errno)); 
 	}
@@ -247,7 +246,7 @@ void ServerMonitor::run()
 		read_set = write_set = master_set;
 		if (select(maxFds + 1, &read_set, &write_set, NULL, NULL) < 0)
 			throw ServerMonitorException("Select error");
-		for (int i = 3; i <= maxFds; ++i) {
+		for (int i = 0; i <= maxFds; ++i) {
 			if (FD_ISSET(i, &read_set)) {
 				if (sockets.find(i) != sockets.end()) {
 					try {
@@ -260,7 +259,6 @@ void ServerMonitor::run()
 				else {
 					std::string buffer;
 					int	bytes_read = returnRecvBuffer(i, buffer) ;
-
 					if (bytes_read > 0)
 						fillRecvBuffer(tmpSockets[i], buffer);
 					if (bytes_read <= 0)
