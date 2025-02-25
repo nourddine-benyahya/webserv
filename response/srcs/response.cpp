@@ -51,7 +51,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    std::cout << "matched route :" << matchedRoute.path << std::endl;
+    // std::cout << "matched route :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -340,6 +340,8 @@ bool Response::checkUploadRoute()
         if (resourcePath.str()[resourcePath.str().size() - 1] != '/' &&  req.getReqLine().getReqTarget()[0] != '/')
             resourcePath << "/";
         resourcePath << req.getReqLine().getReqTarget();
+        if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
+            resourcePath << "/";
         req.getReqBody().saveFile(resourcePath.str());
         return true;
     }
@@ -359,7 +361,7 @@ void Response::post()
         }
         if (checkUploadRoute())
         {
-            std::cout << "HERE" << std::endl;
+            // std::cout << "HERE" << std::endl;
             header = "HTTP/1.1 201 Created\r\nContent-Type: text/html\r\nContent-Length: ";
             body = "content created";
             std::stringstream lengthStr;
