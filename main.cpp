@@ -3,7 +3,7 @@
 
 void ls()
 {
-	system("leaks server");
+	system("leaks webserv");
 }
 
 int main(int ac, char **av)
