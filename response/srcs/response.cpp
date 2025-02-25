@@ -114,10 +114,8 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
     if (!routeRoot.empty() && routeRoot[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
-    // std::cout << "BEFORE : " << resourcePath.str() << " " << path[0] << std::endl;
     if (!path.empty() && path[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
-    // std::cout << "AFTER : " << resourcePath.str() << std::endl;
     if (resourcePath.str()[resourcePath.str().size() - 1] == '/' && path == "/")
         return ;
     resourcePath << path;
