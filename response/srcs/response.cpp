@@ -342,7 +342,13 @@ bool Response::checkUploadRoute()
         resourcePath << req.getReqLine().getReqTarget();
         if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
             resourcePath << "/";
-        req.getReqBody().saveFile(resourcePath.str());
+        std::cout << resourcePath.str() << std::endl;
+        if (fileExists(resourcePath.str()))
+        {
+            req.getReqBody().saveFile(resourcePath.str());
+        }
+        else
+            throw Server::ServerException("file not found", 404);
         return true;
     }
     return false;
