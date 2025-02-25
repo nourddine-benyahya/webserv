@@ -51,6 +51,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
+    std::cout << "matched route :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -336,8 +337,9 @@ bool Response::checkUploadRoute()
             resourcePath << "/";
         }
         resourcePath << matchedRoute.root;
-        if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
+        if (resourcePath.str()[resourcePath.str().size() - 1] != '/' &&  req.getReqLine().getReqTarget()[0] != '/')
             resourcePath << "/";
+        resourcePath << req.getReqLine().getReqTarget();
         req.getReqBody().saveFile(resourcePath.str());
         return true;
     }
@@ -355,9 +357,9 @@ void Response::post()
         {
             throw Server::ServerException("Method not allowed ", 405);
         }
-        checkResource();
         if (checkUploadRoute())
         {
+            std::cout << "HERE" << std::endl;
             header = "HTTP/1.1 201 Created\r\nContent-Type: text/html\r\nContent-Length: ";
             body = "content created";
             std::stringstream lengthStr;
@@ -365,6 +367,7 @@ void Response::post()
             response = header + lengthStr.str() + "\r\n\r\n" + body;
             return ;
         }
+        checkResource();
         if (checkCgiResource())
             return;
         throw Server::ServerException("forbidden", 403); 
