@@ -343,10 +343,10 @@ bool Response::checkUploadRoute()
         if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
             resourcePath << "/";
         std::cout << resourcePath.str() << std::endl;
-        if (fileExists(resourcePath.str()))
-        {
+        if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) == 0)
             req.getReqBody().saveFile(resourcePath.str());
-        }
+        else if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) != 0)
+            throw Server::ServerException("Iternal server error", 500);
         else
             throw Server::ServerException("file not found", 404);
         return true;
