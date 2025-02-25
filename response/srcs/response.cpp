@@ -203,7 +203,7 @@ bool Response::checkResource()
         checkRPerm(reqResourcePath);
     }
     else
-        throw Server::ServerException("file not found", 404);
+        throw Server::ServerException("file not found:" + reqResourcePath, 404);
     return false;
 }
 void Response::DeletecheckResource()
@@ -232,7 +232,7 @@ void Response::DeletecheckResource()
             throw Server::ServerException("Iternal Server Error", 500);
     }
     else
-        throw Server::ServerException("file not found", 404);
+        throw Server::ServerException("file not found: " + reqResourcePath, 404);
 }
 
 bool Response::checkCgiResource()
