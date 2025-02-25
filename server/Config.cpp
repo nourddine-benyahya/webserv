@@ -63,7 +63,7 @@ void Server::Config::create_sock()
 		close(server_fd);
 		throw Server::ServerException("Bind: Address already in use");
 	}
-	if (listen(server_fd, 10) < 0)
+	if (listen(server_fd, 250) < 0)
 	{
 		close(server_fd);
 		throw Server::ServerException("Listen error");
