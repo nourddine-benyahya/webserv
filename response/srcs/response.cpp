@@ -366,7 +366,6 @@ bool Response::checkUploadRoute()
         resourcePath << matchedRoute.root;
         if (resourcePath.str()[resourcePath.str().size() - 1] != '/' &&  req.getReqLine().getReqTarget()[0] != '/')
             resourcePath << "/";
-        // i
         if (checkDirUrl(resourcePath.str(), req.getReqLine().getReqTarget()))
         {
             resourcePath << req.getReqLine().getReqTarget();
@@ -426,7 +425,6 @@ void Response::post()
         throw Server::ServerException("forbidden", 403); 
     }
 }
-#include <unistd.h>
 
 int Response::deleteContent()
 {
@@ -443,6 +441,18 @@ int Response::deleteContent()
 
 void Response::Delete()
 {
+    std::stringstream resourcePath;
+    checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
+    reqResourcePath = resourcePath.str();
+    if (isDirectory(reqResourcePath))
+    {
+        if (req.getReqLine().getReqTarget()[req.getReqLine().getReqTarget().size() - 1] != '/')
+        {
+
+            redirectToFolder();
+            return ;
+        }
+    }
     if (foundRoute == false)
     {
         throw Server::ServerException("404 not found", 404);
@@ -468,6 +478,7 @@ void Response::Delete()
         throw Server::ServerException("Internal Server Error", 500); 
     }
 }
+
 std::string Response::listDir(std::string path) {
     DIR* dir;
     struct dirent* entry;
