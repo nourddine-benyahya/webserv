@@ -9,6 +9,7 @@ void requestBody::saveFile(const std::string& filePath)
         if (it->type == OCTET_STREAM || it->formFields.find("filename") != it->formFields.end())
         {
             it->filePath = filePath + it->formFields["filename"];
+            // std::cout << "file path: " << it->filePath << std::endl;
             std::ofstream outFile(it->filePath.c_str() , std::ios::binary);
             if (outFile)
             {

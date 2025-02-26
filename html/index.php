@@ -56,282 +56,28 @@ if (isset($_FILES['file'])) {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebServ - 42 School Project</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #6C5CE7;
-            --secondary: #00B894;
-            --dark: #2D3436;
-            --light: #F8F9FA;
-            --accent: #FF7675;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WebServ - 42 School Project</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Fira Code', monospace;
-        }
-
-        body {
-            background: linear-gradient(135deg, var(--dark) 0%, #1E1E1E 100%);
-            color: var(--light);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .title {
-            text-align: center;
-            font-size: clamp(2.5rem, 5vw, 3.5rem);
-            margin: 2rem 0;
-            position: relative;
-            color: var(--light);
-        }
-
-        .title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            animation: titleUnderline 3s ease-in-out infinite;
-        }
-
-        @keyframes titleUnderline {
-            0%, 100% { opacity: 0.5; width: 200px; }
-            50% { opacity: 1; width: 300px; }
-        }
-
-        .team-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-        }
-
-        .member-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .member-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .member-img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 1rem auto;
-            border: 3px solid var(--primary);
-            transition: all 0.3s ease;
-            filter: grayscale(20%);
-        }
-
-        .member-card:hover .member-img {
-            border-color: var(--secondary);
-            filter: grayscale(0%);
-            transform: scale(1.05);
-        }
-
-        .links {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin: 1.5rem 0;
-        }
-
-        .links a {
-            color: var(--light);
-            text-decoration: none;
-            padding: 0.8rem;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .links a:hover {
-            color: var(--secondary);
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-3px);
-        }
-
-        .features-section {
-            background: linear-gradient(145deg, rgba(108, 92, 231, 0.1), rgba(0, 184, 148, 0.1));
-            padding: 2rem;
-            border-radius: 15px;
-            margin: 3rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .test-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 1.2rem;
-            margin: 2.5rem 0;
-        }
-
-        .test-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            padding: 1rem 1.5rem;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 500;
-            letter-spacing: 0.5px;
-        }
-
-        .test-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
-        }
-
-        .code-section {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin: 2rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        pre {
-            font-family: 'Fira Code', monospace;
-            color: var(--secondary);
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
-
-        .upload-form {
-            display: none;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin-top: 1rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            .team-section {
-                grid-template-columns: 1fr;
-            }
-
-            .member-card {
-                margin: 0 0.5rem;
-            }
-
-            .test-buttons {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Scroll Animation */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease;
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 2rem;
-            margin-top: auto;
-            background: rgba(0, 0, 0, 0);
-        }
-
-        /* Custom Icons */
-        .fa-42::before {
-            content: "42";
-            font-family: 'Fira Code', monospace;
-            font-weight: bold;
-        }
-    </style>
-        <!-- Keep existing head content -->
-        <style>
-        /* Add to existing styles */
-        .user-info {
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
-        }
-
-        .color-preview {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-
-        .preference-modal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 2rem;
-            border-radius: 15px;
-            z-index: 1001;
-        }
-    </style>
-</head>
 <body>
-<?php if (isset($_SESSION['user_name'])): ?>
-        <div class="user-info reveal">
-            Welcome, <?php echo $_SESSION['user_name']; ?>
-            <?php if (isset($_COOKIE['user_color'])): ?>
-                <div class="color-preview" style="background: <?php echo $_COOKIE['user_color']; ?>"></div>
-            <?php endif; ?>
-        </div>
+    <?php if (isset($_SESSION['user_name'])): ?>
+            <div class="user-info reveal">
+                Welcome, <?php echo $_SESSION['user_name']; ?>
+                <?php if (isset($_COOKIE['user_color'])): ?>
+                    <div class="color-preview" style="background: <?php echo $_COOKIE['user_color']; ?>"></div>
+                <?php endif; ?>
+            </div>
     <?php endif; ?>
 
     <!-- Add preference modal -->
-    <div id="preferenceModal" class="preference-modal">
+    <div id="preferenceModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
         <form method="POST">
             <h3>Set Preferences</h3>
             <div style="margin: 1rem 0;">
@@ -347,11 +93,14 @@ if (isset($_FILES['file'])) {
             <input type="hidden" name="action" value="set_preferences">
             <button type="submit" class="test-btn">Save Preferences</button>
         </form>
+        </div>
     </div>
 
     <!-- Add these modals -->
-    <div id="cgiModal" class="preference-modal">
-        <form id="cgiForm" action="/page.php" method="POST" enctype="multipart/form-data">
+    <div id="cgiModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <form id="cgiForm" action="/page.py" method="POST" enctype="multipart/form-data">
             <h3>Enter CGI Data</h3>
             <div style="margin: 1rem 0;">
                 <label>Name:</label>
@@ -371,9 +120,12 @@ if (isset($_FILES['file'])) {
             </div>
             <button type="submit" class="test-btn">Submit</button>
         </form>
+        </div>
     </div>
 
-    <div id="deleteModal" class="preference-modal">
+    <div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
         <form id="deleteForm">
             <h3>Delete Item</h3>
             <div style="margin: 1rem 0;">
@@ -382,14 +134,13 @@ if (isset($_FILES['file'])) {
             </div>
             <button type="submit" class="test-btn">Delete</button>
         </form>
+        </div>
 </div>
 
-<!-- <div id="uploadModal" class="preference-modal"> -->
 <div>
-            </br>
-            </br>
-            </br>
-            </br>
+    <div id="uploadModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
         <form id="uploadForm" action="/uploads" method="POST" enctype="multipart/form-data">
             <h3>upload Item</h3>
             <div style="margin: 1rem 0;">
@@ -398,6 +149,8 @@ if (isset($_FILES['file'])) {
             </div>
             <button type="submit" class="test-btn">Delete</button>
         </form>
+        </div>
+    </div>
 </div>
 
     <!-- Add this navigation header -->
@@ -500,7 +253,7 @@ if (isset($_FILES['file'])) {
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('GET')">GET</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('POST')">POST using UPLOAD</button>
+                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('UPLOAD')">POST using UPLOAD</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testCGI()">POST using CGI</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
@@ -546,331 +299,6 @@ if (isset($_FILES['file'])) {
                 <p>📍 42 Network - 2023</p>
             </footer>
     </div>
-    <style>
-        /* Add header styles */
-        .main-header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            /* border-top-left-radius: 10%; */
-            background: rgba(25, 25, 25, 0.426);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            padding: 1rem 0;
-            transition: all 0.3s ease;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            padding: 0 2rem;
-        }
-
-        .nav-link {
-            color: var(--light);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-link:hover {
-            color: var(--secondary);
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-            left: 0;
-        }
-
-        .nav-link.active {
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        /* Add padding to container to account for fixed header */
-        .container {
-            padding-top: 6rem;
-        }
-
-        @media (max-width: 768px) {
-            .nav-container {
-                gap: 1rem;
-                padding: 0 1rem;
-                flex-wrap: wrap;
-            }
-            
-            .container {
-                padding-top: 8rem;
-            }
-        }
-    </style>
-        <script>
-            // Add smooth scroll and active link logic
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetSection = document.querySelector(targetId);
-                    
-                    targetSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-    
-                    // Update active class
-                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-    
-            // Add scroll spy to update active link
-            const sections = document.querySelectorAll('[id]');
-            const options = {
-                threshold: 0.5
-            };
-    
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if(entry.isIntersecting) {
-                        document.querySelectorAll('.nav-link').forEach(link => {
-                            link.classList.remove('active');
-                            if(link.getAttribute('href') === `#${entry.target.id}`) {
-                                link.classList.add('active');
-                            }
-                        });
-                    }
-                });
-            }, options);
-    
-            sections.forEach(section => observer.observe(section));
-        </script>
-    <style>
-        /* Add these new styles */
-        .section-title {
-            font-size: 2.2rem;
-            margin: 2rem 0 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--primary);
-            position: relative;
-            color: var(--secondary);
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100px;
-            height: 2px;
-            background: var(--secondary);
-        }
-
-        .project-description {
-            text-align: center;
-            margin: 2rem auto;
-            max-width: 800px;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-        }
-
-        .project-description p {
-            margin: 1rem 0;
-            font-size: 1.1rem;
-            line-height: 1.8;
-        }
-
-        .github-repo {
-            margin-top: 1.5rem;
-        }
-
-        .repo-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem 1.5rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 8px;
-            color: var(--light);
-            text-decoration: none;
-            transition: transform 0.3s ease;
-        }
-
-        .repo-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
-        }
-
-        @media (max-width: 768px) {
-            .section-title {
-                font-size: 1.8rem;
-            }
-            
-            .project-description {
-                padding: 1.5rem;
-            }
-        }
-    </style>
-
-
-<script>
-    // Scroll Reveal Animation
-    const revealElements = document.querySelectorAll('.reveal');
-    const revealOptions = {
-        threshold: 0.5
-    };
-
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
-        });
-    }, revealOptions);
-
-    revealElements.forEach(element => {
-        revealObserver.observe(element);
-    });
-
-    // Mobile Menu Toggle (Add if needed)
-    // Smooth Scroll
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
-    });
-</script>
-<script>
-        // Add preference modal handling
-        function showPreferences() {
-            const modal = document.getElementById('preferenceModal');
-            modal.style.display = 'block';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('preferenceModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
-
-<script>
-// Modified test functions
-function testMethod(method) {
-    switch(method) {
-        case 'GET':
-            window.location.href = 'get_page.html';
-            break;
-            
-        case 'DELETE':
-            showDeleteModal();
-            break;
-    }
-}
-
-function testCGI() {
-    showCGIModal();
-}
-
-// New modal handling functions
-function showCGIModal() {
-    const modal = document.getElementById('cgiModal');
-    modal.style.display = 'block';
-}
-
-function showDeleteModal() {
-    const modal = document.getElementById('deleteModal');
-    modal.style.display = 'block';
-}
-
-// // CGI Form handling
-// document.getElementById('cgiForm').addEventListener('submit', async (e) => {
-//     e.preventDefault();
-//     const formData = new FormData(e.target);
-    
-//     try {
-//         const response = await fetch('cgi_page.php', {
-//             method: 'POST',
-//             body: JSON.stringify(Object.fromEntries(formData)),
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-        
-//         const data = await response.json();
-//         alert(`CGI Response: ${data.message}\nData: ${JSON.stringify(data.data)}`);
-//         document.getElementById('cgiModal').style.display = 'none';
-//     } catch (error) {
-//         alert('Error submitting CGI data');
-//     }
-// });
-
-// Delete Form handling
-document.getElementById('deleteForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const itemName = formData.get('item_name');
-    
-    try {
-        const response = await fetch(`${encodeURIComponent(itemName)}`, {
-            method: 'DELETE'
-        });
-        
-        if (response.ok) {
-            alert(`Item "${itemName}" deleted successfully`);
-        } else {
-            alert('Delete request failed');
-        }
-        document.getElementById('deleteModal').style.display = 'none';
-    } catch (error) {
-        alert('Error making delete request');
-    }
-});
-
-// File upload handling
-// document.getElementById('upload-form').addEventListener('submit', async (e) => {
-//     e.preventDefault();
-//     const formData = new FormData(e.target);
-    
-//     try {
-//         const response = await fetch('upload_handler.php', {
-//             method: 'POST',
-//             body: formData
-//         });
-        
-//         const data = await response.json();
-//         if (data.status === 'success') {
-//             alert('File uploaded successfully!');
-//         } else {
-//             alert('File upload failed: ' + data.message);
-//         }
-//         e.target.reset();
-//         e.target.style.display = 'none';
-//     } catch (error) {
-//         alert('Error uploading file');
-//     }
-// });
-</script>
+    <script src="script.js"></script>
 </body>
 </html>

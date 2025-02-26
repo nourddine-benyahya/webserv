@@ -1,4 +1,7 @@
 #include "cgi.hpp"
+#include <unistd.h>
+#include <fcntl.h>
+#include <cstdlib>  
 
 void cgi::saveCgiEnv()
 {
@@ -85,72 +88,90 @@ char **cgi::mapToPtr()
 
 void cgi::runCgi()
 {
+    int fd = -1;
     std::string ext = CgiScript.substr(CgiScript.rfind("."));
-
     if (cgiEnv.find(ext) == cgiEnv.end()) 
         throw Server::ServerException("500 CGI interpreter not set for " + ext, 500);
 
     std::string commandpath = cgiEnv[ext];
-
     if (!fileExists(commandpath.c_str()))
         throw Server::ServerException("500 cgi interpreter " + commandpath + " not correct for " + ext, 500);
 
-    char *const argv[] = {(char *)commandpath.c_str()  ,(char *)CgiScript.c_str(), NULL};
+    char *const argv[] = {(char *)commandpath.c_str(), (char *)CgiScript.c_str(), NULL};
 
-    int stdout_pipe[2], stdin_pipe[2];
-    if (pipe(stdout_pipe) == -1 || pipe(stdin_pipe) == -1)
+    
+    if (req.getReqHeader().getHeader().find("Content-Length") != req.getReqHeader().getHeader().end())
+    {
+        fd = open("tmp", O_CREAT | O_RDWR | O_TRUNC, 0666);
+        if (fd == -1)
+            throw Server::ServerException("500 error while opening tmp file", 500);
+        if (fd == -1)
+            throw Server::ServerException("500 error while opening tmp file", 500);
+        const std::string &bodydata = req.getReqBody().getFullBody();
+            ssize_t written = write(fd, bodydata.c_str(), bodydata.size());
+        if (written == -1)
+            throw Server::ServerException("500 error while writing in file", 500);
+        close(fd);
+        fd = open("tmp", O_RDONLY);
+        if (fd == -1)
+            throw Server::ServerException("500 error while opening tmp file", 500);
+    }
+
+    int stdout_pipe[2];
+    if (pipe(stdout_pipe) == -1)
         throw Server::ServerException("500 error while piping", 500);
-
 
     pid_t pid = fork();
     if (pid < 0)
         throw Server::ServerException("500 error while forking", 500);
 
-
     if (pid == 0) { 
-        close(stdin_pipe[1]); 
-        dup2(stdin_pipe[0], STDIN_FILENO);
-        close(stdin_pipe[0]);
+        if (fd != -1)
+        {
+            dup2(fd, STDIN_FILENO);
+            close(fd);
+        }
 
-        close(stdout_pipe[0]);
         dup2(stdout_pipe[1], STDOUT_FILENO);
+        close(stdout_pipe[0]);
         close(stdout_pipe[1]);
-
 
         char **envp = mapToPtr();
-        if ((execve(commandpath.c_str(), argv, envp)) < 0)
-        {
-            std::cerr << "Exec :"<< strerror(errno) << ":" << CgiScript << std::endl;
-            exit(-1);
-        }
+        execve(commandpath.c_str(), argv, envp);
+        std::cerr << "Exec failed: " << strerror(errno) << ": " << CgiScript << std::endl;
+        exit(-1);
     } 
-    else
-    {
-        close(stdin_pipe[0]);
+    else {
+        if (fd != -1)
+            close(fd);
         close(stdout_pipe[1]);
 
-        if (req.getReqHeader().getHeader().find("Content-Length") != req.getReqHeader().getHeader().end()) {
-            write(stdin_pipe[1], req.getReqBody().getFullBody().c_str(), req.getReqBody().getFullBody().size());
-        }
-        close(stdin_pipe[1]);
-
-        char buffer[1024];
+        int status;
+        waitpid(pid, &status, 0);
+                char buffer[1024];
         std::string response;
         ssize_t bytesRead;
-        while ((bytesRead = read(stdout_pipe[0], buffer, sizeof(buffer) - 1)) > 0) {
+        while ((bytesRead = read(stdout_pipe[0], buffer, sizeof(buffer) - 1)) > 0){
             buffer[bytesRead] = '\0';
             response += buffer;
         }
         close(stdout_pipe[0]);
-
-        int status;
-        waitpid(pid, &status, 0); 
-        int finelStatus = WEXITSTATUS(status);
-        if (finelStatus == -1)
-            throw Server::ServerException("Exit failed", 500);
+        if (bytesRead == -1)
+            throw Server::ServerException("500 error while reading from pipe", 500);
+        if (WIFSIGNALED(status)) {
+            std::cerr << "CGI process terminated by signal " << WTERMSIG(status) << std::endl;
+            throw Server::ServerException("500 CGI process terminated abnormally", 500);
+        }
+        if (WEXITSTATUS(status) != 0) {
+            std::cerr << "CGI FAILED:" << response << std::endl;
+            std::cerr << "CGI process exited with status " << WEXITSTATUS(status) << std::endl;
+            throw Server::ServerException("500 CGI execution failed", 500);
+        }
+        
 
         cgiResponse = "HTTP/1.1 200 OK\r\n";
         cgiResponse += response;
+        // std::cout << cgiResponse << std::endl;
     }
 }
 
