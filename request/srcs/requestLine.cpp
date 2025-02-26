@@ -65,6 +65,7 @@ void requestLine::setReqTarget(const std::string url)
     trim(tmp);
     urlFormat(tmp);
     this->reqTarget = tmp;
+    this->reqTarget = urlDecode(this->reqTarget);
 }
 
 void requestLine::setHttpVers(const std::string vers)
@@ -93,6 +94,7 @@ requestLine::requestLine(const std::string requestLine)
 
     setMethod(method);
     this->FullTarget = url;
+    // std::cout << "FullTarget: " << this->FullTarget << std::endl;
     setHttpVers(vers);
     splitParamsFromReqTarget();
 }

@@ -358,8 +358,12 @@ if (isset($_FILES['file'])) {
                 <input type="text" name="name" required>
             </div>
             <div style="margin: 1rem 0;">
-                <label>Username:</label>
-                <input type="text" name="username" required>
+                <label>email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div style="margin: 1rem 0;">
+                <label>message:</label>
+                <textarea id="message" name="message" rows="5"></textarea>
             </div>
             <div style="margin: 1rem 0;">
                 <label>upload file:</label>
@@ -375,6 +379,22 @@ if (isset($_FILES['file'])) {
             <div style="margin: 1rem 0;">
                 <label>Item Name:</label>
                 <input type="text" name="item_name" required>
+            </div>
+            <button type="submit" class="test-btn">Delete</button>
+        </form>
+</div>
+
+<!-- <div id="uploadModal" class="preference-modal"> -->
+<div>
+            </br>
+            </br>
+            </br>
+            </br>
+        <form id="uploadForm" action="/uploads" method="POST" enctype="multipart/form-data">
+            <h3>upload Item</h3>
+            <div style="margin: 1rem 0;">
+                <label>Item Name:</label>
+                <input type="file" name="item_name" required>
             </div>
             <button type="submit" class="test-btn">Delete</button>
         </form>
@@ -480,13 +500,11 @@ if (isset($_FILES['file'])) {
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('GET')">GET</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('POST')">POST</button>
+                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('POST')">POST using UPLOAD</button>
+            <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
+                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testCGI()">POST using CGI</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('DELETE')">DELETE</button>
-            <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="document.getElementById('upload-form').style.display='block'">Upload</button>
-            <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testCGI()">Test CGI</button>
         <button class="test-btn" onclick="showPreferences()" 
                 style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>">

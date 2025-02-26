@@ -340,6 +340,7 @@ bool Response::checkUploadRoute()
         resourcePath << matchedRoute.root;
         if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
             resourcePath << "/";
+        std::cout << resourcePath.str() << "-------------" << std::endl;
         req.getReqBody().saveFile(resourcePath.str());
         return true;
     }

@@ -7,7 +7,7 @@ request::request(const std::string request, Server::Config *server)
     this->requestString = std::string(request);
     srv = server;
     std::string line;
-
+    // std::cout << "request: " << request << std::endl;
     // Put the request in a stream and read it line by line
     std::istringstream requestStream(request);
 
