@@ -5,6 +5,7 @@
 bool requestBody::saveFile(const std::string& filePath)
 {
     bool checkfiles = true;
+    std::cout << "size :" << body.size() << std::endl; 
     for (std::vector<formData>::iterator it = body.begin(); it != body.end(); it++)
     {
         if (it->type == OCTET_STREAM || (it->formFields.find("filename") != it->formFields.end() && !it->formFields["filename"].empty()))

@@ -70,7 +70,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    std::cout << "matched route :" << matchedRoute.path << std::endl;
+    // std::cout << "matched route :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -134,7 +134,6 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
     if (!routeRoot.empty() && routeRoot[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
-    std::cout << "here routeRoot " << routeRoot << std::endl;
     if (!path.empty() && path[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     if (resourcePath.str()[resourcePath.str().size() - 1] == '/' && path == "/")
@@ -347,6 +346,12 @@ bool Response::checkIndexed()
     resource.close();
     return true;
 }
+bool checkDirUrl(std::string dir, std::string target)
+{
+    if (isDirectory(dir + "/" + target))
+        return true;
+    return false;
+}
 bool Response::checkUploadRoute()
 {
     if (matchedRoute.upload)
@@ -361,10 +366,13 @@ bool Response::checkUploadRoute()
         resourcePath << matchedRoute.root;
         if (resourcePath.str()[resourcePath.str().size() - 1] != '/' &&  req.getReqLine().getReqTarget()[0] != '/')
             resourcePath << "/";
-        resourcePath << req.getReqLine().getReqTarget();
-        if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
-            resourcePath << "/";
-        std::cout << resourcePath.str() << std::endl;
+        // i
+        if (checkDirUrl(resourcePath.str(), req.getReqLine().getReqTarget()))
+        {
+            resourcePath << req.getReqLine().getReqTarget();
+            if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
+                resourcePath << "/";
+        }
         if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) == 0)
         {
             if (req.getReqBody().saveFile(resourcePath.str()))
@@ -373,7 +381,9 @@ bool Response::checkUploadRoute()
         else if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) != 0)
             throw Server::ServerException("Iternal server error", 500);
         else
+        {
             throw Server::ServerException("file not found", 404);
+        }
         return true;
     }
     return false;
