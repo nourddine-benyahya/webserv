@@ -51,6 +51,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
+    // std::cout << "matched route :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -114,10 +115,8 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
     if (!routeRoot.empty() && routeRoot[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
-    // std::cout << "BEFORE : " << resourcePath.str() << " " << path[0] << std::endl;
     if (!path.empty() && path[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
-    // std::cout << "AFTER : " << resourcePath.str() << std::endl;
     if (resourcePath.str()[resourcePath.str().size() - 1] == '/' && path == "/")
         return ;
     resourcePath << path;
@@ -338,10 +337,18 @@ bool Response::checkUploadRoute()
             resourcePath << "/";
         }
         resourcePath << matchedRoute.root;
+        if (resourcePath.str()[resourcePath.str().size() - 1] != '/' &&  req.getReqLine().getReqTarget()[0] != '/')
+            resourcePath << "/";
+        resourcePath << req.getReqLine().getReqTarget();
         if (resourcePath.str()[resourcePath.str().size() - 1] != '/')
             resourcePath << "/";
-        std::cout << resourcePath.str() << "-------------" << std::endl;
-        req.getReqBody().saveFile(resourcePath.str());
+        std::cout << resourcePath.str() << std::endl;
+        if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) == 0)
+            req.getReqBody().saveFile(resourcePath.str());
+        else if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) != 0)
+            throw Server::ServerException("Iternal server error", 500);
+        else
+            throw Server::ServerException("file not found", 404);
         return true;
     }
     return false;
@@ -358,9 +365,9 @@ void Response::post()
         {
             throw Server::ServerException("Method not allowed ", 405);
         }
-        checkResource();
         if (checkUploadRoute())
         {
+            // std::cout << "HERE" << std::endl;
             header = "HTTP/1.1 201 Created\r\nContent-Type: text/html\r\nContent-Length: ";
             body = "content created";
             std::stringstream lengthStr;
@@ -368,6 +375,7 @@ void Response::post()
             response = header + lengthStr.str() + "\r\n\r\n" + body;
             return ;
         }
+        checkResource();
         if (checkCgiResource())
             return;
         throw Server::ServerException("forbidden", 403); 

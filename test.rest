@@ -1,0 +1,7 @@
+### Example HTTP/1.1 request
+GET http://localhost/index%20index.html HTTP/1.1
+Host: localhost
+
+### Example HTTP/2 request
+# GET http://localhost/index HTTP2.php
+# Host: localhost
