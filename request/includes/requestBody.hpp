@@ -27,5 +27,5 @@ class requestBody
         //getters
         std::string &getFullBody();
         // save content of the file
-        void saveFile(const std::string& filePath);
+        bool saveFile(const std::string& filePath);
 };

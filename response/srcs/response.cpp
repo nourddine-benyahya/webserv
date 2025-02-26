@@ -35,12 +35,31 @@ std::string getContentType(const std::string& extension) {
     }
     return "text/plain";
 }
+std::string Mytrim(std::string str)
+{
+    std::string whiteSpaces(" \t\f\v\n\r/");
 
+    while(whiteSpaces.find(str[0]) != std::string::npos) str.erase(str.begin());
+    while(whiteSpaces.find(str[str.size() - 1]) != std::string::npos) str.erase(str.size() - 1);
+    return (str);
+}
+std::map<std::string, Route>::iterator myFind(std::map<std::string, Route>& m, const std::string& path)
+{
+    std::map<std::string, Route>::iterator it = m.begin();
+    while (it != m.end())
+    {
+        if (Mytrim(it->first) == Mytrim(path))
+            return it;
+        ++it;
+    }
+    return m.end();
+}
 void Response::matchRoute()
 {
     foundRoute = false;
     std::map<std::string , Route>::iterator it = srv->routes.begin();
-    it = srv->routes.find(req.getReqLine().getReqTarget());
+    // it = srv->routes.find((req.getReqLine().getReqTarget()));
+    it = myFind(srv->routes, req.getReqLine().getReqTarget());
     if (it != srv->routes.end())
     {
         matchedRoute = it->second;
@@ -51,7 +70,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    // std::cout << "matched route :" << matchedRoute.path << std::endl;
+    std::cout << "matched route :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -115,6 +134,7 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
     if (!routeRoot.empty() && routeRoot[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     resourcePath << routeRoot;
+    std::cout << "here routeRoot " << routeRoot << std::endl;
     if (!path.empty() && path[0] != '/' && resourcePath.str()[resourcePath.str().size() - 1] != '/')
         resourcePath << "/";
     if (resourcePath.str()[resourcePath.str().size() - 1] == '/' && path == "/")
@@ -124,8 +144,10 @@ void checkSlash(std::stringstream &resourcePath, std::string root, std::string &
 void Response::redirectToFolder()
 {
     std::stringstream resourcePath;
-
-    resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
+    if (req.getReqLine().getMethod() == GET)
+        resourcePath << "HTTP/1.1 301 Moved Permanently\r\n";
+    else
+        resourcePath << "HTTP/1.1 308 Permanent Redirect\r\n";
     resourcePath << "Location: http://" + srv->getName();
     resourcePath << ":";
     resourcePath << srv->getPort();
@@ -344,7 +366,10 @@ bool Response::checkUploadRoute()
             resourcePath << "/";
         std::cout << resourcePath.str() << std::endl;
         if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) == 0)
-            req.getReqBody().saveFile(resourcePath.str());
+        {
+            if (req.getReqBody().saveFile(resourcePath.str()))
+                throw Server::ServerException("Bad Request", 400);
+        }
         else if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) != 0)
             throw Server::ServerException("Iternal server error", 500);
         else
@@ -355,6 +380,17 @@ bool Response::checkUploadRoute()
 }
 void Response::post()
 {
+    std::stringstream resourcePath;
+    checkSlash(resourcePath, srv->getRoot(), matchedRoute.root, req.getReqLine().getReqTarget());
+    reqResourcePath = resourcePath.str();
+    if (isDirectory(reqResourcePath))
+    {
+        if (req.getReqLine().getReqTarget()[req.getReqLine().getReqTarget().size() - 1] != '/')
+        {
+            redirectToFolder();
+            return ;
+        }
+    }
     if (foundRoute == false)
     {
         throw Server::ServerException("404 not found", 404);
@@ -367,7 +403,6 @@ void Response::post()
         }
         if (checkUploadRoute())
         {
-            // std::cout << "HERE" << std::endl;
             header = "HTTP/1.1 201 Created\r\nContent-Type: text/html\r\nContent-Length: ";
             body = "content created";
             std::stringstream lengthStr;
@@ -400,7 +435,6 @@ void Response::Delete()
 {
     if (foundRoute == false)
     {
-        std::cout << "YO ?" << std::endl;
         throw Server::ServerException("404 not found", 404);
     }
     else if (foundRoute)

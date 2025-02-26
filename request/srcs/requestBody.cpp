@@ -2,21 +2,27 @@
 
 
 // Helper function to save file content
-void requestBody::saveFile(const std::string& filePath)
+bool requestBody::saveFile(const std::string& filePath)
 {
+    bool checkfiles = true;
     for (std::vector<formData>::iterator it = body.begin(); it != body.end(); it++)
     {
-        if (it->type == OCTET_STREAM || it->formFields.find("filename") != it->formFields.end())
+        if (it->type == OCTET_STREAM || (it->formFields.find("filename") != it->formFields.end() && !it->formFields["filename"].empty()))
         {
+            checkfiles = false;
             it->filePath = filePath + it->formFields["filename"];
             std::ofstream outFile(it->filePath.c_str() , std::ios::binary);
             if (outFile)
             {
                 if (!it->fileBuffer.empty())
+                {
+
                     outFile.write(&it->fileBuffer[0], it->fileBuffer.size());
+                }
             }
         }
     }
+    return checkfiles;
 }
 
 void requestBody::setType(const std::string type)
