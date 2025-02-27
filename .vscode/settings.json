@@ -6,9 +6,14 @@
         "sstream": "cpp",
         "iosfwd": "cpp",
         "map": "cpp",
+<<<<<<< HEAD
         "memory": "cpp",
         "utility": "cpp",
         "vector": "cpp",
+=======
+        "filesystem": "cpp",
+        "istream": "cpp",
+>>>>>>> origin/c98Debuger
         "__bit_reference": "cpp",
         "__config": "cpp",
         "__debug": "cpp",
@@ -49,10 +54,17 @@
         "iomanip": "cpp",
         "ios": "cpp",
         "iostream": "cpp",
+<<<<<<< HEAD
         "istream": "cpp",
         "iterator": "cpp",
         "limits": "cpp",
         "locale": "cpp",
+=======
+        "iterator": "cpp",
+        "limits": "cpp",
+        "locale": "cpp",
+        "memory": "cpp",
+>>>>>>> origin/c98Debuger
         "mutex": "cpp",
         "new": "cpp",
         "optional": "cpp",
@@ -66,6 +78,12 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "typeinfo": "cpp",
+<<<<<<< HEAD
         "unordered_map": "cpp"
+=======
+        "unordered_map": "cpp",
+        "utility": "cpp",
+        "vector": "cpp"
+>>>>>>> origin/c98Debuger
     }
 }

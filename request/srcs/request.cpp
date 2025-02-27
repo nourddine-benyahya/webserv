@@ -4,10 +4,11 @@
 
 request::request(const std::string request, Server::Config *server)
 {
+//     std::cout << "SERVER SALA KHDEMTOOOOOOOO" << std::endl;
+//     std::cout << "REQUEST : " << request << std::endl;
     this->requestString = std::string(request);
     srv = server;
     std::string line;
-    // std::cout << "request: " << request << std::endl;
     // Put the request in a stream and read it line by line
     std::istringstream requestStream(request);
 
@@ -64,4 +65,40 @@ request::request(const std::string request, Server::Config *server)
         std::string response = e.createHTTPErrorHeader(body.length()) + body;
         throw Server::ServerException(e.what(), response, e.getStatus());
 	}
+
+
+    //print requist line
+    // std::cout << "---------------------request line : ------------------" << std::endl;
+    // std::cout << "Method : " << reqLine.getMethod() << std::endl;
+    // std::cout << "Full URI : " << reqLine.getReqFullTarget() << std::endl;
+    // std::cout << "URI : " << reqLine.getReqTarget() << std::endl;
+    // std::cout << "HTTP Version : " << reqLine.getHttpVers() << std::endl;
+    // std::cout << "params : "  << std::endl;
+    // for (std::map<std::string, std::string>::iterator it = reqLine.getParams().begin(); it != reqLine.getParams().end(); ++it)
+    //     std::cout << it->first << " : " << it->second << std::endl;
+    // std::cout << "---------------------end request line : ------------------" << std::endl;
+
+
+    // std::cout << "--------------------- header : ------------------" << std::endl;
+    // for (std::map<std::string, std::string>::iterator it = reqHeader.getHeader().begin(); it != reqHeader.getHeader().end(); ++it)
+    //     std::cout << it->first << " : " << it->second << std::endl;
+    // std::cout << "---------------------end  header : ------------------" << std::endl;
+
+
+    // std::cout << "--------------------- body : ------------------" << std::endl;
+    // std::cout << "type : " << reqBody.getType() << std::endl;
+    // std::cout << "all body" << std::endl;
+    // for (std::vector<formData>::iterator it = reqBody.getBody().begin() ; it != reqBody.getBody().end(); it++)
+    // {
+    //     std::cout << "type : " << it->type << std::endl;
+    //     if (it->filePath.size() > 0)
+    //         std::cout << "filePath : " << it->filePath << std::endl;
+    //     if (it->fileBuffer.size() > 0)
+    //         std::cout << "fileBuffer : " << it->fileBuffer.size() << std::endl;
+    //     std::cout << "formFields : " << std::endl;
+    //     for (std::map<std::string, std::string>::iterator it2 = it->formFields.begin(); it2 != it->formFields.end(); ++it2)
+    //         std::cout << it2->first << " : " << it2->second << std::endl;
+    // }
+    // std::cout << "---------------------end  body : ------------------" << std::endl;
+
 }

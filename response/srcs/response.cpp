@@ -70,7 +70,7 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    // std::cout << "matched route :" << matchedRoute.path << std::endl;
+    std::cout << "matched route :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
