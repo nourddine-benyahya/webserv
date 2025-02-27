@@ -85,16 +85,13 @@ requestLine::requestLine(const std::string requestLine)
 
     std::string method = tmp.substr(0, tmp.find(" "));
     std::string url = tmp.substr(tmp.find(" ") + 1, tmp.rfind(" ") - tmp.find(" ") - 1);
-    // std::cout  << "-------original-------" << decodurledUrl << "------------" << std::endl;
     setReqTarget(url);
     std::string decodedUrl = urlDecode(url);
     url = decodedUrl;
-    // std::cout  << "-------decoded-------" << decodedUrl << "------------" << std::endl;
     std::string vers = tmp.substr(tmp.rfind(" ") + 1);
 
     setMethod(method);
     this->FullTarget = url;
-    // std::cout << "FullTarget: " << this->FullTarget << std::endl;
     setHttpVers(vers);
     splitParamsFromReqTarget();
 }
