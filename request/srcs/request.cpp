@@ -5,8 +5,6 @@
 request::request(const std::string request, Server::Config *server)
 {
     try {
-        // std::cout << "SERVER SALA KHDEMTOOOOOOOO" << std::endl;
-        // std::cout << "REQUEST : " << request << std::endl;
         this->requestString = std::string(request);
         srv = server;
         std::string line;
@@ -19,7 +17,6 @@ request::request(const std::string request, Server::Config *server)
             reqLine = requestLine(line);
         } catch (exeptions ex)
         {
-            // std::cout << "err in requist line " << std::endl;
             throw Server::ServerException(ex.getMsg(), ex.getStatus());
         }
 
@@ -30,7 +27,6 @@ request::request(const std::string request, Server::Config *server)
             reqHeader.setHeader(line);
         }
 
-        // printRequestHeader();
 
         //check Request if Transfer-Encoding header exist and is different to “chunked”
         if (reqHeader.getHeader().find("Transfer-Encoding") != reqHeader.getHeader().end()
@@ -70,7 +66,7 @@ request::request(const std::string request, Server::Config *server)
     }
 
 
-    // // print requist line
+    // print requist line
     // std::cout << "--------*********------******---*********----request line : -------**************----********---*******----" << std::endl;
     // std::cout << "Method : " << reqLine.getMethod() << std::endl;
     // std::cout << "Full URI : " << reqLine.getReqFullTarget() << std::endl;
