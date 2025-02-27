@@ -348,6 +348,12 @@ bool Response::checkIndexed()
 }
 bool checkDirUrl(std::string dir, std::string target)
 {
+    std::cout << dir + "/" + target << std::endl;
+    if (!fileExists(dir + "/" + target))
+    {
+
+        throw Server::ServerException("file not found", 404);
+    }
     if (isDirectory(dir + "/" + target))
         return true;
     return false;
@@ -374,6 +380,8 @@ bool Response::checkUploadRoute()
         }
         if (fileExists(resourcePath.str()) && access(resourcePath.str().c_str(), R_OK) == 0)
         {
+            if (isDirectory(resourcePath.str()) && resourcePath.str()[resourcePath.str().size() - 1] != '/')
+                resourcePath << "/";
             if (req.getReqBody().saveFile(resourcePath.str()))
                 throw Server::ServerException("Bad Request", 400);
         }
