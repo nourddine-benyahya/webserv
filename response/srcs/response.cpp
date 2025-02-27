@@ -70,7 +70,6 @@ void Response::matchRoute()
         matchedRoute = srv->routes.find("/")->second;
         foundRoute = true;
     }
-    // std::cout << "matched route :" << matchedRoute.path << std::endl;
 }
 Response::Response(request r, Server::Config *server)
 {
@@ -348,7 +347,6 @@ bool Response::checkIndexed()
 }
 bool checkDirUrl(std::string dir, std::string target)
 {
-    std::cout << dir + "/" + target << std::endl;
     if (!fileExists(dir + "/" + target))
     {
 
