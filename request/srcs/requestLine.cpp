@@ -38,7 +38,7 @@ std::string urlDecode(std::string &url)
             decodedString += url[i];
         i++;
     }
-    if (decodedString.find("/..") != std::string::npos || decodedString.find("../") != std::string::npos || decodedString.find("/../") != std::string::npos)
+    if (decodedString.find("/../") != std::string::npos)
         throw exeptions(403, "403 forbidden, directory traversal attack.");
     return decodedString;
 }
