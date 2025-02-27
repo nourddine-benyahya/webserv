@@ -23,25 +23,30 @@ void initializeMimeTypes() {
     mimeTypes[".jpg"] = "image/jpeg";
     mimeTypes[".jpeg"] = "image/jpeg";
     mimeTypes[".gif"] = "image/gif";
+    mimeTypes[".txt"] = "text/plain";
 }
 std::string getContentType(const std::string& extension) {
     if (mimeTypes.empty()) {
         initializeMimeTypes();
     }
-
+    // if (extension.empty())
+    //     return "text/plain";
     std::map<std::string, std::string>::iterator it = mimeTypes.find(extension);
     if (it != mimeTypes.end()) {
         return it->second;
     }
-    return "text/plain";
+    return "application/octet-stream";
 }
-std::string Mytrim(std::string str)
+std::string Mytrim(const std::string& str)
 {
-    std::string whiteSpaces(" \t\f\v\n\r/");
+    if (str.empty()) return str;
 
-    while(whiteSpaces.find(str[0]) != std::string::npos) str.erase(str.begin());
-    while(whiteSpaces.find(str[str.size() - 1]) != std::string::npos) str.erase(str.size() - 1);
-    return (str);
+    std::string whiteSpaces(" \t\f\v\n\r/");
+    size_t start = str.find_first_not_of(whiteSpaces);
+    if (start == std::string::npos) return "";
+    size_t end = str.find_last_not_of(whiteSpaces);
+    std::string tst = str.substr(start, end - start + 1);
+    return tst;
 }
 std::map<std::string, Route>::iterator myFind(std::map<std::string, Route>& m, const std::string& path)
 {
@@ -58,7 +63,6 @@ void Response::matchRoute()
 {
     foundRoute = false;
     std::map<std::string , Route>::iterator it = srv->routes.begin();
-    // it = srv->routes.find((req.getReqLine().getReqTarget()));
     it = myFind(srv->routes, req.getReqLine().getReqTarget());
     if (it != srv->routes.end())
     {
@@ -76,9 +80,9 @@ Response::Response(request r, Server::Config *server)
     req = r;
     srv = server;
     indexed = false;
-    matchRoute();
     try
     {
+        matchRoute();
         if (checkRedir() == true)
         {
             return;
@@ -105,6 +109,11 @@ Response::Response(request r, Server::Config *server)
         response = e.createHTTPErrorHeader(body.length()) + body;
 		throw Server::ServerException(e.what(), response, e.getStatus());
 	}
+    catch (std::exception &e)
+    {
+        body = this->srv->getErrorPage(500);
+		throw Server::ServerException(e.what(), "iternal server error", 500);
+    }
 }
 void Response::checkFile(std::string fileName)
 {
@@ -318,7 +327,9 @@ void Response::get()
             return ;
         if (checkCgiResource())
             return;
-        std::string extension = reqResourcePath.substr(reqResourcePath.find_last_of('.'));
+        std::string extension;
+        if (reqResourcePath.find('.') != std::string::npos)
+            extension = reqResourcePath.substr(reqResourcePath.find_last_of('.'));
         std::string contentType = getContentType(extension);
         header = "HTTP/1.1 200 OK\r\nContent-Type: " + contentType + "\r\nContent-Length: ";
         body = getContent(reqResourcePath);

@@ -279,7 +279,6 @@ void ServerMonitor::run()
 					request req(tmpSockets[i].srv->getRecvBuffer(), tmpSockets[i].srv->getConfig());
 					Response res(req, tmpSockets[i].srv->getConfig());
 					response = res.response;
-						logs << " with status " << 200 << " OK";
 				}
 				catch (Server::ServerException &e)
 				{
