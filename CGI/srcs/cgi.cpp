@@ -102,7 +102,7 @@ void cgi::runCgi()
     
     if (req.getReqHeader().getHeader().find("Content-Length") != req.getReqHeader().getHeader().end())
     {
-        fd = open("tmp", O_CREAT | O_RDWR | O_TRUNC, 0666);
+        fd = open("/tmp/.tmp", O_CREAT | O_WRONLY | O_TRUNC, 0666);
         if (fd == -1)
             throw Server::ServerException("500 error while opening tmp file", 500);
         if (fd == -1)
@@ -112,7 +112,7 @@ void cgi::runCgi()
         if (written == -1)
             throw Server::ServerException("500 error while writing in file", 500);
         close(fd);
-        fd = open("tmp", O_RDONLY);
+        fd = open("/tmp/.tmp", O_RDONLY);
         if (fd == -1)
             throw Server::ServerException("500 error while opening tmp file", 500);
     }
@@ -143,12 +143,16 @@ void cgi::runCgi()
     } 
     else {
         if (fd != -1)
+        {
             close(fd);
+            std::remove("/tmp/.tmp");
+        }
         close(stdout_pipe[1]);
 
         int status;
         waitpid(pid, &status, 0);
                 char buffer[1024];
+
         std::string response;
         ssize_t bytesRead;
         while ((bytesRead = read(stdout_pipe[0], buffer, sizeof(buffer) - 1)) > 0){
@@ -171,7 +175,6 @@ void cgi::runCgi()
 
         cgiResponse = "HTTP/1.1 200 OK\r\n";
         cgiResponse += response;
-        // std::cout << cgiResponse << std::endl;
     }
 }
 

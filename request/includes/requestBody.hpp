@@ -26,6 +26,8 @@ class requestBody
         requestBody(std::istringstream &stream, requestHeader header);
         //getters
         std::string &getFullBody();
+        dataType &getType(){return type;};
+        std::vector<formData> &getBody(){return body;};
         // save content of the file
         void saveFile(const std::string& filePath);
 };
