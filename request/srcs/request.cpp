@@ -4,8 +4,8 @@
 
 request::request(const std::string request, Server::Config *server)
 {
-//     std::cout << "SERVER SALA KHDEMTOOOOOOOO" << std::endl;
-//     std::cout << "REQUEST : " << request << std::endl;
+    // std::cout << "SERVER SALA KHDEMTOOOOOOOO" << std::endl;
+    // std::cout << "REQUEST : " << request << std::endl;
     this->requestString = std::string(request);
     srv = server;
     std::string line;
