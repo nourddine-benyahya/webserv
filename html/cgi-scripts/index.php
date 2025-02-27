@@ -280,18 +280,22 @@ if (isset($_FILES['file'])) {
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('GET')">GET</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('UPLOAD')">POST using UPLOAD</button>
+                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('UPLOAD')">POS UPLOAD</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testCGI()">POST using php CGI</button>
+                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testCGI()">POST php CGI</button>
                             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testPyCGI()">POST using python CGI</button>
+                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testPyCGI()">POST python CGI</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('DELETE')">DELETE</button>
         <button class="test-btn" onclick="showPreferences()" 
                 style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>">
-            Test Session & Cookie
+            Session & Cookie
         </button>
+        <button class="test-btn" onclick="window.location.href = '/cgi-scripts';" 
+                style="<?php echo isset($_COOKIE['user_color']) ? 
+                'background: '.$_COOKIE['user_color'] : ''; ?>">
+            List Dires
         </div>
 
         <!-- Example Config File -->
