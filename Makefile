@@ -15,7 +15,7 @@ INCLUDES_FOLDERS=   server	Logger	CGI/includes \
 
 INCLUDES=   $(foreach d, $(INCLUDES_FOLDERS), -I $d)
 
-CFLAGS= -Wall -Wextra -Werror --std=c++98
+CFLAGS= -Wall -Wextra -Werror --std=c++98 -fsanitize=address -g
 
 all: $(NAME) phpInit
 	
