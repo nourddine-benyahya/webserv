@@ -105,8 +105,6 @@ void cgi::runCgi()
         fd = open("/tmp/.tmp", O_CREAT | O_WRONLY | O_TRUNC, 0666);
         if (fd == -1)
             throw Server::ServerException("500 error while opening tmp file", 500);
-        if (fd == -1)
-            throw Server::ServerException("500 error while opening tmp file", 500);
         const std::string &bodydata = req.getReqBody().getFullBody();
             ssize_t written = write(fd, bodydata.c_str(), bodydata.size());
         if (written == -1)

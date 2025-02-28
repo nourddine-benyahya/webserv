@@ -7,6 +7,8 @@ from email.policy import default
 
 # Ensure the upload directory exists
 UPLOAD_DIR = 'html/cgi-scripts/uploads'
+get_UPLOAD_DIR = './uploads'
+
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
@@ -72,7 +74,7 @@ if file_received:
     file_section = (
         "<h2 class='section-title'>File Received</h2>"
         "<div class='file-download'>"
-        "<a href='" + os.path.join(UPLOAD_DIR, filename).replace(os.sep, '/') + "' class='download-btn'>"
+        "<a href='" + os.path.join(get_UPLOAD_DIR, filename).replace(os.sep, '/') + "' class='download-btn'>"
         "<i class='fas fa-download'></i> "
         "Download " + html.escape(filename) +
         "</a>"
