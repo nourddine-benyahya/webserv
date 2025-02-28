@@ -95,7 +95,7 @@ void cgi::runCgi()
 
     std::string commandpath = cgiEnv[ext];
     if (!fileExists(commandpath.c_str()))
-        throw Server::ServerException("500 cgi interpreter " + commandpath + " not correct for " + ext, 500);
+        throw Server::ServerException("500 cgi interpreter " + commandpath + " not correct or permition not seted for " + ext, 500);
 
     char *const argv[] = {(char *)commandpath.c_str(), (char *)CgiScript.c_str(), NULL};
 
@@ -163,12 +163,9 @@ void cgi::runCgi()
         if (bytesRead == -1)
             throw Server::ServerException("500 error while reading from pipe", 500);
         if (WIFSIGNALED(status)) {
-            std::cerr << "CGI process terminated by signal " << WTERMSIG(status) << std::endl;
             throw Server::ServerException("500 CGI process terminated abnormally", 500);
         }
         if (WEXITSTATUS(status) != 0) {
-            std::cerr << "CGI FAILED:" << response << std::endl;
-            std::cerr << "CGI process exited with status " << WEXITSTATUS(status) << std::endl;
             throw Server::ServerException("500 CGI execution failed", 500);
         }
         

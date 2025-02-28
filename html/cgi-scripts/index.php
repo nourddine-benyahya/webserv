@@ -174,7 +174,7 @@ if (isset($_FILES['file'])) {
                 <label>Item Name:</label>
                 <input type="file" name="item_name" required>
             </div>
-            <button type="submit" class="test-btn">Delete</button>
+            <button type="submit" class="test-btn">Upload</button>
         </form>
         </div>
     </div>
@@ -198,7 +198,7 @@ if (isset($_FILES['file'])) {
             <h2 class="section-title">About the Project</h2>
             <p>WebServ is a custom HTTP server implementation developed as part of the 42 School curriculum. This lightweight web server supports core HTTP features and can be configured through config files.</p>
             <div class="github-repo">
-                <a href="[YOUR_GITHUB_REPO_URL]" target="_blank" class="repo-link">
+                <a href="https://github.com/1337-Med/42-webserv" target="_blank" class="repo-link">
                     <i class="fab fa-github"></i>
                     View on GitHub
                 </a>
@@ -213,13 +213,13 @@ if (isset($_FILES['file'])) {
                 <img src="./assets/nbenyahy.jpg" alt="Nourddine Benyahya" class="member-img">
                 <h3>Nourddine Benyahya</h3>
                 <div class="links">
-                    <a href="[Github URL]" target="_blank" aria-label="GitHub">
+                    <a href="https://github.com/nourddine-benyahya  " target="_blank" aria-label="GitHub">
                         <i class="fab fa-github"></i>
                     </a>
-                    <a href="[LinkedIn URL]" target="_blank" aria-label="LinkedIn">
+                    <a href="https://www.linkedin.com/in/nourddine-benyahya/" target="_blank" aria-label="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                     </a>
-                    <a href="[42 Intra URL]" target="_blank" aria-label="42 Intra">
+                    <a href="https://profile.intra.42.fr/users/nbenyahy" target="_blank" aria-label="42 Intra">
                         <i class="fa-42"></i>
                     </a>
                 </div>
@@ -230,13 +230,13 @@ if (isset($_FILES['file'])) {
                 <img src="./assets/amejdoub.jpg" alt="Anas Mejdoub" class="member-img">
                 <h3>Anas Mejdoub</h3>
                 <div class="links">
-                    <a href="[Github URL]" target="_blank" aria-label="GitHub">
+                    <a href="https://github.com/anas-mejdoub" target="_blank" aria-label="GitHub">
                         <i class="fab fa-github"></i>
                     </a>
-                    <a href="[LinkedIn URL]" target="_blank" aria-label="LinkedIn">
+                    <a href="https://www.linkedin.com/in/anas-mejdoub-ba846a251/" target="_blank" aria-label="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                     </a>
-                    <a href="[42 Intra URL]" target="_blank" aria-label="42 Intra">
+                    <a href="https://profile.intra.42.fr/users/amejdoub" target="_blank" aria-label="42 Intra">
                         <i class="fa-42"></i>
                     </a>
                 </div>
@@ -246,13 +246,13 @@ if (isset($_FILES['file'])) {
                 <img src="./assets/abounab.jpg" alt="Abdellah Bounab" class="member-img">
                 <h3>Abdellah Bounab</h3>
                 <div class="links">
-                    <a href="[Github URL]" target="_blank" aria-label="GitHub">
+                    <a href="https://github.com/Abdellahbounab" target="_blank" aria-label="GitHub">
                         <i class="fab fa-github"></i>
                     </a>
                     <a href="https://www.linkedin.com/in/abdellah-bounab" target="_blank" aria-label="LinkedIn">
                         <i class="fab fa-linkedin"></i>
                     </a>
-                    <a href="[42 Intra URL]" target="_blank" aria-label="42 Intra">
+                    <a href="https://profile.intra.42.fr/users/abounab" target="_blank" aria-label="42 Intra">
                         <i class="fa-42"></i>
                     </a>
                 </div>
@@ -280,7 +280,7 @@ if (isset($_FILES['file'])) {
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('GET')">GET</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
-                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('UPLOAD')">POS UPLOAD</button>
+                'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testMethod('UPLOAD')">POST UPLOAD</button>
             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
                 'background: '.$_COOKIE['user_color'] : ''; ?>" onclick="testCGI()">POST php CGI</button>
                             <button class="test-btn" style="<?php echo isset($_COOKIE['user_color']) ? 
@@ -329,7 +329,7 @@ if (isset($_FILES['file'])) {
 
             <footer class="reveal">
                 <p>🚀 Built with passion by WebServ Team</p>
-                <p>📍 42 Network - 2023</p>
+                <p>📍 42 Network - 1337 Med - 2025</p>
             </footer>
     </div>
     <script src="script.js"></script>

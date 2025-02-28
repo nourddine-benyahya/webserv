@@ -6,7 +6,7 @@ from email.parser import BytesParser
 from email.policy import default
 
 # Ensure the upload directory exists
-UPLOAD_DIR = 'html/uploads'
+UPLOAD_DIR = 'html/cgi-scripts/uploads'
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
@@ -40,6 +40,8 @@ message = ""
 filename = None
 
 # Process each part in the multipart form-data
+
+#if the message is multipart, iterate over the parts
 if msg.is_multipart():
     for part in msg.iter_parts():
         content_disposition = part.get('Content-Disposition', '')
@@ -63,66 +65,65 @@ if msg.is_multipart():
                     elif field_name == 'message':
                         message = value
 
-message = message.replace('\n', '<br>')
-# Generate the HTML response
+# Check if a file was received
+file_received = filename is not None
 
-file_section = f"""
-<h2 class="section-title">File Received</h2>
-<div class="file-download">
-    <a href="{os.path.join(UPLOAD_DIR, filename).replace(os.sep, '/')}" class="download-btn">
-        <i class="fas fa-download"></i>
-        Download {html.escape(filename)}
-    </a>
-</div>
-""" if filename else ""
+if file_received:
+    file_section = (
+        "<h2 class='section-title'>File Received</h2>"
+        "<div class='file-download'>"
+        "<a href='" + os.path.join(UPLOAD_DIR, filename).replace(os.sep, '/') + "' class='download-btn'>"
+        "<i class='fas fa-download'></i> "
+        "Download " + html.escape(filename) +
+        "</a>"
+        "</div>"
+    )
+else:
+    file_section = ""
 
-html_response = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transmission Received</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <div class="transmission-container reveal">
-            <h1 class="title">Transmission Received</h1>
-            
-            <div class="transmission-content">
-                <div class="data-section">
-                    <h2 class="section-title">Text Data</h2>
-                    <div class="data-item">
-                        <span class="data-label">Name:</span>
-                        <span class="data-value">{html.escape(name)}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Email:</span>
-                        <span class="data-value">{html.escape(email)}</span>
-                    </div>
-                    <div class="data-item">
-                        <span class="data-label">Message:</span>
-                        <div class="message-content">{html.escape(message)}</div>
-                    </div>
-                    {file_section}
-                </div>
-            </div>
-            
-            <div class="back-link">
-                <a href="index.php" class="test-btn">
-                    <i class="fas fa-arrow-left"></i>
-                    Return to Main Page
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
-</body>
-</html>
-"""
 
-# Print the HTML response
+html_response = (
+    "<!DOCTYPE html>"
+    "<html lang='en'>"
+    "<head>"
+    "<meta charset='UTF-8'>"
+    "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+    "<title>Transmission Received</title>"
+    "<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'>"
+    "<link rel='stylesheet' href='style.css'>"
+    "</head>"
+    "<body>"
+    "<div class='container'>"
+    "<div class='transmission-container reveal'>"
+    "<h1 class='title'>Transmission Received Using python CGI</h1>"
+    "<div class='transmission-content'>"
+    "<div class='data-section'>"
+    "<h2 class='section-title'>Text Data</h2>"
+    "<div class='data-item'>"
+    "<span class='data-label'>Name:</span>"
+    "<span class='data-value'>" + html.escape(name) + "</span>"
+    "</div>"
+    "<div class='data-item'/>Email:</span>"
+    "<span class='data-value'>" + html.escape(email) + "</span>"
+    "</div>"
+    "<div class='data-item'>"
+    "<span class='data-label'>Message:</span>"
+    "<div class='message-content'>" + html.escape(message).replace('\n', '<br>') + "</div>"
+    "</div>"
+    + file_section +
+    "</div>"
+    "</div>"
+    "<div class='back-link'>"
+    "<a href='index.php' class='test-btn'>"
+    "<i class='fas fa-arrow-left'></i>"
+    "Return to Main Page"
+    "</a>"
+    "</div>"
+    "</div>"
+    "</div>"
+    "<script src='script.js'></script>"
+    "</body>"
+    "</html>"
+)
+
 print(html_response)

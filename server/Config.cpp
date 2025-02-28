@@ -143,6 +143,7 @@ Server::Config &Server::Config::setName(std::string name)
 	int status = getaddrinfo(name.c_str(), NULL, &hints, &res);
 	if (status != 0)
 	{
+		freeaddrinfo(res);
 		this->name = "localhost";
 		return *this;
 	}

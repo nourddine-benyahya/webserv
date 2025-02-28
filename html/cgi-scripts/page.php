@@ -14,7 +14,7 @@ header("Content-Type: text/html");
 <body>
     <div class="container">
         <div class="transmission-container reveal">
-            <h1 class="title">Transmission Received</h1>
+            <h1 class="title">Transmission Received Using php CGI</h1>
             
             <div class="transmission-content">
                 <?php

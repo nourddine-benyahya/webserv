@@ -4,16 +4,12 @@
 
 request::request(const std::string request, Server::Config *server)
 {
-    // std::cout << "SERVER SALA KHDEMTOOOOOOOO" << std::endl;
-    // std::cout << "REQUEST : " << request << std::endl;
-    this->requestString = std::string(request);
-    srv = server;
-    std::string line;
-    // Put the request in a stream and read it line by line
-    std::istringstream requestStream(request);
-
-
     try {
+        this->requestString = std::string(request);
+        srv = server;
+        std::string line;
+        // Put the request in a stream and read it line by line
+        std::istringstream requestStream(request);
 
         std::getline(requestStream, line);
         try {
@@ -21,7 +17,6 @@ request::request(const std::string request, Server::Config *server)
             reqLine = requestLine(line);
         } catch (exeptions ex)
         {
-            std::cout << "err in requist line " << std::endl;
             throw Server::ServerException(ex.getMsg(), ex.getStatus());
         }
 
@@ -32,7 +27,6 @@ request::request(const std::string request, Server::Config *server)
             reqHeader.setHeader(line);
         }
 
-        // printRequestHeader();
 
         //check Request if Transfer-Encoding header exist and is different to “chunked”
         if (reqHeader.getHeader().find("Transfer-Encoding") != reqHeader.getHeader().end()
@@ -65,10 +59,15 @@ request::request(const std::string request, Server::Config *server)
         std::string response = e.createHTTPErrorHeader(body.length()) + body;
         throw Server::ServerException(e.what(), response, e.getStatus());
 	}
+    catch (std::exception &e)
+    {
+        std::string body = this->srv->getErrorPage(500);
+        throw Server::ServerException(e.what(), "Error Exception", 500);
+    }
 
 
-    //print requist line
-    // std::cout << "---------------------request line : ------------------" << std::endl;
+    // print requist line
+    // std::cout << "--------*********------******---*********----request line : -------**************----********---*******----" << std::endl;
     // std::cout << "Method : " << reqLine.getMethod() << std::endl;
     // std::cout << "Full URI : " << reqLine.getReqFullTarget() << std::endl;
     // std::cout << "URI : " << reqLine.getReqTarget() << std::endl;
