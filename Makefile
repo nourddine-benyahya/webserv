@@ -12,10 +12,10 @@ CC= c++
 INCLUDES_FOLDERS=   server	Logger	CGI/includes \
 			request/includes	parser/includes \
 			response/includes
-
+HEADERS = ./CGI/includes/cgi.hpp ./Logger/Logger.hpp ./parser/includes/parser.hpp ./request/includes/exeptions.hpp ./request/includes/parsFuncs.hpp ./request/includes/request.hpp ./request/includes/requestBody.hpp ./request/includes/requestHeader.hpp ./request/includes/requestLine.hpp ./response/includes/response.hpp ./server/Route.hpp ./server/Server.hpp ./server/ServerMonitor.hpp
 INCLUDES=   $(foreach d, $(INCLUDES_FOLDERS), -I $d)
 
-CFLAGS= -Wall -Wextra -Werror --std=c++98 -fsanitize=address -g
+CFLAGS= -Wall -Wextra -Werror --std=c++98
 
 all: $(NAME) phpInit
 	
@@ -29,7 +29,7 @@ $(NAME): $(OBJ)
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 	@echo "Server Created ./"$(NAME)
 
-%.o: %.cpp
+%.o: %.cpp $(HEADERS)
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 	@echo "Object file created for:" $<
 

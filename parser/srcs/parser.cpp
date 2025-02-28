@@ -29,7 +29,7 @@ void parseConfig(std::string path)
 
     if (!file.is_open() || !checkLastFourChars(path, ".conf"))
     {
-        throw Server::ServerException("Config file not valid:" + path);
+        throw Server::ServerException("could not open config file: " + path);
     }
     std::vector<tokens> tk = Tokenizer(file);
     parser(tk);
