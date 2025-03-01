@@ -33,6 +33,12 @@ This program was developed by the **Abdellah, Anas and Nourddin** and covers mul
 
    - Open your browser and go to `http://localhost:80`.
 
+3. **Check the logs:**
+
+   ```sh
+   make logs
+   ```
+
 ## Customization
 
 If you want to change the ports or serve your static website, you can modify the default.conf file and update the Docker service to serve the necessary ports.
