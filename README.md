@@ -6,6 +6,9 @@ This program was developed by the **Abdeellah, Anas and Nourddin** and covers mu
 - File upload and deletion
 - Support for various HTTP methods
 
+![Workflow Diagram](diagram.jpeg)
+
+
 # How to Use This Program
 
 ## Getting Started
