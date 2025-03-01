@@ -135,7 +135,6 @@ void cgi::runCgi()
         close(stdout_pipe[1]);
 
         char **envp = mapToPtr();
-        std::cerr << "execve: " << commandpath << std::endl;
         execve(commandpath.c_str(), argv, envp);
         std::cerr << "Exec failed: " << strerror(errno) << ": " << CgiScript << std::endl;
         exit(-1);
