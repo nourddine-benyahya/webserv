@@ -1,0 +1,9 @@
+services:
+  webserv:
+    image: webserv
+    build: ./42-webserv
+    container_name: webserv_c
+    ports:
+      - "80:80"
+    volumes:
+      - ./42-webserv:/usr/local/42-webserv
