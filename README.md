@@ -1,6 +1,6 @@
 # About This Program
 
-This program was developed by the **Abdeellah, Anas and Nourddin** and covers multiple key aspects of network programming, including:
+This program was developed by the **Abdellah, Anas and Nourddin** and covers multiple key aspects of network programming, including:
 - HTTP request and response handling
 - Multiplexed I/O operations
 - File upload and deletion
