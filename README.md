@@ -33,6 +33,10 @@ This program was developed by the **Abdeellah, Anas and Nourddin** and covers mu
 
    - Open your browser and go to `http://localhost:80`.
 
+## Customization
+
+If you want to change the ports or serve your static website, you can modify the default.conf file and update the Docker service to serve the necessary ports.
+
 ## Stopping and Cleaning Up
 
 - **Stop the running Docker containers:**
