@@ -1,4 +1,4 @@
-# About This Program
+# Webserv : http server in c++ 98 from scratch
 
 This program was developed by the **Abdellah, Anas and Nourddin** and covers multiple key aspects of network programming, including:
 - HTTP request and response handling
