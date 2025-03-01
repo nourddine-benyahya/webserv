@@ -15,7 +15,7 @@ This program was developed by the **Abdellah, Anas and Nourddin** and covers mul
 
 1. **Clone the repository:**
 
-   ```sh
+   ```bash
    git clone <repository-url>
    cd <repository-name>
    ```
