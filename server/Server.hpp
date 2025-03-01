@@ -126,7 +126,6 @@ public:
 
 	private:
 		int server_fd;
-		std::stringstream recvBuffer;
 		//dependencies to build a server
 		Config *conf;
 

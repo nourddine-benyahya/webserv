@@ -2,6 +2,15 @@
 
 ServerMonitor *ServerMonitor::instance = NULL;
 
+
+
+static std::string getRecvBuffer(std::stringstream &recvBuffer){
+	std::string res = recvBuffer.str();
+	recvBuffer.str("");
+		recvBuffer.clear();
+	return res;
+}
+
 static bool rootExist(std::string file)
 {
 	struct stat info;
@@ -154,11 +163,7 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 	FD_SET(new_socket, &master_set);
 	maxFds = (new_socket > maxFds)? new_socket : maxFds;
 
-	ServerAndPort tmp;
-		tmp.port = sockets[i]->getConfig()->getSockets().find(i)->second;
-		tmp.srv = sockets[i];
-		tmp.contentLength = -1;
-	tmpSockets[new_socket] = tmp;
+	tmpSockets[new_socket] = ServerAndPort(sockets[i]->getConfig()->getSockets().find(i)->second, sockets[i]);
 	{
 		std::stringstream ss;
 		ss 	<< "new WebSocket connection established " << new_socket
@@ -169,11 +174,15 @@ void ServerMonitor::acceptNewConnections(int i, std::map<int, ServerAndPort> &tm
 	}
 }
 
+static void setRecvBuffer(std::stringstream &recvBuffer, std::string buffer){
+	recvBuffer << buffer;
+}
+
 void ServerMonitor::fillRecvBuffer(ServerAndPort& sp, std::string buffer) {
-	sp.srv->setRecvBuffer(buffer);
+	setRecvBuffer(sp.recvBuffer, buffer);
 	if (sp.contentLength == -1)
 		sp.contentLength = getContentLenght(buffer);
-	sp.isReady = (sp.contentLength <= sp.srv->getRecvBufferLenght()) ? true : false;
+	sp.isReady = (sp.contentLength <= static_cast<ssize_t>(sp.recvBuffer.str().size())) ? true : false;
 
 	std::stringstream ss;
 	ss << "WebSocket message received from "
@@ -276,7 +285,7 @@ void ServerMonitor::run()
 				std::string response;
 				try
 				{
-					request req(tmpSockets[i].srv->getRecvBuffer(), tmpSockets[i].srv->getConfig());
+					request req(getRecvBuffer(tmpSockets[i].recvBuffer), tmpSockets[i].srv->getConfig());
 					Response res(req, tmpSockets[i].srv->getConfig());
 					response = res.response;
 				}

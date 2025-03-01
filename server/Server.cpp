@@ -38,21 +38,6 @@ int Server::getServerFd(){
 	return this->server_fd;
 }
 
-void Server::setRecvBuffer(std::string buffer){
-	this->recvBuffer << buffer;
-}
-
-std::string Server::getRecvBuffer(){
-	std::string res = this->recvBuffer.str();
-	this->recvBuffer.str("");
-		this->recvBuffer.clear();
-	return res;
-}
-
-int Server::getRecvBufferLenght(){
-	return this->recvBuffer.str().size();
-}
-
 Server::Config* Server::getConfig(){
 	return this->conf;
 }

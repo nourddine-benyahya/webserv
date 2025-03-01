@@ -11,12 +11,33 @@
 
 class Server;
 
-struct ServerAndPort {
-		int port;
-		Server *srv;
-		bool isReady;
-		int contentLength;
-};
+class ServerAndPort {
+	public:
+	int port;
+	Server* srv;
+	ssize_t contentLength;
+	bool isReady;
+	std::stringstream recvBuffer;
+	
+		ServerAndPort() : port(0), srv(NULL), contentLength(-1), isReady(false) {}
+		ServerAndPort(int port, Server *srv) : port(port), srv(srv), contentLength(-1), isReady(false) {}
+	
+		 ServerAndPort(const ServerAndPort& other) 
+        : port(other.port), srv(other.srv), contentLength(other.contentLength), isReady(other.isReady) {
+        recvBuffer.str(other.recvBuffer.str());
+    }
+
+		ServerAndPort& operator=(const ServerAndPort& other) {
+			if (this != &other) {
+				port = other.port;
+				srv = other.srv;
+				contentLength = other.contentLength;
+				recvBuffer.str(other.recvBuffer.str());
+				isReady = other.isReady;
+			}
+			return *this;
+		}
+	};
 
 
 class ServerMonitor {
