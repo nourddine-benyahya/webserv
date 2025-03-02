@@ -16,8 +16,8 @@ This program was developed by the **Abdellah, Anas and Nourddin** and covers mul
 1. **Clone the repository:**
 
    ```bash
-   git clone <repository-url>
-   cd <repository-name>
+   git clone git@github.com:nourddine-benyahya/webserv.git webserv
+   cd webserv
    ```
 
 2. **Build and run the program using Docker Compose:**
